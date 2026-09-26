@@ -1,366 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
   >
 
-  <meta
-    name="theme-color"
-    content="#111111"
-  >
+  <title>El Patrón de las Ofertas</title>
 
-  <meta
-    name="description"
-    content="El Patrón de las Ofertas - Ofertas, cupones y descuentos de Mercado Libre."
-  >
-
-  <title>El Patrón de las Ofertas | Ofertas y Cupones</title>
-
-  <!-- CSS PRINCIPAL -->
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-  <!-- =====================================================
-       HEADER
-  ====================================================== -->
+<header class="top">
 
-  <header class="top">
+  <div class="brand">
 
-    <div class="brand">
+    <span class="skull">💀</span>
 
-      <div class="skull">
-        💀
-      </div>
-
-      <div>
-        <b>EL PATRÓN</b>
-        <small>DE LAS OFERTAS</small>
-      </div>
-
+    <div>
+      <b>EL PATRÓN</b>
+      <small>DE LAS OFERTAS</small>
     </div>
-
-    <a
-      id="whatsappHeader"
-      class="wa"
-      href="#"
-      target="_blank"
-      rel="noopener"
-    >
-      💬 WhatsApp
-    </a>
-
-  </header>
-
-
-  <!-- =====================================================
-       CONTENIDO PRINCIPAL
-  ====================================================== -->
-
-  <main>
-
-    <!-- ===================================================
-         HERO
-    ==================================================== -->
-
-    <section class="hero">
-
-      <div>
-
-        <span class="pill">
-          🔥 OFERTAS DEL DÍA
-        </span>
-
-        <h1>
-          Encuentra ofertas,
-          <br>
-          <strong>cupones y descuentos</strong>
-        </h1>
-
-        <p>
-          Aprovecha las mejores promociones antes de que se terminen.
-        </p>
-
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         CATEGORÍAS
-    ==================================================== -->
-
-    <section class="section categories-section">
-
-      <div class="section-title">
-
-        <h2>
-          🛍️ Categorías
-        </h2>
-
-      </div>
-
-    </section>
-
-    <nav
-      class="categories"
-      id="categories"
-      aria-label="Categorías de ofertas"
-    >
-      <!-- Firebase cargará las categorías aquí -->
-    </nav>
-
-
-    <!-- ===================================================
-         OFERTAS DESTACADAS
-    ==================================================== -->
-
-    <section class="section">
-
-      <div class="section-title">
-
-        <h2>
-          🔥 Ofertas destacadas
-        </h2>
-
-        <span class="section-hint">
-          Desliza →
-        </span>
-
-      </div>
-
-      <div
-        class="slider"
-        id="offers"
-      >
-        <!-- Firebase cargará las ofertas aquí -->
-      </div>
-
-    </section>
-
-
-    <!-- ===================================================
-         MERCADO PAGO
-    ==================================================== -->
-
-    <section
-      class="mp-card"
-      id="mercadopago"
-    >
-      <!-- Firebase cargará la promoción de Mercado Pago -->
-    </section>
-
-
-    <!-- ===================================================
-         CUPONES
-    ==================================================== -->
-
-    <section class="section">
-
-      <div class="section-title">
-
-        <h2>
-          🎟️ Cupones
-        </h2>
-
-        <span class="section-hint">
-          Desliza →
-        </span>
-
-      </div>
-
-      <div
-        id="couponSections"
-      >
-        <!-- Firebase cargará los cupones -->
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- =====================================================
-       WHATSAPP FLOTANTE
-  ====================================================== -->
-
-  <div class="wa-float">
-
-    <a
-      id="whatsappFloat"
-      href="#"
-      target="_blank"
-      rel="noopener"
-      aria-label="Abrir WhatsApp"
-    >
-      💬
-    </a>
 
   </div>
 
+  <a
+    id="whatsappHeader"
+    class="wa"
+    href="https://wa.me/"
+    target="_blank"
+    rel="noopener"
+  >
+    💬 WhatsApp
+  </a>
+
+</header>
+
+
+<main>
 
   <!-- =====================================================
-       FOOTER
+       HERO
   ====================================================== -->
 
-  <footer>
+  <section class="hero">
 
-    <strong>
-      ⚡ El Patrón de las Ofertas
-    </strong>
+    <div>
 
-    <br>
+      <span class="pill">
+        🔥 OFERTAS DEL DÍA
+      </span>
 
-    <span>
-      Ofertas · Cupones · Descuentos
-    </span>
+      <h1>
+        Encuentra ofertas,<br>
+        <strong>cupones y descuentos</strong>
+      </h1>
 
-  </footer>
+      <p>
+        Aprovecha promociones antes de que se terminen.
+      </p>
+
+    </div>
+
+  </section>
 
 
   <!-- =====================================================
-       FIREBASE / APP
-       
-       IMPORTANTE:
-       app.js ya importa firebase-config.js
+       CATEGORÍAS
   ====================================================== -->
 
-  <script
-    type="module"
-    src="./app.js"
-  ></script>
+  <nav
+    class="categories"
+    id="categories"
+  ></nav>
 
 
   <!-- =====================================================
-       WHATSAPP
-       Usa el valor guardado en Firebase
+       OFERTAS
   ====================================================== -->
 
-  <script type="module">
+  <section class="section">
 
-    import { db } from "./firebase-config.js";
+    <div class="section-title">
 
-    import {
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+      <h2>
+        🔥 Ofertas destacadas
+      </h2>
 
+      <a href="#">
+        Ver todas →
+      </a>
 
-    async function cargarWhatsApp() {
+    </div>
 
-      try {
+    <div
+      class="slider"
+      id="offers"
+    ></div>
 
-        const referencia = doc(
-          db,
-          "settings",
-          "general"
-        );
-
-        const snapshot = await getDoc(
-          referencia
-        );
-
-        let numero = "";
-
-        if (snapshot.exists()) {
-
-          const datos = snapshot.data();
-
-          numero = String(
-            datos.whatsapp || ""
-          ).trim();
-
-        }
+  </section>
 
 
-        /*
-          Si no hay WhatsApp configurado,
-          ocultamos los botones.
-        */
+  <!-- =====================================================
+       MERCADO PAGO
+  ====================================================== -->
 
-        if (!numero) {
-
-          const header = document.getElementById(
-            "whatsappHeader"
-          );
-
-          const flotante = document.getElementById(
-            "whatsappFloat"
-          );
-
-          if (header) {
-            header.style.display = "none";
-          }
-
-          if (flotante) {
-            flotante.style.display = "none";
-          }
-
-          return;
-
-        }
+  <section
+    class="mp-card"
+    id="mercadopago"
+  ></section>
 
 
-        /*
-          Limpiar espacios, + y caracteres
-          para construir el enlace.
-        */
+  <!-- =====================================================
+       CUPONES
+  ====================================================== -->
 
-        numero = numero.replace(
-          /[^0-9]/g,
-          ""
-        );
+  <section class="section">
 
+    <div class="section-title">
 
-        const enlace =
-          "https://wa.me/" + numero;
+      <h2>
+        🎟️ Cupones
+      </h2>
 
+    </div>
 
-        const header =
-          document.getElementById(
-            "whatsappHeader"
-          );
+    <div
+      id="couponSections"
+    ></div>
 
-        const flotante =
-          document.getElementById(
-            "whatsappFloat"
-          );
+  </section>
+
+</main>
 
 
-        if (header) {
+<!-- =======================================================
+     WHATSAPP FLOTANTE
+======================================================== -->
 
-          header.href = enlace;
+<div class="wa-float">
 
-        }
+  <a
+    id="whatsappFloat"
+    href="https://wa.me/"
+    target="_blank"
+    rel="noopener"
+    aria-label="WhatsApp"
+  >
+    💬
+  </a>
 
-
-        if (flotante) {
-
-          flotante.href = enlace;
-
-        }
-
-
-      } catch (error) {
-
-        console.error(
-          "Error cargando WhatsApp:",
-          error
-        );
-
-      }
-
-    }
+</div>
 
 
-    cargarWhatsApp();
+<!-- =======================================================
+     FOOTER
+======================================================== -->
 
-  </script>
+<footer>
+  ⚡ El Patrón de las Ofertas · Hecho para ahorrar
+</footer>
+
+
+<!-- =======================================================
+     APP CON FIREBASE
+======================================================== -->
+
+<script
+  type="module"
+  src="app.js"
+></script>
 
 </body>
 </html>
