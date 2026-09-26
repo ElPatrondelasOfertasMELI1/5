@@ -626,18 +626,83 @@ async function registerOfferClick(
 // ABRIR MERCADO LIBRE
 // ========================================
 
-function openMercadoLibre(
-  link
-) {
+const MERCADO_LIBRE_AFILIADO =
+  "https://meli.la/1mj3itE";
 
-  const destination =
-    link ||
-    generalSettings.generalMercadoLibre ||
-    "https://www.mercadolibre.com.mx/";
+function openMercadoLibre(couponOrLink) {
 
+  let destination =
+    MERCADO_LIBRE_AFILIADO;
+
+  if (
+    typeof couponOrLink === "object" &&
+    couponOrLink
+  ) {
+
+    const section =
+      String(
+        couponOrLink.section || ""
+      ).toLowerCase();
+
+    /*
+     * Relámpago y Bancarios siempre
+     * utilizan tu enlace afiliado.
+     */
+
+    if (
+      section === "relampago" ||
+      section === "bancarios"
+    ) {
+
+      destination =
+        MERCADO_LIBRE_AFILIADO;
+
+    } else {
+
+      destination =
+        couponOrLink.link ||
+        generalSettings.generalMercadoLibre ||
+        MERCADO_LIBRE_AFILIADO;
+
+    }
+
+  } else if (couponOrLink) {
+
+    destination = couponOrLink;
+
+  }
+
+
+  /*
+   * Primero intentamos abrir el esquema
+   * de Mercado Libre para que iOS/Android
+   * pueda entregar el enlace a la app.
+   */
+
+  const cleanUrl =
+    String(destination).trim();
+
+  const isMeli =
+    cleanUrl.includes("meli.la") ||
+    cleanUrl.includes("mercadolibre");
+
+  if (!isMeli) {
+
+    window.location.href =
+      cleanUrl;
+
+    return;
+
+  }
+
+
+  /*
+   * Enlace universal de Mercado Libre.
+   * iOS/Android decidirán si abrir la app.
+   */
 
   window.location.href =
-    destination;
+    cleanUrl;
 
 }
 
@@ -915,12 +980,12 @@ function renderCouponSections() {
         (section) => {
 
           const sectionCoupons =
-            coupons.filter(
-              (coupon) =>
-                coupon.section ===
-                section.id
-            );
-
+  section.id === "todos"
+    ? coupons
+    : coupons.filter(
+        (coupon) =>
+          coupon.section === section.id
+      );
 
           if (
             !sectionCoupons.length
@@ -971,27 +1036,60 @@ function renderCouponSections() {
 
 
   document
-    .querySelectorAll(
-      "[data-copy-coupon]"
-    )
-    .forEach((button) => {
+  .querySelectorAll(
+    "[data-copy-coupon]"
+  )
+  .forEach((button) => {
 
-      button.addEventListener(
-        "click",
-        () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-          const id =
-            button.dataset.copyCoupon;
+        const id =
+          button.dataset.copyCoupon;
 
-          copyCoupon(id);
+        copyCoupon(id);
 
+      }
+    );
+
+  });
+
+
+document
+  .querySelectorAll(
+    "[data-view-offer]"
+  )
+  .forEach((button) => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        const id =
+          button.dataset.viewOffer;
+
+        const coupon =
+          coupons.find(
+            (item) =>
+              item.id === id
+          );
+
+        if (!coupon) {
+          return;
         }
-      );
 
-    });
+        openMercadoLibre(
+          coupon
+        );
+
+      }
+    );
+
+  });
 
 
-  enableCouponSliders();
+enableCouponSliders();
 
 }
 
@@ -1000,16 +1098,51 @@ function renderCouponSections() {
 // TARJETA DE CUPÓN
 // ========================================
 
-function renderCouponCard(
-  coupon
-) {
+function renderCouponCard(coupon) {
+
+  const status = String(coupon.status || "active").toLowerCase();
+
+  let statusClass = "active";
+  let statusText = "🟢 ACTIVO";
+
+  if (status === "soon" || status === "por_agotarse") {
+    statusClass = "soon";
+    statusText = "🟠 POR AGOTARSE";
+  }
+
+  if (
+    status === "soldout" ||
+    status === "agotado"
+  ) {
+    statusClass = "soldout";
+    statusText = "🔴 AGOTADO";
+  }
+
+  const code = String(
+    coupon.code || ""
+  ).toUpperCase();
+
+  const hiddenCode =
+    code.length > 5
+      ? code.substring(0, 4) +
+        "*".repeat(
+          Math.min(5, code.length - 4)
+        )
+      : "*****";
+
+  const isSoldOut =
+    status === "soldout" ||
+    status === "agotado";
 
   return `
-
     <article
-      class="coupon-card"
-      data-coupon-id="${coupon.id}"
+      class="coupon-card ${statusClass}"
+      data-coupon-id="${escapeHTML(coupon.id)}"
     >
+
+      <span class="coupon-status ${statusClass}">
+        ${statusText}
+      </span>
 
       <div class="coupon-top">
 
@@ -1019,21 +1152,15 @@ function renderCouponCard(
 
         <strong>
           ${escapeHTML(
-            coupon.discount ||
-            "DESCUENTO"
+            coupon.discount || "DESCUENTO"
           )}
         </strong>
 
       </div>
 
-
-      <h3>
-        ${escapeHTML(
-          coupon.code ||
-          ""
-        )}
-      </h3>
-
+      <div class="coupon-code-hidden">
+        ${hiddenCode}
+      </div>
 
       ${
         coupon.minimumPurchase
@@ -1041,15 +1168,12 @@ function renderCouponCard(
             <p>
               Compra mínima:
               <strong>
-                ${money(
-                  coupon.minimumPurchase
-                )}
+                ${money(coupon.minimumPurchase)}
               </strong>
             </p>
           `
           : ""
       }
-
 
       ${
         coupon.maximumDiscount
@@ -1057,32 +1181,39 @@ function renderCouponCard(
             <p>
               Descuento máximo:
               <strong>
-                ${money(
-                  coupon.maximumDiscount
-                )}
+                ${money(coupon.maximumDiscount)}
               </strong>
             </p>
           `
           : ""
       }
 
-
-      <button
-        class="copy-coupon"
-        data-copy-coupon="${coupon.id}"
-      >
-        📋 COPIAR CUPÓN
-      </button>
-
+      ${
+        isSoldOut
+          ? `
+            <button
+              class="view-offer-button"
+              data-view-offer="${escapeHTML(coupon.id)}"
+            >
+              👀 VER OFERTA
+            </button>
+          `
+          : `
+            <button
+              class="copy-coupon"
+              data-copy-coupon="${escapeHTML(coupon.id)}"
+            >
+              📋 COPIAR CUPÓN
+            </button>
+          `
+      }
 
       <small class="coupon-copies">
         📋 ${coupon.copies || 0} copias
       </small>
 
     </article>
-
   `;
-
 }
 
 
@@ -1090,115 +1221,72 @@ function renderCouponCard(
 // COPIAR CUPÓN
 // ========================================
 
-async function copyCoupon(
-  couponId
-) {
+async function copyCoupon(couponId) {
 
-  const coupon =
-    coupons.find(
-      (item) =>
-        item.id === couponId
-    );
-
+  const coupon = coupons.find(
+    item => item.id === couponId
+  );
 
   if (!coupon) {
     return;
   }
 
-
-  const code =
-    String(
-      coupon.code || ""
-    ).toUpperCase();
-
+  const code = String(
+    coupon.code || ""
+  ).toUpperCase();
 
   try {
 
-    await copyToClipboard(
-      code
-    );
+    await copyToClipboard(code);
 
+    try {
 
-    const couponRef =
-      doc(
-        db,
-        "coupons",
-        couponId
+      await updateDoc(
+        doc(
+          db,
+          "coupons",
+          couponId
+        ),
+        {
+          copies: increment(1)
+        }
       );
 
+    } catch (error) {
 
-    await updateDoc(
-      couponRef,
-      {
-        copies: increment(1)
-      }
-    );
-
-
-    const statsRef =
-      doc(
-        db,
-        "statistics",
-        "general"
+      console.warn(
+        "No se pudo registrar la copia:",
+        error
       );
 
-
-    await setDoc(
-      statsRef,
-      {
-        copies: increment(1)
-      },
-      {
-        merge: true
-      }
-    );
-
+    }
 
     const button =
       document.querySelector(
         `[data-copy-coupon="${couponId}"]`
       );
 
-
     if (button) {
 
-      const original =
-        button.innerHTML;
-
       button.innerHTML =
-        "✅ ¡COPIADO!";
+        "✅ ¡CUPÓN COPIADO!";
 
-      button.classList.add(
-        "copied"
-      );
-
-
-      setTimeout(() => {
-
-        button.innerHTML =
-          original;
-
-        button.classList.remove(
-          "copied"
-        );
-
-      }, 2200);
+      button.classList.add("copied");
 
     }
 
-
-    // Después de copiar,
-    // intentamos abrir Mercado Libre.
+    /*
+     * Esperamos aproximadamente 1 segundo
+     * para que el usuario vea que se copió.
+     */
 
     setTimeout(() => {
 
       openMercadoLibre(
-        coupon.link ||
-        generalSettings.generalMercadoLibre
+        coupon
       );
 
-    }, 350);
-
+    }, 1000);
 
   } catch (error) {
 
@@ -1208,11 +1296,10 @@ async function copyCoupon(
     );
 
     alert(
-      "No se pudo copiar el cupón."
+      "No se pudo copiar el cupón. Inténtalo nuevamente."
     );
 
   }
-
 }
 
 
@@ -1286,71 +1373,47 @@ async function copyToClipboard(
 
 function setupWhatsApp() {
 
-  if (
-    !generalSettings.whatsapp
-  ) {
-
+  if (!generalSettings.whatsapp) {
     return;
-
   }
-
 
   const number =
     String(
       generalSettings.whatsapp
-    )
-      .replace(
-        /\D/g,
-        ""
-      );
-
+    ).replace(/\D/g, "");
 
   if (!number) {
     return;
   }
-
 
   const message =
     encodeURIComponent(
       "Hola, vi una oferta en El Patrón de las Ofertas 🔥"
     );
 
-
   const url =
     `https://wa.me/${number}?text=${message}`;
 
-
-  document
-    .querySelectorAll(
-      ".whatsapp-link"
-    )
-    .forEach(
-      (element) => {
-
-        element.href =
-          url;
-
-      }
+  const header =
+    document.getElementById(
+      "whatsappHeader"
     );
-
 
   const floating =
-    document.querySelector(
-      ".whatsapp-float"
+    document.getElementById(
+      "whatsappFloat"
     );
 
+  if (header) {
+    header.href = url;
+    header.target = "_blank";
+    header.rel = "noopener";
+  }
 
   if (floating) {
-
-    floating.href =
-      url;
-
-    floating.target =
-      "_blank";
-
-    floating.rel =
-      "noopener";
-
+    floating.href = url;
+    floating.target = "_blank";
+    floating.rel = "noopener";
   }
 
 }
