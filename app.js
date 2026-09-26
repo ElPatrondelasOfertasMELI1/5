@@ -1,389 +1,392 @@
-const KEY = "patronOfertas_v1";
+// ========================================
+// EL PATRÓN DE LAS OFERTAS
+// APP.JS - FIREBASE
+// ========================================
 
-const demo = {
-  categories: [
-    ["📱", "Celulares"],
-    ["📺", "Pantallas"],
-    ["💻", "Tecnología"],
-    ["🎮", "Videojuegos"],
-    ["🏠", "Hogar"],
-    ["👟", "Moda"]
-  ],
+import { db } from "./firebase-config.js";
 
-  offers: [
-    {
-      name: "Producto en oferta",
-      oldPrice: 1999,
-      price: 1499,
-      image: "",
-      link: "#",
-      clicks: 0
-    },
-    {
-      name: "Tecnología con descuento",
-      oldPrice: 2499,
-      price: 1899,
-      image: "",
-      link: "#",
-      clicks: 0
-    },
-    {
-      name: "Oferta especial",
-      oldPrice: 999,
-      price: 699,
-      image: "",
-      link: "#",
-      clicks: 0
-    }
-  ],
+import {
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  setDoc,
+  increment
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-  coupons: [
-    {
-      section: "⚡ Cupones Relámpago",
-      code: "OFERTASENCENDIDAS",
-      discount: "10% OFF",
-      min: 600,
-      max: 75,
-      link: "https://www.mercadolibre.com.mx/"
-    },
 
-    {
-      section: "🔥 Exclusivos + Tiendas",
-      code: "EXCLUSIVO",
-      discount: "14% OFF",
-      min: 600,
-      max: 105,
-      link: "https://www.mercadolibre.com.mx/"
-    },
+// ========================================
+// ELEMENTOS
+// ========================================
 
-    {
-      section: "💳 Cupones Bancarios",
-      code: "BANCO",
-      discount: "15% OFF",
-      min: 1000,
-      max: 150,
-      link: "https://www.mercadolibre.com.mx/"
-    }
-  ],
+const categoriesContainer =
+  document.getElementById("categories");
 
-  promo: {
-    title: "💳 $100 GRATIS",
-    text: "para usuarios nuevos de Mercado Pago",
-    image: "",
-    link: "https://www.mercadopago.com.mx/"
-  },
+const offersContainer =
+  document.getElementById("offers");
 
-  stats: {
-    visits: 0,
-    clicks: 0,
-    copies: 0
-  },
+const couponSectionsContainer =
+  document.getElementById("couponSections");
 
-  settings: {
-    mlLink: "https://www.mercadolibre.com.mx/",
-    waNumber: ""
-  }
+const mercadoPagoContainer =
+  document.getElementById("mercadopago");
+
+
+// ========================================
+// CONFIGURACIÓN
+// ========================================
+
+let generalSettings = {
+  whatsapp: "",
+  generalMercadoLibre: "https://www.mercadolibre.com.mx/"
 };
 
-
-/* =========================
-   CARGAR DATOS
-========================= */
-
-let db = JSON.parse(
-  localStorage.getItem(KEY) || "null"
-) || demo;
+let offers = [];
+let coupons = [];
+let categories = [];
 
 
-/* =========================
-   GUARDAR
-========================= */
+// ========================================
+// FORMATO DE DINERO
+// ========================================
 
-function save() {
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(db)
-  );
+function money(value) {
+
+  return new Intl.NumberFormat(
+    "es-MX",
+    {
+      style: "currency",
+      currency: "MXN"
+    }
+  ).format(Number(value || 0));
+
 }
 
 
-/* =========================
-   VISITAS
-========================= */
+// ========================================
+// ESCAPAR HTML
+// ========================================
 
-db.stats.visits++;
+function escapeHTML(value) {
 
-save();
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
-
-/* =========================
-   CATEGORÍAS
-========================= */
-
-const categories =
-  document.querySelector("#categories");
-
-if (categories) {
-
-  categories.innerHTML =
-    db.categories
-      .map(category => {
-
-        return `
-          <button class="cat">
-            ${category[0]}
-            ${category[1]}
-          </button>
-        `;
-
-      })
-      .join("");
 }
 
 
-/* =========================
-   OFERTAS
-========================= */
+// ========================================
+// CARGAR CONFIGURACIÓN
+// ========================================
 
-const offers =
-  document.querySelector("#offers");
+async function loadSettings() {
 
-if (offers) {
+  try {
 
-  offers.innerHTML =
-    db.offers
-      .map((offer, index) => {
+    const reference =
+      doc(
+        db,
+        "settings",
+        "general"
+      );
+
+    const snapshot =
+      await getDoc(reference);
+
+    if (snapshot.exists()) {
+
+      generalSettings = {
+        ...generalSettings,
+        ...snapshot.data()
+      };
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando configuración:",
+      error
+    );
+
+  }
+
+}
+
+
+// ========================================
+// ESTADÍSTICAS
+// ========================================
+
+async function registerVisit() {
+
+  try {
+
+    const statisticsRef =
+      doc(
+        db,
+        "statistics",
+        "general"
+      );
+
+    await setDoc(
+      statisticsRef,
+      {
+        visits: increment(1)
+      },
+      {
+        merge: true
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Error registrando visita:",
+      error
+    );
+
+  }
+
+}
+
+
+// ========================================
+// CARGAR CATEGORÍAS
+// ========================================
+
+async function loadCategories() {
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "categories"
+        )
+      );
+
+    categories = [];
+
+    snapshot.forEach((item) => {
+
+      const data =
+        item.data();
+
+      if (
+        data.active !== false
+      ) {
+
+        categories.push({
+          id: item.id,
+          ...data
+        });
+
+      }
+
+    });
+
+    renderCategories();
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando categorías:",
+      error
+    );
+
+    categoriesContainer.innerHTML = `
+      <div class="empty-state">
+        No se pudieron cargar las categorías.
+      </div>
+    `;
+
+  }
+
+}
+
+
+// ========================================
+// RENDER CATEGORÍAS
+// ========================================
+
+function renderCategories() {
+
+  if (!categoriesContainer) {
+    return;
+  }
+
+  if (!categories.length) {
+
+    categoriesContainer.innerHTML = "";
+
+    return;
+  }
+
+
+  categoriesContainer.innerHTML =
+    categories.map(
+      (category) => `
+
+        <button
+          class="category-pill"
+          data-category="${escapeHTML(
+            category.name
+          )}"
+        >
+
+          <span>
+            ${escapeHTML(
+              category.emoji || "📂"
+            )}
+          </span>
+
+          ${escapeHTML(
+            category.name
+          )}
+
+        </button>
+
+      `
+    ).join("");
+
+
+  document
+    .querySelectorAll(
+      ".category-pill"
+    )
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const category =
+            button.dataset.category;
+
+          filterOffersByCategory(
+            category
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+// ========================================
+// CARGAR OFERTAS
+// ========================================
+
+async function loadOffers() {
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "offers"
+        )
+      );
+
+    offers = [];
+
+    snapshot.forEach((item) => {
+
+      const data =
+        item.data();
+
+      if (
+        data.active !== false
+      ) {
+
+        offers.push({
+          id: item.id,
+          ...data
+        });
+
+      }
+
+    });
+
+    renderOffers(offers);
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando ofertas:",
+      error
+    );
+
+    offersContainer.innerHTML = `
+      <div class="empty-state">
+        No se pudieron cargar las ofertas.
+      </div>
+    `;
+
+  }
+
+}
+
+
+// ========================================
+// RENDER OFERTAS
+// ========================================
+
+function renderOffers(list) {
+
+  if (!offersContainer) {
+    return;
+  }
+
+  if (!list.length) {
+
+    offersContainer.innerHTML = `
+      <div class="empty-state">
+        🔎 No hay ofertas disponibles.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  offersContainer.innerHTML =
+    list.map(
+      (offer) => {
+
+        const oldPrice =
+          Number(
+            offer.oldPrice || 0
+          );
+
+        const price =
+          Number(
+            offer.price || 0
+          );
 
         let discount = 0;
 
         if (
-          offer.oldPrice &&
-          offer.price
+          oldPrice > 0 &&
+          price > 0
         ) {
 
-          discount = Math.round(
-            (1 - offer.price / offer.oldPrice) * 100
-          );
-
-        }
-
-        return `
-          <article class="card">
-
-            <div class="product-img">
-
-              ${
-                offer.image
-
-                  ? `
-                    <img
-                      src="${offer.image}"
-                      alt="${offer.name}"
-                    >
-                  `
-
-                  : `
-                    🛍️
-                  `
-              }
-
-            </div>
-
-
-            <div class="card-body">
-
-              <b>
-                ${offer.name}
-              </b>
-
-
-              <div>
-
-                <span class="old">
-                  ${
-                    offer.oldPrice
-                      ? "$" +
-                        Number(
-                          offer.oldPrice
-                        ).toLocaleString("es-MX")
-                      : ""
-                  }
-                </span>
-
-
-                <span class="off">
-                  ${discount}% OFF
-                </span>
-
-              </div>
-
-
-              <div class="price">
-
-                $
-                ${Number(
-                  offer.price
-                ).toLocaleString("es-MX")}
-
-              </div>
-
-
-              <a
-                class="buy"
-                href="${offer.link || "#"}"
-                data-offer="${index}"
-                target="_blank"
-                rel="noopener"
-              >
-                Comprar ahora
-              </a>
-
-            </div>
-
-          </article>
-        `;
-
-      })
-      .join("");
-}
-
-
-/* =========================
-   CLICS EN OFERTAS
-========================= */
-
-if (offers) {
-
-  offers.addEventListener(
-    "click",
-    event => {
-
-      const button =
-        event.target.closest(
-          "[data-offer]"
-        );
-
-      if (!button) return;
-
-
-      const index =
-        Number(
-          button.dataset.offer
-        );
-
-
-      if (!db.offers[index]) return;
-
-
-      db.offers[index].clicks =
-        (db.offers[index].clicks || 0) + 1;
-
-
-      db.stats.clicks++;
-
-
-      save();
-
-    }
-  );
-
-}
-
-
-/* =========================
-   MERCADO PAGO
-========================= */
-
-const mercadoPago =
-  document.querySelector(
-    "#mercadopago"
-  );
-
-
-if (
-  mercadoPago &&
-  db.promo
-) {
-
-  mercadoPago.innerHTML = `
-
-    <div class="mp-inner">
-
-      <div>
-
-        <span class="pill">
-          PROMOCIÓN
-        </span>
-
-
-        <h2>
-          ${db.promo.title}
-        </h2>
-
-
-        <p>
-          ${db.promo.text}
-        </p>
-
-      </div>
-
-
-      <a
-        class="btn"
-        href="${db.promo.link}"
-        target="_blank"
-        rel="noopener"
-      >
-        Aprovechar →
-      </a>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================
-   CUPONES
-========================= */
-
-const couponSections = [
-  "⚡ Cupones Relámpago",
-  "🔥 Exclusivos + Tiendas",
-  "💳 Cupones Bancarios",
-  "🎟️ Todos los cupones"
-];
-
-
-const couponContainer =
-  document.querySelector(
-    "#couponSections"
-  );
-
-
-if (couponContainer) {
-
-  couponContainer.innerHTML =
-    couponSections
-      .map(section => {
-
-        let coupons;
-
-
-        if (
-          section ===
-          "🎟️ Todos los cupones"
-        ) {
-
-          coupons = db.coupons;
-
-        } else {
-
-          coupons =
-            db.coupons.filter(
-              coupon =>
-                coupon.section === section
+          discount =
+            Math.round(
+              (
+                (oldPrice - price) /
+                oldPrice
+              ) * 100
             );
 
         }
@@ -391,190 +394,1043 @@ if (couponContainer) {
 
         return `
 
-          <div class="coupon-wrap">
+          <article
+            class="offer-card"
+            data-offer-id="${offer.id}"
+          >
 
-            <h3>
-              ${section}
-            </h3>
-
-
-            <div class="coupon-row">
+            <div class="offer-image-wrap">
 
               ${
-                coupons.length
-
-                  ? coupons
-                      .map(
-                        coupon => `
-
-                          <article class="coupon">
-
-                            <strong>
-                              ${coupon.discount}
-                            </strong>
-
-
-                            <div>
-                              Compra mínima:
-                              $
-                              ${Number(
-                                coupon.min || 0
-                              ).toLocaleString("es-MX")}
-                            </div>
-
-
-                            <div>
-                              Descuento máximo:
-                              $
-                              ${Number(
-                                coupon.max || 0
-                              ).toLocaleString("es-MX")}
-                            </div>
-
-
-                            <div class="code">
-                              ${coupon.code}
-                            </div>
-
-
-                            <button
-                              class="copy"
-                              data-code="${coupon.code}"
-                              data-link="${
-                                coupon.link ||
-                                db.settings.mlLink
-                              }"
-                            >
-                              📋 COPIAR CUPÓN
-                            </button>
-
-                          </article>
-
-                        `
-                      )
-                      .join("")
-
+                offer.image
+                  ? `
+                    <img
+                      src="${escapeHTML(
+                        offer.image
+                      )}"
+                      alt="${escapeHTML(
+                        offer.name || ""
+                      )}"
+                      class="offer-image"
+                      loading="lazy"
+                    >
+                  `
                   : `
-                      <p>
-                        No hay cupones disponibles.
-                      </p>
-                    `
+                    <div class="offer-no-image">
+                      🔥
+                    </div>
+                  `
+              }
+
+              ${
+                discount > 0
+                  ? `
+                    <span class="discount-badge">
+                      ${discount}% OFF
+                    </span>
+                  `
+                  : ""
               }
 
             </div>
 
-          </div>
+
+            <div class="offer-content">
+
+              <h3>
+                ${escapeHTML(
+                  offer.name ||
+                  "Oferta"
+                )}
+              </h3>
+
+
+              <div class="offer-prices">
+
+                ${
+                  oldPrice > 0
+                    ? `
+                      <span class="old-price">
+                        ${money(oldPrice)}
+                      </span>
+                    `
+                    : ""
+                }
+
+                <strong class="final-price">
+                  ${money(price)}
+                </strong>
+
+              </div>
+
+
+              <button
+                class="buy-button"
+                data-offer-link="${escapeHTML(
+                  offer.link || ""
+                )}"
+                data-offer-id="${offer.id}"
+              >
+                🛒 VER OFERTA
+              </button>
+
+
+              <small class="click-counter">
+                👆 ${offer.clicks || 0} clics
+              </small>
+
+            </div>
+
+          </article>
 
         `;
 
-      })
-      .join("");
+      }
+    ).join("");
+
+
+  document
+    .querySelectorAll(
+      "[data-offer-link]"
+    )
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const id =
+            button.dataset.offerId;
+
+          const link =
+            button.dataset.offerLink;
+
+          registerOfferClick(id);
+
+          openMercadoLibre(link);
+
+        }
+      );
+
+    });
+
+
+  enableHorizontalDrag(
+    offersContainer
+  );
+
 }
 
 
-/* =========================
-   COPIAR CUPÓN
-========================= */
+// ========================================
+// FILTRAR OFERTAS
+// ========================================
 
-if (couponContainer) {
+function filterOffersByCategory(
+  categoryName
+) {
 
-  couponContainer.addEventListener(
-    "click",
-    async event => {
+  const filtered =
+    offers.filter(
+      (offer) => {
 
-      const button =
-        event.target.closest(
-          ".copy"
+        if (!offer.category) {
+          return false;
+        }
+
+        return (
+          offer.category
+            .toLowerCase()
+            ===
+          categoryName
+            .toLowerCase()
+        );
+
+      }
+    );
+
+
+  if (!filtered.length) {
+
+    // Si todavía no hay categorías
+    // asignadas a las ofertas,
+    // mostramos todas.
+
+    renderOffers(offers);
+
+    return;
+
+  }
+
+
+  renderOffers(filtered);
+
+}
+
+
+// ========================================
+// CONTAR CLIC EN OFERTA
+// ========================================
+
+async function registerOfferClick(
+  offerId
+) {
+
+  try {
+
+    const offerRef =
+      doc(
+        db,
+        "offers",
+        offerId
+      );
+
+    await updateDoc(
+      offerRef,
+      {
+        clicks: increment(1)
+      }
+    );
+
+
+    const statisticsRef =
+      doc(
+        db,
+        "statistics",
+        "general"
+      );
+
+    await setDoc(
+      statisticsRef,
+      {
+        clicks: increment(1)
+      },
+      {
+        merge: true
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Error registrando clic:",
+      error
+    );
+
+  }
+
+}
+
+
+// ========================================
+// ABRIR MERCADO LIBRE
+// ========================================
+
+function openMercadoLibre(
+  link
+) {
+
+  const destination =
+    link ||
+    generalSettings.generalMercadoLibre ||
+    "https://www.mercadolibre.com.mx/";
+
+
+  window.location.href =
+    destination;
+
+}
+
+
+// ========================================
+// MERCADO PAGO
+// ========================================
+
+async function loadMercadoPago() {
+
+  if (!mercadoPagoContainer) {
+    return;
+  }
+
+  try {
+
+    const reference =
+      doc(
+        db,
+        "promotions",
+        "mercadopago"
+      );
+
+    const snapshot =
+      await getDoc(reference);
+
+    if (
+      !snapshot.exists()
+    ) {
+
+      mercadoPagoContainer.innerHTML =
+        "";
+
+      return;
+
+    }
+
+
+    const promo =
+      snapshot.data();
+
+
+    if (
+      promo.active === false
+    ) {
+
+      mercadoPagoContainer.innerHTML =
+        "";
+
+      return;
+
+    }
+
+
+    mercadoPagoContainer.innerHTML = `
+
+      <div class="mp-inner">
+
+        ${
+          promo.image
+            ? `
+              <img
+                src="${escapeHTML(
+                  promo.image
+                )}"
+                alt="Mercado Pago"
+                class="mp-image"
+                loading="lazy"
+              >
+            `
+            : ""
+        }
+
+
+        <div class="mp-content">
+
+          <span class="mp-label">
+            💳 PROMOCIÓN
+          </span>
+
+          <h2>
+            ${escapeHTML(
+              promo.title ||
+              "$100 GRATIS"
+            )}
+          </h2>
+
+          <p>
+            ${escapeHTML(
+              promo.text ||
+              "Promoción especial"
+            )}
+          </p>
+
+
+          ${
+            promo.link
+              ? `
+                <a
+                  href="${escapeHTML(
+                    promo.link
+                  )}"
+                  class="mp-button"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  🚀 VER PROMOCIÓN
+                </a>
+              `
+              : ""
+          }
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    const promotionLink =
+      mercadoPagoContainer
+        .querySelector(
+          ".mp-button"
         );
 
 
-      if (!button) return;
+    if (promotionLink) {
+
+      promotionLink.addEventListener(
+        "click",
+        async () => {
+
+          try {
+
+            const statsRef =
+              doc(
+                db,
+                "statistics",
+                "general"
+              );
+
+            await setDoc(
+              statsRef,
+              {
+                promotions:
+                  increment(1)
+              },
+              {
+                merge: true
+              }
+            );
+
+          } catch (error) {
+
+            console.error(error);
+
+          }
+
+        }
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando Mercado Pago:",
+      error
+    );
+
+  }
+
+}
 
 
-      const code =
-        button.dataset.code;
+// ========================================
+// CUPONES
+// ========================================
 
+async function loadCoupons() {
 
-      const link =
-        button.dataset.link ||
-        db.settings.mlLink;
+  try {
 
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "coupons"
+        )
+      );
 
-      try {
+    coupons = [];
 
-        await navigator.clipboard.writeText(
-          code
-        );
+    snapshot.forEach((item) => {
 
-      } catch (error) {
+      const data =
+        item.data();
 
-        /*
-          Compatibilidad con algunos
-          navegadores que bloquean
-          Clipboard API.
-        */
+      if (
+        data.active !== false
+      ) {
 
-        const textArea =
-          document.createElement(
-            "textarea"
-          );
-
-        textArea.value = code;
-
-        document.body.appendChild(
-          textArea
-        );
-
-        textArea.select();
-
-        document.execCommand(
-          "copy"
-        );
-
-        textArea.remove();
+        coupons.push({
+          id: item.id,
+          ...data
+        });
 
       }
 
+    });
 
-      /* Registrar copia */
+    renderCouponSections();
 
-      db.stats.copies++;
+  } catch (error) {
 
-      save();
+    console.error(
+      "Error cargando cupones:",
+      error
+    );
+
+    couponSectionsContainer.innerHTML = `
+      <div class="empty-state">
+        No se pudieron cargar los cupones.
+      </div>
+    `;
+
+  }
+
+}
 
 
-      /* Cambiar botón */
+// ========================================
+// SECCIONES DE CUPONES
+// ========================================
 
-      button.textContent =
+const couponSections = [
+
+  {
+    id: "relampago",
+    title: "⚡ Cupones Relámpago"
+  },
+
+  {
+    id: "exclusivos",
+    title: "🔥 Exclusivos + Tiendas"
+  },
+
+  {
+    id: "bancarios",
+    title: "💳 Cupones Bancarios"
+  },
+
+  {
+    id: "todos",
+    title: "🎟️ Todos los cupones"
+  }
+
+];
+
+
+// ========================================
+// RENDER CUPONES
+// ========================================
+
+function renderCouponSections() {
+
+  if (!couponSectionsContainer) {
+    return;
+  }
+
+
+  couponSectionsContainer.innerHTML =
+    couponSections
+      .map(
+        (section) => {
+
+          const sectionCoupons =
+            coupons.filter(
+              (coupon) =>
+                coupon.section ===
+                section.id
+            );
+
+
+          if (
+            !sectionCoupons.length
+          ) {
+
+            return "";
+
+          }
+
+
+          return `
+
+            <section
+              class="coupon-section"
+            >
+
+              <div
+                class="section-heading"
+              >
+
+                <h2>
+                  ${section.title}
+                </h2>
+
+              </div>
+
+
+              <div
+                class="coupon-slider"
+                data-section="${section.id}"
+              >
+
+                ${sectionCoupons
+                  .map(
+                    renderCouponCard
+                  )
+                  .join("")}
+
+              </div>
+
+            </section>
+
+          `;
+
+        }
+      )
+      .join("");
+
+
+  document
+    .querySelectorAll(
+      "[data-copy-coupon]"
+    )
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const id =
+            button.dataset.copyCoupon;
+
+          copyCoupon(id);
+
+        }
+      );
+
+    });
+
+
+  enableCouponSliders();
+
+}
+
+
+// ========================================
+// TARJETA DE CUPÓN
+// ========================================
+
+function renderCouponCard(
+  coupon
+) {
+
+  return `
+
+    <article
+      class="coupon-card"
+      data-coupon-id="${coupon.id}"
+    >
+
+      <div class="coupon-top">
+
+        <span class="coupon-fire">
+          🔥
+        </span>
+
+        <strong>
+          ${escapeHTML(
+            coupon.discount ||
+            "DESCUENTO"
+          )}
+        </strong>
+
+      </div>
+
+
+      <h3>
+        ${escapeHTML(
+          coupon.code ||
+          ""
+        )}
+      </h3>
+
+
+      ${
+        coupon.minimumPurchase
+          ? `
+            <p>
+              Compra mínima:
+              <strong>
+                ${money(
+                  coupon.minimumPurchase
+                )}
+              </strong>
+            </p>
+          `
+          : ""
+      }
+
+
+      ${
+        coupon.maximumDiscount
+          ? `
+            <p>
+              Descuento máximo:
+              <strong>
+                ${money(
+                  coupon.maximumDiscount
+                )}
+              </strong>
+            </p>
+          `
+          : ""
+      }
+
+
+      <button
+        class="copy-coupon"
+        data-copy-coupon="${coupon.id}"
+      >
+        📋 COPIAR CUPÓN
+      </button>
+
+
+      <small class="coupon-copies">
+        📋 ${coupon.copies || 0} copias
+      </small>
+
+    </article>
+
+  `;
+
+}
+
+
+// ========================================
+// COPIAR CUPÓN
+// ========================================
+
+async function copyCoupon(
+  couponId
+) {
+
+  const coupon =
+    coupons.find(
+      (item) =>
+        item.id === couponId
+    );
+
+
+  if (!coupon) {
+    return;
+  }
+
+
+  const code =
+    String(
+      coupon.code || ""
+    ).toUpperCase();
+
+
+  try {
+
+    await copyToClipboard(
+      code
+    );
+
+
+    const couponRef =
+      doc(
+        db,
+        "coupons",
+        couponId
+      );
+
+
+    await updateDoc(
+      couponRef,
+      {
+        copies: increment(1)
+      }
+    );
+
+
+    const statsRef =
+      doc(
+        db,
+        "statistics",
+        "general"
+      );
+
+
+    await setDoc(
+      statsRef,
+      {
+        copies: increment(1)
+      },
+      {
+        merge: true
+      }
+    );
+
+
+    const button =
+      document.querySelector(
+        `[data-copy-coupon="${couponId}"]`
+      );
+
+
+    if (button) {
+
+      const original =
+        button.innerHTML;
+
+      button.innerHTML =
         "✅ ¡COPIADO!";
+
+      button.classList.add(
+        "copied"
+      );
 
 
       setTimeout(() => {
 
-        button.textContent =
-          "📋 COPIAR CUPÓN";
+        button.innerHTML =
+          original;
 
-      }, 1300);
+        button.classList.remove(
+          "copied"
+        );
+
+      }, 2200);
+
+    }
 
 
-      /*
-        Abrir Mercado Libre.
+    // Después de copiar,
+    // intentamos abrir Mercado Libre.
 
-        En dispositivos donde Mercado Libre
-        tenga configurado el enlace universal,
-        el sistema puede abrir la aplicación.
-      */
+    setTimeout(() => {
 
-      if (link) {
+      openMercadoLibre(
+        coupon.link ||
+        generalSettings.generalMercadoLibre
+      );
 
-        setTimeout(() => {
+    }, 350);
 
-          window.location.href =
-            link;
 
-        }, 250);
+  } catch (error) {
+
+    console.error(
+      "Error copiando cupón:",
+      error
+    );
+
+    alert(
+      "No se pudo copiar el cupón."
+    );
+
+  }
+
+}
+
+
+// ========================================
+// PORTAPAPELES
+// ========================================
+
+async function copyToClipboard(
+  text
+) {
+
+  if (
+    navigator.clipboard &&
+    window.isSecureContext
+  ) {
+
+    await navigator.clipboard.writeText(
+      text
+    );
+
+    return;
+
+  }
+
+
+  const textarea =
+    document.createElement(
+      "textarea"
+    );
+
+  textarea.value = text;
+
+  textarea.style.position =
+    "fixed";
+
+  textarea.style.opacity =
+    "0";
+
+  document.body.appendChild(
+    textarea
+  );
+
+  textarea.focus();
+
+  textarea.select();
+
+  const success =
+    document.execCommand(
+      "copy"
+    );
+
+  document.body.removeChild(
+    textarea
+  );
+
+
+  if (!success) {
+
+    throw new Error(
+      "No se pudo copiar"
+    );
+
+  }
+
+}
+
+
+// ========================================
+// WHATSAPP
+// ========================================
+
+function setupWhatsApp() {
+
+  if (
+    !generalSettings.whatsapp
+  ) {
+
+    return;
+
+  }
+
+
+  const number =
+    String(
+      generalSettings.whatsapp
+    )
+      .replace(
+        /\D/g,
+        ""
+      );
+
+
+  if (!number) {
+    return;
+  }
+
+
+  const message =
+    encodeURIComponent(
+      "Hola, vi una oferta en El Patrón de las Ofertas 🔥"
+    );
+
+
+  const url =
+    `https://wa.me/${number}?text=${message}`;
+
+
+  document
+    .querySelectorAll(
+      ".whatsapp-link"
+    )
+    .forEach(
+      (element) => {
+
+        element.href =
+          url;
 
       }
+    );
+
+
+  const floating =
+    document.querySelector(
+      ".whatsapp-float"
+    );
+
+
+  if (floating) {
+
+    floating.href =
+      url;
+
+    floating.target =
+      "_blank";
+
+    floating.rel =
+      "noopener";
+
+  }
+
+}
+
+
+// ========================================
+// SLIDER DE OFERTAS
+// ========================================
+
+function enableHorizontalDrag(
+  container
+) {
+
+  if (!container) {
+    return;
+  }
+
+
+  let isDown = false;
+
+  let startX = 0;
+
+  let scrollLeft = 0;
+
+
+  container.addEventListener(
+    "pointerdown",
+    (event) => {
+
+      isDown = true;
+
+      startX =
+        event.pageX;
+
+      scrollLeft =
+        container.scrollLeft;
+
+      container.setPointerCapture(
+        event.pointerId
+      );
+
+    }
+  );
+
+
+  container.addEventListener(
+    "pointermove",
+    (event) => {
+
+      if (!isDown) {
+        return;
+      }
+
+      const distance =
+        event.pageX -
+        startX;
+
+      container.scrollLeft =
+        scrollLeft -
+        distance;
+
+    }
+  );
+
+
+  container.addEventListener(
+    "pointerup",
+    () => {
+
+      isDown = false;
+
+    }
+  );
+
+
+  container.addEventListener(
+    "pointercancel",
+    () => {
+
+      isDown = false;
 
     }
   );
@@ -582,126 +1438,177 @@ if (couponContainer) {
 }
 
 
-/* =========================
-   CARRUSEL AUTOMÁTICO
-========================= */
+// ========================================
+// SLIDER CUPONES
+// ========================================
 
-function autoScrollSlider(
-  slider,
-  interval = 4000
-) {
+function enableCouponSliders() {
 
-  if (!slider) return;
+  document
+    .querySelectorAll(
+      ".coupon-slider"
+    )
+    .forEach(
+      (slider) => {
 
+        enableHorizontalDrag(
+          slider
+        );
 
-  let timer;
+        let autoScroll =
+          setInterval(
+            () => {
 
+              if (
+                slider.scrollWidth <=
+                slider.clientWidth
+              ) {
 
-  function start() {
+                return;
 
-    timer =
-      setInterval(() => {
-
-        if (
-          slider.scrollWidth <=
-          slider.clientWidth
-        ) {
-          return;
-        }
-
-
-        const first =
-          slider.firstElementChild;
-
-
-        if (!first) return;
+              }
 
 
-        const amount =
-          first.offsetWidth + 14;
+              const maxScroll =
+                slider.scrollWidth -
+                slider.clientWidth;
 
 
-        const atEnd =
-          slider.scrollLeft +
-            slider.clientWidth >=
-          slider.scrollWidth - 10;
+              if (
+                slider.scrollLeft >=
+                maxScroll - 10
+              ) {
+
+                slider.scrollTo({
+                  left: 0,
+                  behavior: "smooth"
+                });
+
+              } else {
+
+                slider.scrollBy({
+                  left: 280,
+                  behavior: "smooth"
+                });
+
+              }
+
+            },
+            4200
+          );
 
 
-        if (atEnd) {
+        slider.addEventListener(
+          "pointerdown",
+          () => {
 
-          slider.scrollTo({
-            left: 0,
-            behavior: "smooth"
-          });
+            clearInterval(
+              autoScroll
+            );
 
-        } else {
+          },
+          {
+            once: true
+          }
+        );
 
-          slider.scrollBy({
-            left: amount,
-            behavior: "smooth"
-          });
+      }
+    );
 
-        }
+}
 
-      }, interval);
 
+// ========================================
+// SLIDER AUTOMÁTICO OFERTAS
+// ========================================
+
+function enableOfferAutoScroll() {
+
+  if (!offersContainer) {
+    return;
   }
 
 
-  function stop() {
-
-    clearInterval(timer);
-
-  }
+  const slider =
+    offersContainer;
 
 
-  start();
-
-
-  slider.addEventListener(
-    "touchstart",
-    stop,
-    { passive: true }
-  );
-
-
-  slider.addEventListener(
-    "touchend",
+  setInterval(
     () => {
 
-      setTimeout(
-        start,
-        1500
-      );
+      if (
+        slider.scrollWidth <=
+        slider.clientWidth
+      ) {
+
+        return;
+
+      }
+
+
+      const maxScroll =
+        slider.scrollWidth -
+        slider.clientWidth;
+
+
+      if (
+        slider.scrollLeft >=
+        maxScroll - 10
+      ) {
+
+        slider.scrollTo({
+          left: 0,
+          behavior: "smooth"
+        });
+
+      } else {
+
+        slider.scrollBy({
+          left: 300,
+          behavior: "smooth"
+        });
+
+      }
 
     },
-    { passive: true }
+    3500
   );
 
 }
 
 
-/* =========================
-   ACTIVAR CARRUSEL OFERTAS
-========================= */
+// ========================================
+// CARGAR TODO
+// ========================================
 
-autoScrollSlider(
-  document.querySelector("#offers"),
-  3500
-);
+async function initializeApp() {
+
+  await loadSettings();
+
+  await Promise.all([
+
+    loadCategories(),
+
+    loadOffers(),
+
+    loadCoupons(),
+
+    loadMercadoPago()
+
+  ]);
 
 
-/* =========================
-   ACTIVAR CARRUSELES CUPONES
-========================= */
+  setupWhatsApp();
 
-document
-  .querySelectorAll(".coupon-row")
-  .forEach(row => {
+  enableOfferAutoScroll();
 
-    autoScrollSlider(
-      row,
-      4200
-    );
+  registerVisit();
 
-  });
+}
+
+
+// ========================================
+// INICIAR
+// ========================================
+
+initializeApp();
