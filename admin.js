@@ -1,568 +1,1243 @@
-const KEY = "patronOfertas_v1";
+// ========================================
+// EL PATRÓN DE LAS OFERTAS
+// ADMIN.JS - FIREBASE
+// ========================================
+
+import { auth, db } from "./firebase-config.js";
+
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  addDoc,
+  setDoc,
+  deleteDoc,
+  updateDoc,
+  serverTimestamp,
+  increment
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 
-/* =========================
-   DATOS DEMO
-========================= */
+// ========================================
+// CONFIGURACIÓN
+// ========================================
 
-const demo = {
-
-  categories: [
-    ["📱", "Celulares"],
-    ["📺", "Pantallas"],
-    ["💻", "Tecnología"],
-    ["🎮", "Videojuegos"],
-    ["🏠", "Hogar"],
-    ["👟", "Moda"]
-  ],
+const ADMIN_UID = "XrkjAonD9tWUD6X1rWWJsaQsh9J2";
 
 
-  offers: [
+// ========================================
+// ELEMENTOS
+// ========================================
 
-    {
-      name: "Producto en oferta",
-      oldPrice: 1999,
-      price: 1499,
-      image: "",
-      link: "#",
-      clicks: 0
+const offersList =
+  document.getElementById("offersList");
+
+const couponsList =
+  document.getElementById("couponsList");
+
+const categoriesList =
+  document.getElementById("categoriesList");
+
+const offerForm =
+  document.getElementById("offerForm");
+
+const couponForm =
+  document.getElementById("couponForm");
+
+const categoryForm =
+  document.getElementById("categoryForm");
+
+const mercadoForm =
+  document.getElementById("mercadoForm");
+
+const settingsForm =
+  document.getElementById("settingsForm");
+
+const adminMessage =
+  document.getElementById("adminMessage");
+
+
+// ========================================
+// MENSAJES
+// ========================================
+
+function showMessage(message, type = "success") {
+
+  if (!adminMessage) return;
+
+  adminMessage.textContent = message;
+
+  adminMessage.className =
+    `admin-message ${type}`;
+
+  adminMessage.style.display = "block";
+
+  setTimeout(() => {
+
+    adminMessage.style.display = "none";
+
+  }, 3500);
+}
+
+
+// ========================================
+// COMPROBAR ADMIN
+// ========================================
+
+async function checkAdmin() {
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    return false;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+
+    showMessage(
+      "❌ Esta cuenta no tiene permisos de administrador.",
+      "error"
+    );
+
+    return false;
+  }
+
+  try {
+
+    const adminRef =
+      doc(db, "admins", user.uid);
+
+    const adminSnap =
+      await getDoc(adminRef);
+
+    if (!adminSnap.exists()) {
+
+      showMessage(
+        "❌ Tu usuario no está registrado como administrador.",
+        "error"
+      );
+
+      return false;
     }
 
-  ],
+    const data = adminSnap.data();
 
+    if (data.role !== "admin") {
 
-  coupons: [
+      showMessage(
+        "❌ Tu cuenta no tiene rol de administrador.",
+        "error"
+      );
 
-    {
-      section: "⚡ Cupones Relámpago",
-      code: "OFERTASENCENDIDAS",
-      discount: "10% OFF",
-      min: 600,
-      max: 75,
-      link: "https://www.mercadolibre.com.mx/"
+      return false;
     }
 
-  ],
+    return true;
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "❌ No se pudo verificar el administrador.",
+      "error"
+    );
+
+    return false;
+  }
+}
 
 
-  promo: {
+// ========================================
+// FORMATO DE PRECIO
+// ========================================
 
-    title: "💳 $100 GRATIS",
+function money(value) {
 
-    text:
-      "para usuarios nuevos de Mercado Pago",
+  return new Intl.NumberFormat(
+    "es-MX",
+    {
+      style: "currency",
+      currency: "MXN"
+    }
+  ).format(Number(value || 0));
 
-    image: "",
-
-    link:
-      "https://www.mercadopago.com.mx/"
-
-  },
-
-
-  stats: {
-
-    visits: 0,
-
-    clicks: 0,
-
-    copies: 0
-
-  },
+}
 
 
-  settings: {
+// ========================================
+// CARGAR ESTADÍSTICAS
+// ========================================
 
-    waNumber: "",
+async function loadStats() {
 
-    mlLink:
-      "https://www.mercadolibre.com.mx/"
+  try {
+
+    const statsRef =
+      doc(db, "statistics", "general");
+
+    const statsSnap =
+      await getDoc(statsRef);
+
+    const stats =
+      statsSnap.exists()
+        ? statsSnap.data()
+        : {};
+
+    const visits =
+      document.getElementById("statVisits");
+
+    const unique =
+      document.getElementById("statUnique");
+
+    const clicks =
+      document.getElementById("statClicks");
+
+    const copies =
+      document.getElementById("statCopies");
+
+    const promotions =
+      document.getElementById("statPromotions");
+
+    const savings =
+      document.getElementById("statSavings");
+
+
+    if (visits)
+      visits.textContent =
+        stats.visits || 0;
+
+    if (unique)
+      unique.textContent =
+        stats.uniqueVisitors || 0;
+
+    if (clicks)
+      clicks.textContent =
+        stats.clicks || 0;
+
+    if (copies)
+      copies.textContent =
+        stats.copies || 0;
+
+    if (promotions)
+      promotions.textContent =
+        stats.promotions || 0;
+
+    if (savings)
+      savings.textContent =
+        money(stats.savings || 0);
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando estadísticas:",
+      error
+    );
 
   }
 
-};
+}
 
 
+// ========================================
+// OFERTAS
+// ========================================
 
-/* =========================
-   CARGAR BASE DE DATOS
-========================= */
+async function loadOffers() {
 
-let db =
-  JSON.parse(
-    localStorage.getItem(KEY) || "null"
-  ) || demo;
+  if (!offersList) return;
+
+  offersList.innerHTML =
+    "<p>⏳ Cargando ofertas...</p>";
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(db, "offers")
+      );
+
+    offersList.innerHTML = "";
+
+    if (snapshot.empty) {
+
+      offersList.innerHTML =
+        "<p>📭 No hay ofertas todavía.</p>";
+
+      return;
+    }
+
+    snapshot.forEach((item) => {
+
+      const offer =
+        item.data();
+
+      const id =
+        item.id;
+
+      const oldPrice =
+        Number(offer.oldPrice || 0);
+
+      const price =
+        Number(offer.price || 0);
+
+      let discount = 0;
+
+      if (oldPrice > 0 && price > 0) {
+
+        discount =
+          Math.round(
+            ((oldPrice - price) /
+              oldPrice) * 100
+          );
+
+      }
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "admin-item";
+
+      card.innerHTML = `
+
+        <div class="admin-item-info">
+
+          ${
+            offer.image
+              ? `<img
+                   src="${escapeHTML(offer.image)}"
+                   alt=""
+                   class="admin-item-image"
+                 >`
+              : ""
+          }
+
+          <div>
+
+            <h3>
+              ${escapeHTML(offer.name || "Sin nombre")}
+            </h3>
+
+            <p>
+              ${money(oldPrice)}
+              →
+              <strong>${money(price)}</strong>
+            </p>
+
+            <small>
+              ${discount}% OFF ·
+              ${offer.clicks || 0} clics
+            </small>
+
+          </div>
+
+        </div>
+
+        <div class="admin-item-actions">
+
+          <button
+            class="btn-danger"
+            data-delete-offer="${id}"
+          >
+            🗑️ Eliminar
+          </button>
+
+        </div>
+
+      `;
+
+      offersList.appendChild(card);
+
+    });
+
+    document
+      .querySelectorAll("[data-delete-offer]")
+      .forEach((button) => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            deleteOffer(
+              button.dataset.deleteOffer
+            )
+        );
+
+      });
+
+  } catch (error) {
+
+    console.error(error);
+
+    offersList.innerHTML =
+      "<p>❌ Error cargando ofertas.</p>";
+  }
+
+}
 
 
+// ========================================
+// ELIMINAR OFERTA
+// ========================================
 
-/* =========================
-   ASEGURAR CONFIGURACIÓN
-========================= */
+async function deleteOffer(id) {
 
-db.settings ||= {
+  if (!confirm(
+    "¿Eliminar esta oferta?"
+  )) {
+    return;
+  }
 
-  waNumber: "",
+  try {
 
-  mlLink:
-    "https://www.mercadolibre.com.mx/"
+    await deleteDoc(
+      doc(db, "offers", id)
+    );
 
-};
+    showMessage(
+      "✅ Oferta eliminada."
+    );
+
+    await loadOffers();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "❌ No se pudo eliminar.",
+      "error"
+    );
+
+  }
+
+}
 
 
+// ========================================
+// AGREGAR OFERTA
+// ========================================
 
-db.stats ||= {
+if (offerForm) {
 
-  visits: 0,
+  offerForm.addEventListener(
+    "submit",
+    async (event) => {
 
-  clicks: 0,
+      event.preventDefault();
 
-  copies: 0
+      if (!(await checkAdmin())) {
+        return;
+      }
 
-};
+      const name =
+        document.getElementById(
+          "offerName"
+        ).value.trim();
+
+      const image =
+        document.getElementById(
+          "offerImage"
+        ).value.trim();
+
+      const oldPrice =
+        Number(
+          document.getElementById(
+            "offerOldPrice"
+          ).value
+        );
+
+      const price =
+        Number(
+          document.getElementById(
+            "offerPrice"
+          ).value
+        );
+
+      const link =
+        document.getElementById(
+          "offerLink"
+        ).value.trim();
 
 
+      try {
 
-/* =========================
-   GUARDAR
-========================= */
+        await addDoc(
+          collection(db, "offers"),
+          {
 
-function save() {
+            name,
+            image,
+            oldPrice,
+            price,
+            link,
 
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(db)
+            clicks: 0,
+
+            active: true,
+
+            createdAt:
+              serverTimestamp()
+
+          }
+        );
+
+
+        offerForm.reset();
+
+        showMessage(
+          "🔥 Oferta agregada correctamente."
+        );
+
+        await loadOffers();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo guardar la oferta.",
+          "error"
+        );
+
+      }
+
+    }
   );
 
 }
 
 
+// ========================================
+// CUPONES
+// ========================================
 
-/* =========================
-   ESTADÍSTICAS
-========================= */
+async function loadCoupons() {
 
-function renderStats() {
+  if (!couponsList) return;
 
-  const container =
-    document.querySelector("#stats");
+  couponsList.innerHTML =
+    "<p>⏳ Cargando cupones...</p>";
 
+  try {
 
-  if (!container) return;
+    const snapshot =
+      await getDocs(
+        collection(db, "coupons")
+      );
 
+    couponsList.innerHTML = "";
 
-  container.innerHTML = `
+    if (snapshot.empty) {
 
-    <div class="stat">
+      couponsList.innerHTML =
+        "<p>📭 No hay cupones todavía.</p>";
 
-      <span>
-        Visitas
-      </span>
+      return;
+    }
 
-      <b>
-        ${db.stats.visits || 0}
-      </b>
 
-    </div>
+    snapshot.forEach((item) => {
 
+      const coupon =
+        item.data();
 
-    <div class="stat">
+      const id =
+        item.id;
 
-      <span>
-        Clics
-      </span>
+      const card =
+        document.createElement("div");
 
-      <b>
-        ${db.stats.clicks || 0}
-      </b>
+      card.className =
+        "admin-item";
 
-    </div>
+      card.innerHTML = `
 
+        <div class="admin-item-info">
 
-    <div class="stat">
+          <div>
 
-      <span>
-        Copias
-      </span>
+            <h3>
+              🎟️ ${escapeHTML(
+                coupon.code || ""
+              )}
+            </h3>
 
-      <b>
-        ${db.stats.copies || 0}
-      </b>
+            <p>
+              ${escapeHTML(
+                coupon.discount || ""
+              )}
+            </p>
 
-    </div>
-
-
-    <div class="stat">
-
-      <span>
-        Ofertas
-      </span>
-
-      <b>
-        ${db.offers.length}
-      </b>
-
-    </div>
-
-  `;
-
-}
-
-
-
-/* =========================
-   LISTA DE OFERTAS
-========================= */
-
-function renderOffers() {
-
-  const container =
-    document.querySelector(
-      "#offerList"
-    );
-
-
-  if (!container) return;
-
-
-  if (!db.offers.length) {
-
-    container.innerHTML =
-      "<p>No hay ofertas.</p>";
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    db.offers
-      .map(
-        (offer, index) => `
-
-          <div class="admin-item">
-
-            <div>
-
-              <b>
-                ${offer.name}
-              </b>
-
-              <br>
-
-              Precio:
-              $${Number(
-                offer.price
-              ).toLocaleString("es-MX")}
-
-              <br>
-
-              Clics:
-              ${offer.clicks || 0}
-
-            </div>
-
-
-            <div class="mini-actions">
-
-              <button
-                onclick="deleteOffer(${index})"
-              >
-                🗑️ Eliminar
-              </button>
-
-            </div>
-
-          </div>
-
-        `
-      )
-      .join("");
-
-}
-
-
-
-/* =========================
-   LISTA DE CUPONES
-========================= */
-
-function renderCoupons() {
-
-  const container =
-    document.querySelector(
-      "#couponList"
-    );
-
-
-  if (!container) return;
-
-
-  if (!db.coupons.length) {
-
-    container.innerHTML =
-      "<p>No hay cupones.</p>";
-
-    return;
-
-  }
-
-
-  container.innerHTML =
-    db.coupons
-      .map(
-        (coupon, index) => `
-
-          <div class="admin-item">
-
-            <div>
-
-              <b>
-                ${coupon.code}
-              </b>
-
-              <br>
-
-              ${coupon.discount}
-
-              <br>
-
-              ${coupon.section}
-
-              <br>
+            <small>
 
               Compra mínima:
-              $${Number(
-                coupon.min || 0
-              ).toLocaleString("es-MX")}
+              ${money(
+                coupon.minimumPurchase || 0
+              )}
 
-            </div>
+              · Máximo:
+              ${money(
+                coupon.maximumDiscount || 0
+              )}
 
+              · Copias:
+              ${coupon.copies || 0}
 
-            <div class="mini-actions">
-
-              <button
-                onclick="deleteCoupon(${index})"
-              >
-                🗑️ Eliminar
-              </button>
-
-            </div>
+            </small>
 
           </div>
 
-        `
-      )
-      .join("");
+        </div>
+
+        <div class="admin-item-actions">
+
+          <button
+            class="btn-danger"
+            data-delete-coupon="${id}"
+          >
+            🗑️ Eliminar
+          </button>
+
+        </div>
+
+      `;
+
+      couponsList.appendChild(card);
+
+    });
+
+
+    document
+      .querySelectorAll("[data-delete-coupon]")
+      .forEach((button) => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            deleteCoupon(
+              button.dataset.deleteCoupon
+            )
+        );
+
+      });
+
+  } catch (error) {
+
+    console.error(error);
+
+    couponsList.innerHTML =
+      "<p>❌ Error cargando cupones.</p>";
+
+  }
 
 }
 
 
+// ========================================
+// ELIMINAR CUPÓN
+// ========================================
 
-/* =========================
-   LISTA DE CATEGORÍAS
-========================= */
+async function deleteCoupon(id) {
 
-function renderCategories() {
-
-  const container =
-    document.querySelector(
-      "#categoryList"
-    );
-
-
-  if (!container) return;
-
-
-  if (!db.categories.length) {
-
-    container.innerHTML =
-      "<p>No hay categorías.</p>";
-
+  if (!confirm(
+    "¿Eliminar este cupón?"
+  )) {
     return;
-
   }
 
+  try {
 
-  container.innerHTML =
-    db.categories
-      .map(
-        (category, index) => `
-
-          <div class="admin-item">
-
-            <b>
-              ${category[0]}
-              ${category[1]}
-            </b>
-
-
-            <button
-              onclick="deleteCategory(${index})"
-            >
-              🗑️ Eliminar
-            </button>
-
-          </div>
-
-        `
-      )
-      .join("");
-
-}
-
-
-
-/* =========================
-   RENDER GENERAL
-========================= */
-
-function render() {
-
-  renderStats();
-
-  renderOffers();
-
-  renderCoupons();
-
-  renderCategories();
-
-
-  const wa =
-    document.querySelector(
-      "#waNumber"
+    await deleteDoc(
+      doc(db, "coupons", id)
     );
 
-
-  const ml =
-    document.querySelector(
-      "#mlLink"
+    showMessage(
+      "✅ Cupón eliminado."
     );
 
+    await loadCoupons();
 
-  if (wa) {
+  } catch (error) {
 
-    wa.value =
-      db.settings.waNumber || "";
+    console.error(error);
 
-  }
-
-
-  if (ml) {
-
-    ml.value =
-      db.settings.mlLink || "";
+    showMessage(
+      "❌ No se pudo eliminar.",
+      "error"
+    );
 
   }
 
 }
 
 
+// ========================================
+// AGREGAR CUPÓN
+// ========================================
 
-/* =========================
-   ELIMINAR OFERTA
-========================= */
+if (couponForm) {
 
-window.deleteOffer =
-  function(index) {
+  couponForm.addEventListener(
+    "submit",
+    async (event) => {
 
-    if (
-      !confirm(
-        "¿Eliminar esta oferta?"
-      )
-    ) {
+      event.preventDefault();
+
+      if (!(await checkAdmin())) {
+        return;
+      }
+
+      const code =
+        document.getElementById(
+          "couponCode"
+        ).value
+          .trim()
+          .toUpperCase();
+
+      const section =
+        document.getElementById(
+          "couponSection"
+        ).value;
+
+      const discount =
+        document.getElementById(
+          "couponDiscount"
+        ).value.trim();
+
+      const minimumPurchase =
+        Number(
+          document.getElementById(
+            "couponMin"
+          ).value || 0
+        );
+
+      const maximumDiscount =
+        Number(
+          document.getElementById(
+            "couponMax"
+          ).value || 0
+        );
+
+      const link =
+        document.getElementById(
+          "couponLink"
+        ).value.trim();
+
+
+      try {
+
+        await addDoc(
+          collection(db, "coupons"),
+          {
+
+            code,
+
+            section,
+
+            discount,
+
+            minimumPurchase,
+
+            maximumDiscount,
+
+            link,
+
+            copies: 0,
+
+            active: true,
+
+            createdAt:
+              serverTimestamp()
+
+          }
+        );
+
+
+        couponForm.reset();
+
+        showMessage(
+          "🎟️ Cupón agregado correctamente."
+        );
+
+        await loadCoupons();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo guardar el cupón.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+// ========================================
+// CATEGORÍAS
+// ========================================
+
+async function loadCategories() {
+
+  if (!categoriesList) return;
+
+  categoriesList.innerHTML =
+    "<p>⏳ Cargando categorías...</p>";
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(db, "categories")
+      );
+
+    categoriesList.innerHTML = "";
+
+    if (snapshot.empty) {
+
+      categoriesList.innerHTML =
+        "<p>📭 No hay categorías.</p>";
+
       return;
     }
 
 
-    db.offers.splice(
-      index,
-      1
+    snapshot.forEach((item) => {
+
+      const category =
+        item.data();
+
+      const id =
+        item.id;
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "admin-item";
+
+      card.innerHTML = `
+
+        <div>
+
+          <h3>
+            ${escapeHTML(
+              category.emoji || "📂"
+            )}
+            ${escapeHTML(
+              category.name || ""
+            )}
+          </h3>
+
+        </div>
+
+        <button
+          class="btn-danger"
+          data-delete-category="${id}"
+        >
+          🗑️ Eliminar
+        </button>
+
+      `;
+
+      categoriesList.appendChild(card);
+
+    });
+
+
+    document
+      .querySelectorAll("[data-delete-category]")
+      .forEach((button) => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            deleteCategory(
+              button.dataset.deleteCategory
+            )
+        );
+
+      });
+
+  } catch (error) {
+
+    console.error(error);
+
+    categoriesList.innerHTML =
+      "<p>❌ Error cargando categorías.</p>";
+
+  }
+
+}
+
+
+// ========================================
+// ELIMINAR CATEGORÍA
+// ========================================
+
+async function deleteCategory(id) {
+
+  if (!confirm(
+    "¿Eliminar esta categoría?"
+  )) {
+    return;
+  }
+
+  try {
+
+    await deleteDoc(
+      doc(db, "categories", id)
     );
 
+    showMessage(
+      "✅ Categoría eliminada."
+    );
 
-    save();
+    await loadCategories();
 
-    render();
+  } catch (error) {
 
-  };
+    console.error(error);
+
+    showMessage(
+      "❌ No se pudo eliminar.",
+      "error"
+    );
+
+  }
+
+}
 
 
+// ========================================
+// AGREGAR CATEGORÍA
+// ========================================
 
-/* =========================
-   ELIMINAR CUPÓN
-========================= */
+if (categoryForm) {
 
-window.deleteCoupon =
-  function(index) {
+  categoryForm.addEventListener(
+    "submit",
+    async (event) => {
 
-    if (
-      !confirm(
-        "¿Eliminar este cupón?"
-      )
-    ) {
+      event.preventDefault();
+
+      if (!(await checkAdmin())) {
+        return;
+      }
+
+      const name =
+        document.getElementById(
+          "categoryName"
+        ).value.trim();
+
+      const emoji =
+        document.getElementById(
+          "categoryEmoji"
+        ).value.trim();
+
+
+      try {
+
+        await addDoc(
+          collection(db, "categories"),
+          {
+
+            name,
+
+            emoji,
+
+            active: true,
+
+            createdAt:
+              serverTimestamp()
+
+          }
+        );
+
+
+        categoryForm.reset();
+
+        showMessage(
+          "📂 Categoría agregada."
+        );
+
+        await loadCategories();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo guardar la categoría.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+// ========================================
+// MERCADO PAGO
+// ========================================
+
+async function loadMercadoPago() {
+
+  try {
+
+    const reference =
+      doc(
+        db,
+        "promotions",
+        "mercadopago"
+      );
+
+    const snapshot =
+      await getDoc(reference);
+
+    if (!snapshot.exists()) {
       return;
     }
 
+    const data =
+      snapshot.data();
 
-    db.coupons.splice(
-      index,
-      1
-    );
+    document.getElementById(
+      "mpTitle"
+    ).value =
+      data.title || "";
+
+    document.getElementById(
+      "mpText"
+    ).value =
+      data.text || "";
+
+    document.getElementById(
+      "mpImage"
+    ).value =
+      data.image || "";
+
+    document.getElementById(
+      "mpLink"
+    ).value =
+      data.link || "";
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
 
 
-    save();
+if (mercadoForm) {
 
-    render();
+  mercadoForm.addEventListener(
+    "submit",
+    async (event) => {
 
-  };
+      event.preventDefault();
+
+      if (!(await checkAdmin())) {
+        return;
+      }
+
+      try {
+
+        await setDoc(
+          doc(
+            db,
+            "promotions",
+            "mercadopago"
+          ),
+          {
+
+            title:
+              document.getElementById(
+                "mpTitle"
+              ).value.trim(),
+
+            text:
+              document.getElementById(
+                "mpText"
+              ).value.trim(),
+
+            image:
+              document.getElementById(
+                "mpImage"
+              ).value.trim(),
+
+            link:
+              document.getElementById(
+                "mpLink"
+              ).value.trim(),
+
+            active: true,
+
+            updatedAt:
+              serverTimestamp()
+
+          },
+          {
+            merge: true
+          }
+        );
 
 
+        showMessage(
+          "💳 Promoción guardada."
+        );
 
-/* =========================
-   ELIMINAR CATEGORÍA
-========================= */
+      } catch (error) {
 
-window.deleteCategory =
-  function(index) {
+        console.error(error);
 
-    if (
-      !confirm(
-        "¿Eliminar esta categoría?"
-      )
-    ) {
+        showMessage(
+          "❌ No se pudo guardar la promoción.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+// ========================================
+// CONFIGURACIÓN
+// ========================================
+
+async function loadSettings() {
+
+  try {
+
+    const reference =
+      doc(
+        db,
+        "settings",
+        "general"
+      );
+
+    const snapshot =
+      await getDoc(reference);
+
+    if (!snapshot.exists()) {
       return;
     }
 
+    const data =
+      snapshot.data();
 
-    db.categories.splice(
-      index,
-      1
-    );
+    document.getElementById(
+      "whatsapp"
+    ).value =
+      data.whatsapp || "";
+
+    document.getElementById(
+      "generalMercadoLibre"
+    ).value =
+      data.generalMercadoLibre || "";
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
 
 
-    save();
+if (settingsForm) {
 
-    render();
+  settingsForm.addEventListener(
+    "submit",
+    async (event) => {
 
-  };
+      event.preventDefault();
+
+      if (!(await checkAdmin())) {
+        return;
+      }
+
+      try {
+
+        await setDoc(
+          doc(
+            db,
+            "settings",
+            "general"
+          ),
+          {
+
+            whatsapp:
+              document.getElementById(
+                "whatsapp"
+              ).value.trim(),
+
+            generalMercadoLibre:
+              document.getElementById(
+                "generalMercadoLibre"
+              ).value.trim(),
+
+            updatedAt:
+              serverTimestamp()
+
+          },
+          {
+            merge: true
+          }
+        );
 
 
+        showMessage(
+          "⚙️ Configuración guardada."
+        );
 
-/* =========================
-   CAMBIAR PESTAÑAS
-========================= */
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo guardar.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+// ========================================
+// PESTAÑAS
+// ========================================
 
 document
-  .querySelectorAll(".tab")
-  .forEach(tab => {
+  .querySelectorAll(".admin-tab")
+  .forEach((button) => {
 
-    tab.addEventListener(
+    button.addEventListener(
       "click",
       () => {
 
         document
-          .querySelectorAll(".tab")
-          .forEach(item => {
+          .querySelectorAll(".admin-tab")
+          .forEach((item) => {
 
             item.classList.remove(
               "active"
@@ -570,10 +1245,9 @@ document
 
           });
 
-
         document
-          .querySelectorAll(".panel")
-          .forEach(panel => {
+          .querySelectorAll(".admin-panel")
+          .forEach((panel) => {
 
             panel.classList.remove(
               "active"
@@ -582,24 +1256,15 @@ document
           });
 
 
-        tab.classList.add(
-          "active"
-        );
-
+        button.classList.add("active");
 
         const target =
-          document.querySelector(
-            "#tab-" +
-            tab.dataset.tab
+          document.getElementById(
+            button.dataset.tab
           );
-
 
         if (target) {
-
-          target.classList.add(
-            "active"
-          );
-
+          target.classList.add("active");
         }
 
       }
@@ -608,444 +1273,68 @@ document
   });
 
 
+// ========================================
+// SEGURIDAD HTML
+// ========================================
 
-/* =========================
-   AGREGAR OFERTA
-========================= */
+function escapeHTML(value) {
 
-const offerForm =
-  document.querySelector(
-    "#offerForm"
-  );
-
-
-if (offerForm) {
-
-  offerForm.addEventListener(
-    "submit",
-    event => {
-
-      event.preventDefault();
-
-
-      const form =
-        new FormData(
-          offerForm
-        );
-
-
-      const name =
-        String(
-          form.get("name") || ""
-        ).trim();
-
-
-      const image =
-        String(
-          form.get("image") || ""
-        ).trim();
-
-
-      const oldPrice =
-        Number(
-          form.get("oldPrice")
-        ) || 0;
-
-
-      const price =
-        Number(
-          form.get("price")
-        ) || 0;
-
-
-      const link =
-        String(
-          form.get("link") || ""
-        ).trim();
-
-
-      if (!name || !price) {
-
-        alert(
-          "Escribe el nombre y precio."
-        );
-
-        return;
-
-      }
-
-
-      db.offers.push({
-
-        name,
-
-        image,
-
-        oldPrice,
-
-        price,
-
-        link,
-
-        clicks: 0
-
-      });
-
-
-      save();
-
-
-      offerForm.reset();
-
-
-      render();
-
-    }
-  );
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
 
+// ========================================
+// INICIALIZAR PANEL
+// ========================================
 
-/* =========================
-   AGREGAR CUPÓN
-========================= */
+async function initializeAdmin() {
 
-const couponForm =
-  document.querySelector(
-    "#couponForm"
-  );
+  const valid =
+    await checkAdmin();
 
+  if (!valid) {
+    return;
+  }
 
-if (couponForm) {
+  await Promise.all([
 
-  couponForm.addEventListener(
-    "submit",
-    event => {
+    loadStats(),
 
-      event.preventDefault();
+    loadOffers(),
 
+    loadCoupons(),
 
-      const form =
-        new FormData(
-          couponForm
-        );
+    loadCategories(),
 
+    loadMercadoPago(),
 
-      /*
-        Convertimos automáticamente
-        el código a MAYÚSCULAS.
-      */
+    loadSettings()
 
-      const code =
-        String(
-          form.get("code") || ""
-        )
-          .trim()
-          .toUpperCase();
-
-
-      const section =
-        String(
-          form.get("section") || ""
-        );
-
-
-      const discount =
-        String(
-          form.get("discount") || ""
-        );
-
-
-      const min =
-        Number(
-          form.get("min")
-        ) || 0;
-
-
-      const max =
-        Number(
-          form.get("max")
-        ) || 0;
-
-
-      const link =
-        String(
-          form.get("link") || ""
-        ).trim();
-
-
-      if (!code) {
-
-        alert(
-          "Escribe el código del cupón."
-        );
-
-        return;
-
-      }
-
-
-      db.coupons.push({
-
-        section,
-
-        code,
-
-        discount,
-
-        min,
-
-        max,
-
-        link:
-          link ||
-          db.settings.mlLink
-
-      });
-
-
-      save();
-
-
-      couponForm.reset();
-
-
-      render();
-
-    }
-  );
+  ]);
 
 }
 
 
+// Esperar a que Firebase tenga
+// disponible el usuario autenticado.
 
-/* =========================
-   AGREGAR CATEGORÍA
-========================= */
+const unsubscribe =
+  auth.onAuthStateChanged
+    ? auth.onAuthStateChanged(
+        async (user) => {
 
-const categoryForm =
-  document.querySelector(
-    "#categoryForm"
-  );
+          if (user) {
 
+            await initializeAdmin();
 
-if (categoryForm) {
+          }
 
-  categoryForm.addEventListener(
-    "submit",
-    event => {
-
-      event.preventDefault();
-
-
-      const form =
-        new FormData(
-          categoryForm
-        );
-
-
-      const name =
-        String(
-          form.get("name") || ""
-        ).trim();
-
-
-      const emoji =
-        String(
-          form.get("emoji") || "📌"
-        ).trim();
-
-
-      if (!name) {
-
-        alert(
-          "Escribe el nombre."
-        );
-
-        return;
-
-      }
-
-
-      db.categories.push([
-        emoji,
-        name
-      ]);
-
-
-      save();
-
-
-      categoryForm.reset();
-
-
-      render();
-
-    }
-  );
-
-}
-
-
-
-/* =========================
-   MERCADO PAGO
-========================= */
-
-const promoForm =
-  document.querySelector(
-    "#promoForm"
-  );
-
-
-if (promoForm) {
-
-  promoForm.addEventListener(
-    "submit",
-    event => {
-
-      event.preventDefault();
-
-
-      const form =
-        new FormData(
-          promoForm
-        );
-
-
-      db.promo = {
-
-        title:
-          String(
-            form.get("title") || ""
-          ).trim(),
-
-        text:
-          String(
-            form.get("text") || ""
-          ).trim(),
-
-        image:
-          String(
-            form.get("image") || ""
-          ).trim(),
-
-        link:
-          String(
-            form.get("link") || ""
-          ).trim()
-
-      };
-
-
-      save();
-
-
-      alert(
-        "✅ Promoción guardada correctamente."
-      );
-
-    }
-  );
-
-}
-
-
-
-/* =========================
-   CONFIGURACIÓN
-========================= */
-
-const saveSettings =
-  document.querySelector(
-    "#saveSettings"
-  );
-
-
-if (saveSettings) {
-
-  saveSettings.addEventListener(
-    "click",
-    () => {
-
-      const wa =
-        document.querySelector(
-          "#waNumber"
-        );
-
-
-      const ml =
-        document.querySelector(
-          "#mlLink"
-        );
-
-
-      db.settings.waNumber =
-        wa.value.trim();
-
-
-      db.settings.mlLink =
-        ml.value.trim();
-
-
-      save();
-
-
-      alert(
-        "✅ Configuración guardada."
-      );
-
-    }
-  );
-
-}
-
-
-
-/* =========================
-   RESTABLECER DEMO
-========================= */
-
-const reset =
-  document.querySelector(
-    "#reset"
-  );
-
-
-if (reset) {
-
-  reset.addEventListener(
-    "click",
-    () => {
-
-      const confirmReset =
-        confirm(
-          "¿Seguro que quieres restablecer todos los datos de demostración?"
-        );
-
-
-      if (!confirmReset) {
-        return;
-      }
-
-
-      localStorage.removeItem(
-        KEY
-      );
-
-
-      location.reload();
-
-    }
-  );
-
-}
-
-
-
-/* =========================
-   INICIALIZAR
-========================= */
-
-render();
+        }
+      )
+    : null;
