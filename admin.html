@@ -411,67 +411,87 @@
       </section>
 
 
-      <!-- =====================================
-           CUPONES
-      ====================================== -->
+<!-- =====================================
+     CUPONES
+====================================== -->
 
-      <section
-        id="couponsTab"
-        class="admin-panel"
-      >
+<section
+  id="couponsTab"
+  class="admin-panel"
+>
 
-        <div class="panel-header">
+  <div class="panel-header">
 
-          <div>
+    <div>
 
-            <h2>
-              🎟️ Cupones
-            </h2>
+      <h2>
+        🎟️ Cupones
+      </h2>
 
-            <p>
-              Administra todos tus códigos de descuento.
-            </p>
+      <p>
+        Administra todos tus códigos de descuento.
+      </p>
 
-          </div>
+    </div>
 
-        </div>
-
-
-        <form
-          id="couponForm"
-          class="admin-form"
-        >
+  </div>
 
 
-          <!-- CÓDIGO -->
+  <form
+    id="couponForm"
+    class="admin-form"
+  >
 
-          <input
-            type="text"
-            id="couponCode"
-            placeholder="Código del cupón"
-            autocomplete="off"
-            required
-          >
+    <!-- NOMBRE DEL CUPÓN -->
+
+    <label for="couponName">
+      🏷️ Nombre del cupón
+    </label>
+
+    <input
+      type="text"
+      id="couponName"
+      placeholder="Ejemplo: Banco Santander"
+      autocomplete="off"
+    >
 
 
-          <!-- SECCIÓN -->
+    <!-- CÓDIGO DEL CUPÓN -->
 
-          <select id="couponSection">
+    <label for="couponCode">
+      🎟️ Código del cupón
+    </label>
 
-            <option value="relampago">
-              ⚡ Cupones Relámpago
-            </option>
+    <input
+      type="text"
+      id="couponCode"
+      placeholder="Ejemplo: AHORRO123"
+      autocomplete="off"
+      required
+    >
 
-            <option value="exclusivos">
-              🔥 Exclusivos + Tiendas
-            </option>
 
-            <option value="bancarios">
-              💳 Cupones Bancarios
-            </option>
+    <!-- SECCIÓN -->
 
-          </select>
+    <label for="couponSection">
+      📂 Sección
+    </label>
 
+    <select id="couponSection">
+
+      <option value="relampago">
+        ⚡ Cupones Relámpago
+      </option>
+
+      <option value="exclusivos">
+        🔥 Exclusivos + Tiendas
+      </option>
+
+      <option value="bancarios">
+        💳 Cupones Bancarios
+      </option>
+
+    </select>
 
           <!-- ESTADO -->
 
