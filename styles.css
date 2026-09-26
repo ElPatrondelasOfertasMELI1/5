@@ -1,10 +1,17 @@
 /* =========================================================
    EL PATRÓN DE LAS OFERTAS
-   ESTILOS GENERALES + PANEL ADMINISTRATIVO
+   STYLES.CSS COMPLETO
+========================================================= */
+
+
+/* =========================================================
+   RESET
 ========================================================= */
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -12,129 +19,272 @@ html {
 }
 
 body {
-  margin: 0;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
   background: #f5f5f5;
   color: #111;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+
+  min-height: 100vh;
 }
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
 
 /* =========================================================
    VARIABLES
 ========================================================= */
 
 :root {
-  --yellow: #ffd400;
-  --yellow-dark: #e6bd00;
+
+  --yellow: #ffd600;
+  --yellow-dark: #e5bd00;
+
   --black: #111111;
+  --black-soft: #1c1c1c;
+
   --white: #ffffff;
-  --gray-bg: #f5f5f5;
-  --gray: #777;
-  --border: #e3e3e3;
-  --green: #20b15a;
+
+  --gray: #666666;
+  --gray-light: #eeeeee;
+  --gray-border: #dddddd;
+
+  --green: #16a34a;
+  --green-dark: #12813b;
+
+  --orange: #f59e0b;
+  --orange-dark: #d97706;
+
   --red: #dc2626;
-  --shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  --radius: 16px;
+  --red-dark: #b91c1c;
+
+  --blue: #2563eb;
+
+  --radius: 18px;
+
+  --shadow:
+    0 8px 25px rgba(0, 0, 0, 0.08);
+
+  --shadow-hover:
+    0 14px 35px rgba(0, 0, 0, 0.14);
 }
 
+
 /* =========================================================
-   HEADER PÁGINA PRINCIPAL
+   PUBLIC HEADER
 ========================================================= */
 
 .top {
-  height: 70px;
+  width: 100%;
+
+  min-height: 72px;
+
   background: var(--black);
+
   color: var(--white);
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 
-  padding: 0 max(18px, calc((100% - 1180px) / 2));
+  gap: 15px;
+
+  padding:
+    12px
+    max(18px, calc((100% - 1180px) / 2));
 
   position: sticky;
-  top: 0;
-  z-index: 20;
 
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  top: 0;
+
+  z-index: 1000;
+
+  box-shadow:
+    0 3px 15px rgba(0, 0, 0, 0.2);
 }
 
 .brand {
   display: flex;
-  gap: 10px;
+
   align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.skull {
+  font-size: 34px;
+
+  line-height: 1;
 }
 
 .brand b {
   display: block;
+
+  color: var(--yellow);
+
   font-size: 18px;
+
+  font-weight: 900;
+
   letter-spacing: 0.5px;
 }
 
 .brand small {
   display: block;
-  color: var(--yellow);
+
+  color: white;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  margin-top: 2px;
+}
+
+.wa {
+  background: #25d366;
+
+  color: white;
+
+  padding: 10px 15px;
+
+  border-radius: 999px;
+
   font-weight: 800;
-  font-size: 10px;
+
+  font-size: 14px;
+
+  white-space: nowrap;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.skull {
-  font-size: 35px;
+.wa:hover {
+  transform: translateY(-2px);
+
+  opacity: 0.9;
 }
 
-.wa,
-.btn {
-  background: var(--yellow);
-  color: var(--black);
 
-  border: 0;
-  border-radius: 12px;
+/* =========================================================
+   MAIN
+========================================================= */
 
-  padding: 11px 16px;
+main {
+  width: 100%;
 
-  font-weight: 900;
-  text-decoration: none;
-  cursor: pointer;
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+  padding-bottom: 50px;
 }
 
-.wa:hover,
-.btn:hover {
-  background: var(--yellow-dark);
-}
 
 /* =========================================================
    HERO
 ========================================================= */
 
 .hero {
-  max-width: 1180px;
-  margin: auto;
-  padding: 42px 18px 25px;
-}
-
-.hero > div {
   background:
     linear-gradient(
       135deg,
-      var(--black) 0 68%,
-      var(--yellow) 68%
+      #111111 0%,
+      #242424 100%
     );
 
+  color: white;
+
+  margin: 18px;
+
   border-radius: 24px;
-  padding: 42px;
-  color: var(--white);
+
+  padding: 48px 32px;
+
   overflow: hidden;
+
+  position: relative;
+
+  box-shadow: var(--shadow);
+}
+
+.hero::after {
+  content: "🔥";
+
+  position: absolute;
+
+  right: 35px;
+
+  bottom: -20px;
+
+  font-size: 130px;
+
+  opacity: 0.08;
+
+  pointer-events: none;
+}
+
+.pill {
+  display: inline-flex;
+
+  align-items: center;
+
+  background: var(--yellow);
+
+  color: var(--black);
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  margin-bottom: 18px;
 }
 
 .hero h1 {
-  font-size: clamp(34px, 7vw, 64px);
-  line-height: 0.98;
-  margin: 15px 0;
+  position: relative;
+
+  z-index: 2;
+
+  font-size: clamp(32px, 5vw, 58px);
+
+  line-height: 1.05;
+
+  font-weight: 800;
+
+  max-width: 750px;
 }
 
 .hero h1 strong {
@@ -142,27 +292,19 @@ body {
 }
 
 .hero p {
-  font-size: 17px;
-  color: #ddd;
+  position: relative;
+
+  z-index: 2;
+
+  color: #dddddd;
+
+  font-size: 16px;
+
+  margin-top: 18px;
+
+  max-width: 600px;
 }
 
-/* =========================================================
-   ETIQUETAS
-========================================================= */
-
-.pill {
-  display: inline-block;
-
-  background: var(--yellow);
-  color: var(--black);
-
-  border-radius: 999px;
-
-  padding: 7px 12px;
-
-  font-weight: 900;
-  font-size: 12px;
-}
 
 /* =========================================================
    CATEGORÍAS
@@ -170,14 +312,13 @@ body {
 
 .categories {
   display: flex;
+
   gap: 10px;
 
   overflow-x: auto;
 
   padding:
-    8px
-    max(18px, calc((100% - 1180px) / 2))
-    18px;
+    4px 18px 16px;
 
   scrollbar-width: none;
 }
@@ -186,367 +327,904 @@ body {
   display: none;
 }
 
-.cat {
-  background: var(--white);
+.category-pill {
+  flex:
+    0 0 auto;
 
-  border: 1px solid #ddd;
+  background: white;
+
+  border:
+    1px solid var(--gray-border);
+
   border-radius: 999px;
 
   padding: 10px 15px;
 
-  white-space: nowrap;
+  font-size: 13px;
 
   font-weight: 800;
-  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
+
+.category-pill:hover {
+  background: var(--yellow);
+
+  border-color: var(--yellow);
+
+  transform: translateY(-2px);
+}
+
+.category-pill.active {
+  background: var(--black);
+
+  color: white;
+
+  border-color: var(--black);
+}
+
 
 /* =========================================================
    SECCIONES
 ========================================================= */
 
 .section {
-  max-width: 1180px;
-  margin: 15px auto;
-  padding: 0 18px;
+  padding:
+    12px 18px 20px;
 }
 
 .section-title {
   display: flex;
-  justify-content: space-between;
+
   align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 15px;
 }
 
 .section-title h2 {
-  font-size: 22px;
+  font-size: 23px;
+
+  font-weight: 900;
 }
 
 .section-title a {
-  color: var(--black);
+  color: #555;
+
+  font-size: 13px;
+
   font-weight: 800;
+
+  white-space: nowrap;
 }
 
+
 /* =========================================================
-   CARRUSELES
+   SLIDER OFERTAS
 ========================================================= */
 
-.slider,
-.coupon-row {
+.slider {
   display: flex;
-  gap: 14px;
+
+  gap: 16px;
 
   overflow-x: auto;
 
   scroll-snap-type: x mandatory;
 
-  padding: 4px 0 18px;
-
   scrollbar-width: none;
+
+  padding:
+    3px 2px 12px;
+
+  cursor: grab;
 }
 
-.slider::-webkit-scrollbar,
-.coupon-row::-webkit-scrollbar {
+.slider::-webkit-scrollbar {
   display: none;
 }
 
+.slider:active {
+  cursor: grabbing;
+}
+
+
 /* =========================================================
-   PRODUCTOS
+   TARJETA OFERTA
 ========================================================= */
 
-.card {
-  background: var(--white);
+.offer-card {
+  position: relative;
 
-  border-radius: 18px;
+  flex:
+    0 0 260px;
 
-  min-width: 250px;
-  max-width: 280px;
+  background: white;
+
+  border-radius: var(--radius);
 
   overflow: hidden;
 
   box-shadow: var(--shadow);
 
   scroll-snap-align: start;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.product-img {
-  height: 190px;
+.offer-card:hover {
+  transform: translateY(-4px);
 
-  background: #eee;
-
-  display: grid;
-  place-items: center;
-
-  font-size: 55px;
+  box-shadow: var(--shadow-hover);
 }
 
-.product-img img {
+.offer-image-wrap {
+  height: 215px;
+
+  background: #f3f3f3;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  position: relative;
+}
+
+.offer-image {
   width: 100%;
+
   height: 100%;
+
   object-fit: contain;
+
+  padding: 10px;
 }
 
-.card-body {
-  padding: 15px;
+.offer-no-image {
+  font-size: 55px;
+
+  opacity: 0.35;
 }
 
-.old {
-  text-decoration: line-through;
-  color: #888;
-  font-size: 13px;
-}
+.discount-badge {
+  position: absolute;
 
-.off {
-  color: #09863b;
+  left: 10px;
+
+  top: 10px;
+
+  background: var(--red);
+
+  color: white;
+
+  padding: 7px 9px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
   font-weight: 900;
-  margin-left: 6px;
+
+  z-index: 2;
 }
 
-.price {
-  font-size: 27px;
-  font-weight: 950;
-  margin: 4px 0 10px;
+.offer-content {
+  padding: 14px;
 }
 
-.buy {
-  display: block;
+.offer-content h3 {
+  font-size: 15px;
 
-  text-align: center;
+  line-height: 1.35;
 
-  background: var(--black);
-  color: var(--white);
+  min-height: 41px;
 
-  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.offer-prices {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+
+  margin-bottom: 12px;
+}
+
+.old-price {
+  color: #888;
+
+  text-decoration: line-through;
+
+  font-size: 12px;
+}
+
+.final-price {
+  color: var(--black);
+
+  font-size: 22px;
+
+  font-weight: 900;
+}
+
+.buy-button {
+  width: 100%;
+
+  border: 0;
+
+  background: var(--yellow);
+
+  color: var(--black);
 
   padding: 11px;
 
-  text-decoration: none;
+  border-radius: 10px;
+
   font-weight: 900;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
 }
+
+.buy-button:hover {
+  background: var(--yellow-dark);
+
+  transform: translateY(-1px);
+}
+
+.click-counter {
+  display: block;
+
+  color: #888;
+
+  text-align: center;
+
+  font-size: 11px;
+
+  margin-top: 8px;
+}
+
 
 /* =========================================================
    MERCADO PAGO
 ========================================================= */
 
 .mp-card {
-  max-width: 1180px;
+  margin:
+    10px 18px 25px;
 
-  margin: 15px auto 28px;
+  background: var(--black);
 
-  padding: 22px 18px;
+  color: white;
+
+  border-radius: 22px;
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow);
 }
 
 .mp-inner {
-  background: var(--black);
-  color: var(--white);
-
-  border-radius: 20px;
-
-  padding: 24px;
-
   display: flex;
 
-  justify-content: space-between;
   align-items: center;
 
-  gap: 20px;
+  gap: 25px;
+
+  padding: 22px;
 }
 
-.mp-inner h2 {
-  margin: 0 0 7px;
-  color: var(--yellow);
+.mp-image {
+  width: 150px;
+
+  height: 130px;
+
+  object-fit: contain;
+
+  background: white;
+
+  border-radius: 15px;
+
+  flex-shrink: 0;
 }
+
+.mp-content {
+  flex: 1;
+}
+
+.mp-label {
+  display: inline-block;
+
+  color: var(--yellow);
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  margin-bottom: 8px;
+}
+
+.mp-content h2 {
+  font-size: 22px;
+
+  margin-bottom: 8px;
+}
+
+.mp-content p {
+  color: #ddd;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+
+  margin-bottom: 15px;
+}
+
+.mp-button {
+  display: inline-block;
+
+  background: var(--yellow);
+
+  color: var(--black);
+
+  padding: 11px 17px;
+
+  border-radius: 10px;
+
+  font-weight: 900;
+
+  font-size: 13px;
+}
+
+.mp-button:hover {
+  background: var(--yellow-dark);
+}
+
 
 /* =========================================================
    CUPONES
 ========================================================= */
 
-.coupon-wrap h3 {
-  margin-bottom: 10px;
+.coupon-section {
+  margin-bottom: 28px;
 }
 
-.coupon {
-  background: var(--white);
+.section-heading {
+  display: flex;
 
-  border-radius: 17px;
+  align-items: center;
 
-  padding: 15px;
+  justify-content: space-between;
 
-  min-width: 245px;
+  margin-bottom: 12px;
+}
+
+.section-heading h3 {
+  font-size: 19px;
+
+  font-weight: 900;
+}
+
+.coupon-slider {
+  display: flex;
+
+  gap: 14px;
+
+  overflow-x: auto;
+
+  scroll-snap-type: x mandatory;
+
+  scrollbar-width: none;
+
+  padding:
+    4px 2px 12px;
+
+  cursor: grab;
+}
+
+.coupon-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.coupon-slider:active {
+  cursor: grabbing;
+}
+
+
+/* =========================================================
+   TARJETA CUPÓN
+========================================================= */
+
+.coupon-card {
+  position: relative;
+
+  flex:
+    0 0 265px;
+
+  min-height: 230px;
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+  border:
+    2px solid var(--gray-border);
 
   box-shadow: var(--shadow);
+
+  scroll-snap-align: start;
+
+  overflow: hidden;
 }
 
-.coupon strong {
-  font-size: 22px;
+.coupon-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 90px;
+
+  height: 90px;
+
+  right: -40px;
+
+  bottom: -40px;
+
+  background: var(--yellow);
+
+  border-radius: 50%;
+
+  opacity: 0.18;
 }
 
-.coupon .code {
+.coupon-card.active {
+  border-color: #bde8ca;
+}
+
+.coupon-card.soon {
+  border-color: #f4d28a;
+}
+
+.coupon-card.soldout {
+  border-color: #f0b5b5;
+
+  opacity: 0.9;
+}
+
+
+/* =========================================================
+   ESTADO CUPÓN
+========================================================= */
+
+.coupon-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 900;
+
+  margin-bottom: 13px;
+}
+
+.coupon-status.active {
+  background: #dcfce7;
+
+  color: var(--green-dark);
+}
+
+.coupon-status.soon {
+  background: #fef3c7;
+
+  color: var(--orange-dark);
+}
+
+.coupon-status.soldout {
+  background: #fee2e2;
+
+  color: var(--red-dark);
+}
+
+
+/* =========================================================
+   TOP CUPÓN
+========================================================= */
+
+.coupon-top {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 12px;
+}
+
+.coupon-fire {
+  font-size: 23px;
+}
+
+.coupon-top strong {
+  font-size: 18px;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   CÓDIGO OCULTO
+========================================================= */
+
+.coupon-code-hidden {
+  display: inline-block;
+
   background: #f1f1f1;
 
-  border: 1px dashed #aaa;
+  border:
+    1px dashed #aaa;
 
-  padding: 9px;
-
-  margin: 10px 0;
+  padding: 8px 10px;
 
   border-radius: 8px;
+
+  font-family:
+    monospace;
 
   font-weight: 900;
 
   letter-spacing: 1px;
 
-  text-align: center;
+  margin-bottom: 12px;
 }
 
-.copy {
-  width: 100%;
+.coupon-card p {
+  color: #555;
 
-  background: var(--yellow);
+  font-size: 12px;
+
+  margin-top: 5px;
+}
+
+.coupon-card p strong {
+  color: #111;
+}
+
+
+/* =========================================================
+   BOTONES CUPONES
+========================================================= */
+
+.copy-coupon,
+.view-offer-button {
+  width: 100%;
 
   border: 0;
 
-  border-radius: 9px;
+  padding: 11px;
 
-  padding: 10px;
+  border-radius: 10px;
 
-  font-weight: 950;
+  font-weight: 900;
 
-  cursor: pointer;
+  margin-top: 15px;
+
+  position: relative;
+
+  z-index: 2;
 }
 
-.coupon small {
+.copy-coupon {
+  background: var(--black);
+
+  color: white;
+}
+
+.copy-coupon:hover {
+  background: #292929;
+}
+
+.copy-coupon.copied {
+  background: var(--green);
+
+  color: white;
+}
+
+.view-offer-button {
+  background: var(--yellow);
+
+  color: var(--black);
+}
+
+.view-offer-button:hover {
+  background: var(--yellow-dark);
+}
+
+.coupon-copies {
   display: block;
-  margin-top: 8px;
-  color: #666;
+
+  color: #888;
+
+  text-align: center;
+
+  font-size: 10px;
+
+  margin-top: 9px;
 }
+
 
 /* =========================================================
-   WHATSAPP
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+  width: 100%;
+
+  background: white;
+
+  border:
+    1px dashed #ccc;
+
+  border-radius: 15px;
+
+  padding: 25px;
+
+  text-align: center;
+
+  color: #777;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   WHATSAPP FLOTANTE
 ========================================================= */
 
 .wa-float {
   position: fixed;
 
   right: 18px;
+
   bottom: 18px;
 
-  z-index: 30;
+  z-index: 2000;
 }
 
 .wa-float a {
   width: 55px;
+
   height: 55px;
 
   border-radius: 50%;
 
-  display: grid;
-  place-items: center;
+  display: flex;
 
-  background: #22c55e;
-  color: var(--white);
+  align-items: center;
+
+  justify-content: center;
+
+  background: #25d366;
+
+  color: white;
 
   font-size: 27px;
 
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 8px 25px
+    rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.2s ease;
 }
+
+.wa-float a:hover {
+  transform: scale(1.08);
+}
+
 
 /* =========================================================
    FOOTER
 ========================================================= */
 
 footer {
+  background: var(--black);
+
+  color: #aaa;
+
   text-align: center;
-  padding: 35px 18px;
-  color: #777;
+
+  padding: 22px 15px;
+
+  font-size: 12px;
 }
+
+
+/* =========================================================
+   IMAGE PICKER
+========================================================= */
+
+.image-picker {
+  background: #fafafa;
+
+  border:
+    1px dashed #cfcfcf;
+
+  border-radius: 14px;
+
+  padding: 14px;
+
+  margin-bottom: 12px;
+}
+
+.image-picker label {
+  display: block;
+
+  font-size: 13px;
+
+  font-weight: 900;
+
+  margin-bottom: 9px;
+}
+
+.image-picker input[type="file"] {
+  width: 100%;
+
+  padding: 10px;
+
+  background: white;
+
+  border:
+    1px solid #ddd;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.image-picker small {
+  display: block;
+
+  color: #777;
+
+  font-size: 11px;
+
+  margin-top: 7px;
+}
+
+.image-preview {
+  margin-top: 12px;
+
+  min-height: 10px;
+}
+
+.image-preview img {
+  width: 130px;
+
+  height: 130px;
+
+  object-fit: contain;
+
+  background: white;
+
+  border:
+    1px solid #ddd;
+
+  border-radius: 12px;
+
+  padding: 5px;
+}
+
 
 /* =========================================================
    =========================================================
-   PANEL ADMINISTRATIVO
+   ADMIN
    =========================================================
 ========================================================= */
 
+
 /* =========================================================
-   LOGIN
+   ADMIN BODY
+========================================================= */
+
+body:has(.admin-page) {
+  background: #f3f3f3;
+}
+
+
+/* =========================================================
+   LOGIN ADMIN
 ========================================================= */
 
 .admin-login {
   min-height: 100vh;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   padding: 20px;
 
   background:
-    radial-gradient(
-      circle at top right,
-      rgba(255, 212, 0, 0.25),
-      transparent 35%
-    ),
-    #111;
+    linear-gradient(
+      135deg,
+      #111111,
+      #272727
+    );
 }
 
 .login-card {
   width: 100%;
+
   max-width: 430px;
 
-  background: var(--white);
+  background: white;
 
-  border-radius: 24px;
+  border-radius: 22px;
 
-  padding: 35px;
+  padding: 32px;
 
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.35);
+    0 20px 60px
+    rgba(0, 0, 0, 0.35);
 
   text-align: center;
 }
 
 .login-logo {
-  width: 75px;
-  height: 75px;
+  font-size: 52px;
 
-  margin: 0 auto 15px;
-
-  border-radius: 50%;
-
-  display: grid;
-  place-items: center;
-
-  background: var(--yellow);
-
-  font-size: 42px;
-
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 8px;
 }
 
 .login-card h1 {
-  margin: 5px 0 0;
+  font-size: 25px;
 
-  font-size: 30px;
-  font-weight: 950;
+  color: #111;
 
-  letter-spacing: 1px;
+  font-weight: 900;
 }
 
 .login-card h2 {
-  margin: 0;
+  color: #111;
 
-  font-size: 18px;
-
-  color: #555;
+  font-size: 13px;
 
   letter-spacing: 2px;
+
+  margin-top: 3px;
 }
 
 .login-subtitle {
-  margin: 10px 0 28px;
-
   color: #777;
 
-  font-size: 14px;
+  font-size: 13px;
+
+  margin:
+    10px 0 25px;
 }
 
 .login-card form {
@@ -556,25 +1234,23 @@ footer {
 .login-card label {
   display: block;
 
-  margin: 14px 0 6px;
-
-  font-size: 14px;
+  font-size: 12px;
 
   font-weight: 800;
+
+  margin:
+    12px 0 6px;
 }
 
 .login-card input {
   width: 100%;
 
-  padding: 14px;
+  padding: 13px;
 
-  border: 1px solid #ddd;
+  border:
+    1px solid #d7d7d7;
 
-  border-radius: 11px;
-
-  background: #fafafa;
-
-  font-size: 15px;
+  border-radius: 10px;
 
   outline: none;
 }
@@ -583,23 +1259,24 @@ footer {
   border-color: var(--yellow);
 
   box-shadow:
-    0 0 0 3px rgba(255, 212, 0, 0.18);
+    0 0 0 3px
+    rgba(255, 214, 0, 0.18);
 }
 
 .login-card .btn-primary {
   width: 100%;
 
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .login-error {
-  min-height: 20px;
-
-  margin: 12px 0 0;
-
   color: var(--red);
 
-  font-size: 13px;
+  font-size: 12px;
+
+  min-height: 18px;
+
+  margin-top: 10px;
 
   text-align: center;
 }
@@ -607,45 +1284,30 @@ footer {
 .back-link {
   display: inline-block;
 
-  margin-top: 24px;
+  color: #666;
 
-  color: #555;
-
-  font-size: 14px;
+  font-size: 12px;
 
   font-weight: 700;
 
-  text-decoration: none;
+  margin-top: 20px;
 }
 
-.back-link:hover {
-  color: var(--black);
-}
-
-/* =========================================================
-   ADMIN PAGE
-========================================================= */
-
-.admin-page {
-  min-height: 100vh;
-
-  background: #f4f4f4;
-}
 
 /* =========================================================
    ADMIN HEADER
 ========================================================= */
 
 .admin-header {
-  min-height: 72px;
+  min-height: 70px;
 
   background: var(--black);
 
-  color: var(--white);
+  color: white;
 
   padding:
     12px
-    max(18px, calc((100% - 1180px) / 2));
+    max(18px, calc((100% - 1250px) / 2));
 
   display: flex;
 
@@ -653,16 +1315,17 @@ footer {
 
   justify-content: space-between;
 
-  gap: 20px;
+  gap: 15px;
 
   position: sticky;
 
   top: 0;
 
-  z-index: 100;
+  z-index: 1000;
 
   box-shadow:
-    0 3px 15px rgba(0, 0, 0, 0.2);
+    0 3px 15px
+    rgba(0, 0, 0, 0.2);
 }
 
 .admin-header strong {
@@ -670,17 +1333,17 @@ footer {
 
   color: var(--yellow);
 
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .admin-header small {
   display: block;
 
-  margin-top: 3px;
+  color: #aaa;
 
-  color: #bbb;
+  font-size: 11px;
 
-  font-size: 12px;
+  margin-top: 4px;
 }
 
 .admin-header-actions {
@@ -688,8 +1351,9 @@ footer {
 
   align-items: center;
 
-  gap: 10px;
+  gap: 8px;
 }
+
 
 /* =========================================================
    ADMIN CONTAINER
@@ -698,11 +1362,12 @@ footer {
 .admin-container {
   width: 100%;
 
-  max-width: 1180px;
+  max-width: 1250px;
 
   margin: 0 auto;
 
-  padding: 30px 18px 60px;
+  padding:
+    25px 18px 60px;
 }
 
 .admin-title {
@@ -712,139 +1377,56 @@ footer {
 
   align-items: center;
 
-  margin-bottom: 24px;
+  margin-bottom: 22px;
 }
 
 .admin-title h1 {
-  margin: 0;
+  font-size: 28px;
 
-  font-size: 30px;
-
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .admin-title p {
-  margin: 7px 0 0;
-
   color: #777;
+
+  margin-top: 5px;
+
+  font-size: 13px;
 }
+
 
 /* =========================================================
-   BOTONES ADMIN
-========================================================= */
-
-.btn-primary,
-.btn-secondary,
-.btn-danger {
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  min-height: 44px;
-
-  padding: 11px 17px;
-
-  border-radius: 11px;
-
-  border: 0;
-
-  font-weight: 900;
-
-  font-size: 14px;
-
-  cursor: pointer;
-
-  text-decoration: none;
-
-  transition:
-    transform 0.15s ease,
-    opacity 0.15s ease,
-    background 0.15s ease;
-}
-
-.btn-primary:hover,
-.btn-secondary:hover,
-.btn-danger:hover {
-  transform: translateY(-1px);
-}
-
-.btn-primary {
-  background: var(--yellow);
-
-  color: var(--black);
-}
-
-.btn-primary:hover {
-  background: var(--yellow-dark);
-}
-
-.btn-secondary {
-  background: #fff;
-
-  color: var(--black);
-}
-
-.btn-secondary:hover {
-  background: #eee;
-}
-
-.btn-danger {
-  background: #dc2626;
-
-  color: #fff;
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
-}
-
-button:disabled {
-  opacity: 0.6;
-
-  cursor: not-allowed;
-
-  transform: none !important;
-}
-
-/* =========================================================
-   ESTADÍSTICAS
+   ADMIN STATS
 ========================================================= */
 
 .stats {
   display: grid;
 
   grid-template-columns:
-    repeat(6, minmax(0, 1fr));
+    repeat(6, 1fr);
 
-  gap: 14px;
+  gap: 12px;
 
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 .stat-card {
-  background: var(--white);
+  background: white;
 
-  border-radius: var(--radius);
+  border-radius: 15px;
 
-  padding: 20px;
-
-  min-height: 125px;
+  padding: 17px;
 
   box-shadow: var(--shadow);
 
-  border: 1px solid #eee;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
+  border:
+    1px solid #e7e7e7;
 }
 
-.stat-card > span {
-  font-size: 24px;
+.stat-card span {
+  display: block;
+
+  font-size: 23px;
 
   margin-bottom: 8px;
 }
@@ -852,39 +1434,44 @@ button:disabled {
 .stat-card strong {
   display: block;
 
-  font-size: 27px;
+  font-size: 23px;
 
-  line-height: 1;
-
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .stat-card small {
-  margin-top: 7px;
-
   color: #777;
 
-  font-size: 12px;
+  font-size: 11px;
 
-  font-weight: 700;
+  display: block;
+
+  margin-top: 3px;
 }
 
+
 /* =========================================================
-   TABS
+   ADMIN TABS
 ========================================================= */
 
 .admin-tabs {
   display: flex;
 
-  gap: 8px;
+  gap: 7px;
 
   overflow-x: auto;
 
-  padding-bottom: 8px;
+  scrollbar-width: none;
+
+  background: white;
+
+  padding: 8px;
+
+  border-radius: 14px;
+
+  box-shadow: var(--shadow);
 
   margin-bottom: 18px;
-
-  scrollbar-width: none;
 }
 
 .admin-tabs::-webkit-scrollbar {
@@ -892,60 +1479,53 @@ button:disabled {
 }
 
 .admin-tab {
-  flex-shrink: 0;
+  flex:
+    0 0 auto;
 
   border: 0;
 
-  background: #e5e5e5;
+  background: transparent;
 
-  color: #333;
+  color: #666;
 
-  padding: 12px 17px;
+  padding: 11px 15px;
 
-  border-radius: 11px;
+  border-radius: 9px;
 
-  font-weight: 850;
+  font-size: 12px;
 
-  font-size: 14px;
-
-  cursor: pointer;
+  font-weight: 900;
 
   white-space: nowrap;
-
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
 }
 
 .admin-tab:hover {
-  background: #d8d8d8;
+  background: #f1f1f1;
+
+  color: #111;
 }
 
 .admin-tab.active {
-  background: var(--yellow);
+  background: var(--black);
 
-  color: var(--black);
-
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.08);
+  color: white;
 }
 
+
 /* =========================================================
-   PANELES
+   ADMIN PANELES
 ========================================================= */
 
 .admin-panel {
   display: none;
 
-  background: var(--white);
+  background: white;
 
   border-radius: 18px;
 
-  padding: 25px;
+  padding: 22px;
 
   box-shadow: var(--shadow);
-
-  border: 1px solid #eaeaea;
 
   margin-bottom: 20px;
 }
@@ -957,35 +1537,30 @@ button:disabled {
 .panel-header {
   display: flex;
 
-  justify-content: space-between;
-
   align-items: center;
 
+  justify-content: space-between;
+
   margin-bottom: 20px;
-
-  padding-bottom: 17px;
-
-  border-bottom: 1px solid #eee;
 }
 
 .panel-header h2 {
-  margin: 0;
-
   font-size: 21px;
 
-  font-weight: 950;
+  font-weight: 900;
 }
 
 .panel-header p {
-  margin: 5px 0 0;
-
   color: #777;
 
-  font-size: 13px;
+  font-size: 12px;
+
+  margin-top: 4px;
 }
 
+
 /* =========================================================
-   FORMULARIOS
+   ADMIN FORM
 ========================================================= */
 
 .admin-form {
@@ -1004,33 +1579,24 @@ button:disabled {
 .admin-form textarea {
   width: 100%;
 
-  min-height: 46px;
+  border:
+    1px solid #d9d9d9;
 
-  padding: 12px 13px;
-
-  border: 1px solid #dcdcdc;
-
-  border-radius: 10px;
-
-  background: #fafafa;
+  background: white;
 
   color: #111;
 
-  font-family: inherit;
+  border-radius: 10px;
 
-  font-size: 14px;
+  padding: 12px;
 
   outline: none;
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
 }
 
 .admin-form textarea {
-  min-height: 100px;
-
   resize: vertical;
+
+  min-height: 100px;
 }
 
 .admin-form input:focus,
@@ -1038,44 +1604,99 @@ button:disabled {
 .admin-form textarea:focus {
   border-color: var(--yellow);
 
-  background: #fff;
-
   box-shadow:
-    0 0 0 3px rgba(255, 212, 0, 0.18);
+    0 0 0 3px
+    rgba(255, 214, 0, 0.15);
 }
 
 .admin-form label {
-  grid-column: 1 / -1;
+  display: block;
 
-  font-size: 13px;
+  font-size: 12px;
 
-  font-weight: 850;
+  font-weight: 900;
 
   margin-top: 4px;
 }
 
+.admin-form .image-picker {
+  grid-column:
+    1 / -1;
+}
+
 .admin-form button {
-  min-height: 46px;
+  min-height: 45px;
 }
 
-/* Formularios con textarea */
-#mercadoForm textarea {
-  grid-column: 1 / -1;
-}
-
-/* Configuración */
-#settingsForm label {
-  grid-column: 1 / -1;
-
-  margin-bottom: -7px;
-}
 
 /* =========================================================
-   LISTAS
+   BOTONES ADMIN
+========================================================= */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  border: 0;
+
+  border-radius: 10px;
+
+  padding:
+    11px 15px;
+
+  font-weight: 900;
+
+  font-size: 12px;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--yellow);
+
+  color: #111;
+}
+
+.btn-secondary {
+  background: #eeeeee;
+
+  color: #111;
+}
+
+.btn-danger {
+  background: var(--red);
+
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover {
+  transform: translateY(-1px);
+
+  opacity: 0.9;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* =========================================================
+   ADMIN LISTAS
 ========================================================= */
 
 .admin-list {
-  display: grid;
+  display: flex;
+
+  flex-direction: column;
 
   gap: 10px;
 }
@@ -1085,97 +1706,99 @@ button:disabled {
 
   align-items: center;
 
-  justify-content: space-between;
-
-  gap: 15px;
+  gap: 14px;
 
   background: #fafafa;
 
-  border: 1px solid #e7e7e7;
+  border:
+    1px solid #e5e5e5;
 
-  border-radius: 13px;
+  border-radius: 14px;
 
-  padding: 13px;
-
-  transition:
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-.admin-item:hover {
-  background: #fff;
-
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.06);
+  padding: 12px;
 }
 
 .admin-item-image {
-  width: 65px;
-  height: 65px;
+  width: 75px;
 
-  flex-shrink: 0;
+  height: 75px;
 
   border-radius: 10px;
 
-  object-fit: contain;
+  background: white;
 
-  background: #eee;
+  border:
+    1px solid #ddd;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  flex-shrink: 0;
 }
 
-.admin-item > div:first-child {
+.admin-item-image img {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.admin-item-image span {
+  font-size: 28px;
+
+  opacity: 0.4;
+}
+
+.admin-item-content {
   flex: 1;
 
   min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
 }
 
-.admin-item strong {
-  display: block;
-
-  font-size: 15px;
+.admin-item-content strong {
+  font-size: 14px;
 
   font-weight: 900;
 
   overflow-wrap: anywhere;
 }
 
-.admin-item small {
-  display: block;
-
-  margin-top: 4px;
-
+.admin-item-content small {
   color: #777;
 
-  line-height: 1.4;
-
-  overflow-wrap: anywhere;
+  font-size: 11px;
 }
 
-.admin-item button {
+.admin-item-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
   flex-shrink: 0;
 }
 
-.btn-delete {
-  border: 0;
-
-  background: #fee2e2;
-
-  color: #b91c1c;
-
-  padding: 9px 12px;
-
-  border-radius: 9px;
-
-  font-weight: 850;
-
-  cursor: pointer;
+.admin-item-actions a,
+.admin-item-actions button {
+  min-width: 40px;
 }
 
-.btn-delete:hover {
-  background: #fecaca;
-}
 
 /* =========================================================
-   MENSAJES
+   ADMIN MENSAJES
 ========================================================= */
 
 .admin-message {
@@ -1185,265 +1808,223 @@ button:disabled {
 
   bottom: 20px;
 
-  z-index: 999;
+  z-index: 3000;
 
   max-width: 360px;
 
-  padding: 14px 17px;
+  background: #111;
 
-  background: var(--black);
+  color: white;
 
-  color: var(--white);
+  padding:
+    13px 17px;
 
-  border-left: 5px solid var(--yellow);
-
-  border-radius: 11px;
+  border-radius: 12px;
 
   box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.25);
+    0 10px 30px
+    rgba(0, 0, 0, 0.25);
 
-  font-size: 14px;
-
-  font-weight: 700;
-}
-
-/* =========================================================
-   COMPATIBILIDAD CON ADMIN ANTERIOR
-========================================================= */
-
-.admin-wrap {
-  max-width: 1180px;
-
-  margin: auto;
-
-  padding: 25px 18px;
-}
-
-.admin-head {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 15px;
-}
-
-.danger {
-  background: #e9e9e9;
-}
-
-.tabs {
-  display: flex;
-
-  gap: 8px;
-
-  overflow: auto;
-
-  margin-bottom: 15px;
-}
-
-.tab {
-  border: 0;
-
-  background: #ddd;
-
-  padding: 11px 15px;
-
-  border-radius: 10px;
+  font-size: 13px;
 
   font-weight: 800;
-
-  white-space: nowrap;
-
-  cursor: pointer;
 }
 
-.tab.active {
-  background: var(--yellow);
+.admin-message.success {
+  background: var(--green);
 }
 
-.panel {
-  display: none;
-
-  background: var(--white);
-
-  padding: 20px;
-
-  border-radius: 18px;
+.admin-message.error {
+  background: var(--red);
 }
 
-.panel.active {
-  display: block;
-}
-
-.form-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 10px;
-
-  margin: 15px 0;
-}
-
-.form-grid input,
-.form-grid select,
-.panel label input {
-  width: 100%;
-
-  padding: 12px;
-
-  border: 1px solid #ddd;
-
-  border-radius: 9px;
-
-  background: #fafafa;
-}
-
-.stat {
-  background: #fff;
-
-  padding: 18px;
-
-  border-radius: 15px;
-}
-
-.stat b {
-  display: block;
-
-  font-size: 28px;
-}
-
-.stat span {
-  color: #777;
-}
-
-.note {
-  color: #666;
-}
-
-.panel label {
-  display: block;
-
-  margin: 10px 0;
-}
 
 /* =========================================================
-   RESPONSIVE
+   ADMIN ESTADOS
 ========================================================= */
 
-@media (max-width: 1050px) {
+.admin-item .coupon-status {
+  align-self: flex-start;
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 950px) {
 
   .stats {
     grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+      repeat(3, 1fr);
+  }
+
+  .admin-form {
+    grid-template-columns:
+      1fr 1fr;
   }
 
 }
 
-@media (max-width: 750px) {
+
+/* =========================================================
+   RESPONSIVE CELULAR
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .top {
+    min-height: 64px;
+
+    padding:
+      10px 14px;
+  }
+
+  .skull {
+    font-size: 29px;
+  }
+
+  .brand b {
+    font-size: 15px;
+  }
+
+  .brand small {
+    font-size: 9px;
+  }
+
+  .wa {
+    padding:
+      8px 11px;
+
+    font-size: 12px;
+  }
+
+
+  .hero {
+    margin:
+      12px;
+
+    padding:
+      32px 22px;
+
+    border-radius: 19px;
+  }
+
+  .hero h1 {
+    font-size: 35px;
+  }
+
+  .hero p {
+    font-size: 14px;
+  }
+
+  .hero::after {
+    font-size: 90px;
+
+    right: 10px;
+  }
+
+
+  .section {
+    padding-left: 12px;
+
+    padding-right: 12px;
+  }
+
+
+  .section-title h2 {
+    font-size: 20px;
+  }
+
+
+  .offer-card {
+    flex-basis: 235px;
+  }
+
+  .offer-image-wrap {
+    height: 190px;
+  }
+
+
+  .coupon-card {
+    flex-basis: 245px;
+  }
+
+
+  .mp-card {
+    margin:
+      8px 12px 20px;
+  }
+
+  .mp-inner {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    padding: 18px;
+  }
+
+  .mp-image {
+    width: 100%;
+
+    height: 150px;
+  }
+
+
+  /* ADMIN */
 
   .admin-header {
     align-items: flex-start;
 
-    flex-direction: column;
-
-    padding: 15px 18px;
+    padding:
+      11px 13px;
   }
 
   .admin-header-actions {
-    width: 100%;
+    flex-direction: column;
+
+    align-items: stretch;
   }
 
-  .admin-header-actions .btn-secondary,
-  .admin-header-actions .btn-danger {
-    flex: 1;
+  .admin-header-actions
+  .btn-secondary,
+  .admin-header-actions
+  .btn-danger {
+    padding:
+      8px 10px;
+
+    font-size: 10px;
   }
 
-  .admin-title h1 {
-    font-size: 25px;
-  }
-
-  .stats {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-
-  .admin-form {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-panel {
-    padding: 18px;
-  }
-
-  .panel-header {
-    align-items: flex-start;
-  }
-
-}
-
-@media (max-width: 550px) {
-
-  .login-card {
-    padding: 25px 20px;
-
-    border-radius: 20px;
-  }
-
-  .login-card h1 {
-    font-size: 26px;
-  }
-
-  .login-card h2 {
-    font-size: 16px;
-  }
 
   .admin-container {
     padding:
-      22px
-      12px
-      50px;
+      18px 12px 50px;
   }
 
-  .admin-title {
-    margin-bottom: 18px;
-  }
 
   .admin-title h1 {
-    font-size: 22px;
+    font-size: 23px;
   }
 
-  .admin-title p {
-    font-size: 13px;
-  }
 
   .stats {
     grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+      repeat(2, 1fr);
 
-    gap: 9px;
+    gap: 8px;
   }
 
   .stat-card {
-    min-height: 105px;
-
-    padding: 14px;
-  }
-
-  .stat-card > span {
-    font-size: 20px;
+    padding: 13px;
   }
 
   .stat-card strong {
-    font-size: 22px;
+    font-size: 19px;
   }
 
-  .stat-card small {
-    font-size: 11px;
-  }
 
   .admin-panel {
     padding: 15px;
@@ -1451,15 +2032,37 @@ button:disabled {
     border-radius: 14px;
   }
 
+
+  .admin-form {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+
+  .admin-form .image-picker {
+    grid-column:
+      auto;
+  }
+
+
   .admin-item {
     align-items: flex-start;
 
     flex-wrap: wrap;
   }
 
-  .admin-item button {
-    margin-left: auto;
+  .admin-item-content {
+    min-width:
+      calc(100% - 95px);
   }
+
+  .admin-item-actions {
+    width: 100%;
+
+    justify-content: flex-end;
+  }
+
 
   .admin-message {
     left: 12px;
@@ -1469,540 +2072,108 @@ button:disabled {
     bottom: 12px;
 
     max-width: none;
-  }
 
-  .mp-inner {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-  .hero > div {
-    padding: 28px 22px;
-  }
-
-  .top {
-    padding: 0 14px;
-  }
-
-  .wa {
-    padding: 9px 11px;
-  }
-
-  .brand b {
-    font-size: 15px;
-  }
-
-}
-
-@media (max-width: 400px) {
-
-  .stats {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .stat-card {
-    padding: 12px;
-  }
-
-  .admin-header strong {
-    font-size: 16px;
-  }
-
-  .admin-header-actions {
-    flex-direction: column;
-  }
-
-  .admin-header-actions .btn-secondary,
-  .admin-header-actions .btn-danger {
-    width: 100%;
-  }
-
-}
-
-/* =========================================================
-   EL PATRÓN - TARJETAS REALES DE OFERTAS
-========================================================= */
-
-.slider {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding: 8px 2px 20px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  cursor: grab;
-  touch-action: pan-x;
-}
-
-.slider:active {
-  cursor: grabbing;
-}
-
-.slider::-webkit-scrollbar {
-  display: none;
-}
-
-.offer-card {
-  position: relative;
-  flex: 0 0 285px;
-  min-width: 285px;
-  background: #fff;
-  border-radius: 20px;
-  overflow: hidden;
-  scroll-snap-align: start;
-  box-shadow: 0 7px 25px rgba(0,0,0,.10);
-  border: 1px solid #e8e8e8;
-}
-
-.offer-image-wrap {
-  position: relative;
-  height: 230px;
-  background: #f7f7f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.offer-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 15px;
-}
-
-.offer-no-image {
-  font-size: 60px;
-}
-
-.discount-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #16a34a;
-  color: #fff;
-  padding: 7px 10px;
-  border-radius: 9px;
-  font-weight: 950;
-  font-size: 13px;
-}
-
-.offer-content {
-  padding: 17px;
-}
-
-.offer-content h3 {
-  margin: 0 0 12px;
-  font-size: 17px;
-  line-height: 1.3;
-  min-height: 45px;
-}
-
-.offer-prices {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 14px;
-}
-
-.old-price {
-  color: #888;
-  text-decoration: line-through;
-  font-size: 13px;
-}
-
-.final-price {
-  color: #111;
-  font-size: 27px;
-  font-weight: 950;
-}
-
-.buy-button {
-  width: 100%;
-  border: 0;
-  border-radius: 11px;
-  padding: 13px;
-  background: #ffd400;
-  color: #111;
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.buy-button:hover {
-  background: #e9c000;
-}
-
-.click-counter {
-  display: block;
-  text-align: center;
-  color: #777;
-  margin-top: 9px;
-}
-
-
-/* =========================================================
-   CATEGORÍAS
-========================================================= */
-
-.categories {
-  display: flex;
-  gap: 9px;
-  overflow-x: auto;
-  padding: 5px 18px 18px;
-  scrollbar-width: none;
-  scroll-behavior: smooth;
-}
-
-.categories::-webkit-scrollbar {
-  display: none;
-}
-
-.category-pill {
-  flex: 0 0 auto;
-  border: 1px solid #ddd;
-  background: #fff;
-  border-radius: 999px;
-  padding: 10px 15px;
-  font-weight: 850;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.category-pill:hover,
-.category-pill.active {
-  background: #ffd400;
-  border-color: #ffd400;
-}
-
-
-/* =========================================================
-   MERCADO PAGO
-========================================================= */
-
-.mp-card {
-  max-width: 1180px;
-  margin: 20px auto;
-  padding: 0 18px;
-}
-
-.mp-inner {
-  min-height: 190px;
-  background: #111;
-  color: #fff;
-  border-radius: 22px;
-  padding: 25px;
-  display: flex;
-  align-items: center;
-  gap: 25px;
-  overflow: hidden;
-}
-
-.mp-image {
-  width: 180px;
-  max-height: 150px;
-  object-fit: contain;
-}
-
-.mp-content {
-  flex: 1;
-}
-
-.mp-label {
-  display: inline-block;
-  background: #ffd400;
-  color: #111;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 900;
-  font-size: 12px;
-}
-
-.mp-content h2 {
-  color: #ffd400;
-  margin: 10px 0 6px;
-}
-
-.mp-content p {
-  color: #ddd;
-}
-
-.mp-button {
-  display: inline-block;
-  background: #ffd400;
-  color: #111;
-  padding: 11px 16px;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 950;
-}
-
-
-/* =========================================================
-   CUPONES
-========================================================= */
-
-.coupon-section {
-  margin-bottom: 28px;
-}
-
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 12px 0;
-}
-
-.section-heading h2 {
-  font-size: 20px;
-  margin: 0;
-}
-
-.coupon-slider {
-  display: flex;
-  gap: 15px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  padding: 5px 2px 18px;
-  cursor: grab;
-}
-
-.coupon-slider::-webkit-scrollbar {
-  display: none;
-}
-
-.coupon-slider:active {
-  cursor: grabbing;
-}
-
-.coupon-card {
-  position: relative;
-  flex: 0 0 275px;
-  min-width: 275px;
-  background: #fff;
-  border: 2px solid #eee;
-  border-radius: 20px;
-  padding: 17px;
-  box-shadow: 0 7px 22px rgba(0,0,0,.09);
-  scroll-snap-align: start;
-  overflow: hidden;
-}
-
-.coupon-card.active {
-  border-color: #20b15a;
-}
-
-.coupon-card.soon {
-  border-color: #f59e0b;
-}
-
-.coupon-card.soldout {
-  border-color: #dc2626;
-}
-
-.coupon-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 950;
-  margin-bottom: 12px;
-}
-
-.coupon-status.active {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.coupon-status.soon {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.coupon-status.soldout {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.coupon-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.coupon-fire {
-  font-size: 28px;
-}
-
-.coupon-top strong {
-  font-size: 22px;
-}
-
-.coupon-card h3 {
-  margin: 10px 0;
-  font-size: 20px;
-  letter-spacing: 1px;
-}
-
-.coupon-code-hidden {
-  background: #f1f1f1;
-  border: 1px dashed #aaa;
-  border-radius: 10px;
-  padding: 12px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 950;
-  letter-spacing: 2px;
-  margin: 10px 0 13px;
-}
-
-.coupon-card p {
-  margin: 7px 0;
-  color: #666;
-  font-size: 13px;
-}
-
-.coupon-card p strong {
-  color: #111;
-}
-
-.copy-coupon,
-.view-offer-button {
-  width: 100%;
-  border: 0;
-  border-radius: 11px;
-  padding: 13px;
-  font-weight: 950;
-  cursor: pointer;
-}
-
-.copy-coupon {
-  background: #ffd400;
-  color: #111;
-}
-
-.copy-coupon:hover {
-  background: #e7c000;
-}
-
-.copy-coupon.copied {
-  background: #20b15a;
-  color: #fff;
-}
-
-.view-offer-button {
-  background: #111;
-  color: #fff;
-}
-
-.coupon-copies {
-  display: block;
-  text-align: center;
-  color: #888;
-  margin-top: 9px;
-}
-
-
-/* =========================================================
-   MENSAJE VACÍO
-========================================================= */
-
-.empty-state {
-  width: 100%;
-  background: #fff;
-  border-radius: 15px;
-  padding: 25px;
-  text-align: center;
-  color: #777;
-}
-
-
-/* =========================================================
-   ADMIN - SELECTOR DE IMÁGENES
-========================================================= */
-
-.image-picker {
-  grid-column: 1 / -1;
-  border: 2px dashed #ccc;
-  border-radius: 14px;
-  padding: 16px;
-  background: #fafafa;
-}
-
-.image-picker label {
-  display: block;
-  font-weight: 900;
-  margin-bottom: 8px;
-}
-
-.image-picker input[type="file"] {
-  width: 100%;
-  padding: 10px;
-}
-
-.image-preview {
-  margin-top: 12px;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.image-preview img {
-  max-width: 180px;
-  max-height: 150px;
-  object-fit: contain;
-  border-radius: 10px;
-}
-
-
-/* =========================================================
-   ADMIN ITEMS
-========================================================= */
-
-.admin-item-info {
-  flex: 1;
-}
-
-.admin-item-info h3 {
-  margin: 0 0 5px;
-}
-
-.admin-item-info p {
-  margin: 3px 0;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 600px) {
-
-  .offer-card {
-    flex-basis: 78vw;
-    min-width: 78vw;
-  }
-
-  .coupon-card {
-    flex-basis: 82vw;
-    min-width: 82vw;
-  }
-
-  .offer-image-wrap {
-    height: 220px;
-  }
-
-  .mp-inner {
-    flex-direction: column;
     text-align: center;
   }
 
-  .mp-image {
-    width: 140px;
+}
+
+
+/* =========================================================
+   CELULAR PEQUEÑO
+========================================================= */
+
+@media (max-width: 420px) {
+
+  .hero h1 {
+    font-size: 30px;
   }
 
+  .pill {
+    font-size: 10px;
+  }
+
+  .offer-card {
+    flex-basis: 220px;
+  }
+
+  .coupon-card {
+    flex-basis: 230px;
+  }
+
+  .stats {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .login-card {
+    padding: 24px 18px;
+  }
+
+}
+
+
+/* =========================================================
+   ANIMACIONES
+========================================================= */
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+.offer-card,
+.coupon-card,
+.mp-card {
+  animation:
+    fadeIn 0.35s ease both;
+}
+
+
+/* =========================================================
+   SELECCIÓN
+========================================================= */
+
+::selection {
+  background: var(--yellow);
+
+  color: var(--black);
+}
+
+
+/* =========================================================
+   SCROLLBAR DESKTOP
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eeeeee;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bdbdbd;
+
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
