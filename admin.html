@@ -1,509 +1,748 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta charset="utf-8">
+  <title>El Patrón de las Ofertas | Admin</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  >
-
-  <title>
-    Admin · El Patrón de las Ofertas
-  </title>
-
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  >
-
+  <link rel="stylesheet" href="styles.css">
 </head>
 
+<body>
 
-<body class="admin">
+  <!-- =====================================
+       LOGIN
+  ====================================== -->
 
+  <section id="loginScreen" class="admin-login">
 
-<!-- =========================
-     HEADER
-========================= -->
+    <div class="login-card">
 
-<header class="top">
+      <div class="login-logo">
+        🔥
+      </div>
 
-  <div class="brand">
+      <h1>EL PATRÓN</h1>
+      <h2>DE LAS OFERTAS</h2>
 
-    <span class="skull">
-      💀
-    </span>
+      <p class="login-subtitle">
+        Panel de administración
+      </p>
 
-    <div>
+      <form id="loginForm">
 
-      <b>
-        EL PATRÓN
-      </b>
+        <label for="loginEmail">
+          Correo electrónico
+        </label>
 
-      <small>
-        ADMIN
-      </small>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Tu correo"
+          autocomplete="email"
+          required
+        >
+
+        <label for="loginPassword">
+          Contraseña
+        </label>
+
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Tu contraseña"
+          autocomplete="current-password"
+          required
+        >
+
+        <button
+          type="submit"
+          class="btn-primary"
+          id="loginButton"
+        >
+          🔐 INICIAR SESIÓN
+        </button>
+
+        <p id="loginError" class="login-error"></p>
+
+      </form>
+
+      <a href="index.html" class="back-link">
+        ← Volver a la página
+      </a>
 
     </div>
 
+  </section>
+
+
+  <!-- =====================================
+       PANEL ADMINISTRATIVO
+  ====================================== -->
+
+  <div id="adminPanel" class="admin-page" style="display:none;">
+
+    <!-- HEADER -->
+
+    <header class="admin-header">
+
+      <div>
+        <strong>🔥 EL PATRÓN ADMIN</strong>
+        <small id="adminUserEmail"></small>
+      </div>
+
+      <div class="admin-header-actions">
+
+        <a
+          href="index.html"
+          target="_blank"
+          class="btn-secondary"
+        >
+          👁️ Ver página
+        </a>
+
+        <button
+          id="logoutButton"
+          class="btn-danger"
+          type="button"
+        >
+          🚪 Salir
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <main class="admin-container">
+
+      <!-- TITULO -->
+
+      <div class="admin-title">
+
+        <div>
+          <h1>Panel de administración</h1>
+
+          <p>
+            Administra ofertas, cupones, categorías y promociones.
+          </p>
+        </div>
+
+      </div>
+
+
+      <!-- =====================================
+           ESTADÍSTICAS
+      ====================================== -->
+
+      <section class="stats" id="stats">
+
+        <div class="stat-card">
+          <span>👁️</span>
+          <strong id="statVisits">0</strong>
+          <small>Visitas</small>
+        </div>
+
+        <div class="stat-card">
+          <span>👤</span>
+          <strong id="statUnique">0</strong>
+          <small>Visitantes únicos</small>
+        </div>
+
+        <div class="stat-card">
+          <span>🖱️</span>
+          <strong id="statClicks">0</strong>
+          <small>Clics</small>
+        </div>
+
+        <div class="stat-card">
+          <span>📋</span>
+          <strong id="statCopies">0</strong>
+          <small>Cupones copiados</small>
+        </div>
+
+        <div class="stat-card">
+          <span>🔥</span>
+          <strong id="statPromotions">0</strong>
+          <small>Promociones</small>
+        </div>
+
+        <div class="stat-card">
+          <span>💰</span>
+          <strong id="statSavings">$0</strong>
+          <small>Ahorro generado</small>
+        </div>
+
+      </section>
+
+
+      <!-- =====================================
+           MENÚ
+      ====================================== -->
+
+      <nav class="admin-tabs">
+
+        <button
+          class="admin-tab active"
+          data-tab="offersTab"
+        >
+          🔥 Ofertas
+        </button>
+
+        <button
+          class="admin-tab"
+          data-tab="couponsTab"
+        >
+          🎟️ Cupones
+        </button>
+
+        <button
+          class="admin-tab"
+          data-tab="categoriesTab"
+        >
+          📂 Categorías
+        </button>
+
+        <button
+          class="admin-tab"
+          data-tab="mercadoTab"
+        >
+          💳 Mercado Pago
+        </button>
+
+        <button
+          class="admin-tab"
+          data-tab="settingsTab"
+        >
+          ⚙️ Configuración
+        </button>
+
+      </nav>
+
+
+      <!-- =====================================
+           OFERTAS
+      ====================================== -->
+
+      <section
+        id="offersTab"
+        class="admin-panel active"
+      >
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🔥 Ofertas</h2>
+            <p>
+              Agrega y administra tus ofertas.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form id="offerForm" class="admin-form">
+
+          <input
+            type="text"
+            id="offerName"
+            placeholder="Nombre del producto"
+            required
+          >
+
+          <input
+            type="url"
+            id="offerImage"
+            placeholder="URL de la imagen"
+            required
+          >
+
+          <input
+            type="number"
+            id="offerOldPrice"
+            placeholder="Precio anterior"
+            min="0"
+            step="0.01"
+            required
+          >
+
+          <input
+            type="number"
+            id="offerPrice"
+            placeholder="Precio final"
+            min="0"
+            step="0.01"
+            required
+          >
+
+          <input
+            type="url"
+            id="offerLink"
+            placeholder="Link del producto"
+            required
+          >
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+            ➕ Agregar oferta
+          </button>
+
+        </form>
+
+
+        <div
+          id="offersList"
+          class="admin-list"
+        ></div>
+
+      </section>
+
+
+      <!-- =====================================
+           CUPONES
+      ====================================== -->
+
+      <section
+        id="couponsTab"
+        class="admin-panel"
+      >
+
+        <div class="panel-header">
+
+          <div>
+            <h2>🎟️ Cupones</h2>
+            <p>
+              Administra todos tus códigos de descuento.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form id="couponForm" class="admin-form">
+
+          <input
+            type="text"
+            id="couponCode"
+            placeholder="Código del cupón"
+            required
+          >
+
+          <select id="couponSection">
+
+            <option value="relampago">
+              ⚡ Cupones Relámpago
+            </option>
+
+            <option value="exclusivos">
+              🔥 Exclusivos + Tiendas
+            </option>
+
+            <option value="bancarios">
+              💳 Cupones Bancarios
+            </option>
+
+            <option value="todos">
+              🎟️ Todos los cupones
+            </option>
+
+          </select>
+
+
+          <input
+            type="text"
+            id="couponDiscount"
+            placeholder="Ejemplo: 14% OFF"
+            required
+          >
+
+          <input
+            type="number"
+            id="couponMin"
+            placeholder="Compra mínima"
+            min="0"
+            step="0.01"
+          >
+
+          <input
+            type="number"
+            id="couponMax"
+            placeholder="Descuento máximo"
+            min="0"
+            step="0.01"
+          >
+
+          <input
+            type="url"
+            id="couponLink"
+            placeholder="Link Mercado Libre (opcional)"
+          >
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+            ➕ Agregar cupón
+          </button>
+
+        </form>
+
+
+        <div
+          id="couponsList"
+          class="admin-list"
+        ></div>
+
+      </section>
+
+
+      <!-- =====================================
+           CATEGORÍAS
+      ====================================== -->
+
+      <section
+        id="categoriesTab"
+        class="admin-panel"
+      >
+
+        <div class="panel-header">
+
+          <div>
+            <h2>📂 Categorías</h2>
+            <p>
+              Administra las categorías de la página.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form
+          id="categoryForm"
+          class="admin-form"
+        >
+
+          <input
+            type="text"
+            id="categoryName"
+            placeholder="Nombre de categoría"
+            required
+          >
+
+          <input
+            type="text"
+            id="categoryEmoji"
+            placeholder="Emoji 📱"
+            maxlength="4"
+            required
+          >
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+            ➕ Agregar categoría
+          </button>
+
+        </form>
+
+
+        <div
+          id="categoriesList"
+          class="admin-list"
+        ></div>
+
+      </section>
+
+
+      <!-- =====================================
+           MERCADO PAGO
+      ====================================== -->
+
+      <section
+        id="mercadoTab"
+        class="admin-panel"
+      >
+
+        <div class="panel-header">
+
+          <div>
+            <h2>💳 Mercado Pago</h2>
+            <p>
+              Configura la promoción destacada.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form
+          id="mercadoForm"
+          class="admin-form"
+        >
+
+          <input
+            type="text"
+            id="mpTitle"
+            placeholder="Título"
+            required
+          >
+
+          <textarea
+            id="mpText"
+            placeholder="Descripción de la promoción"
+            rows="4"
+            required
+          ></textarea>
+
+          <input
+            type="url"
+            id="mpImage"
+            placeholder="URL de la imagen"
+          >
+
+          <input
+            type="url"
+            id="mpLink"
+            placeholder="Link de Mercado Pago"
+            required
+          >
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+            💾 Guardar promoción
+          </button>
+
+        </form>
+
+      </section>
+
+
+      <!-- =====================================
+           CONFIGURACIÓN
+      ====================================== -->
+
+      <section
+        id="settingsTab"
+        class="admin-panel"
+      >
+
+        <div class="panel-header">
+
+          <div>
+            <h2>⚙️ Configuración</h2>
+            <p>
+              Configuración general de la página.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form
+          id="settingsForm"
+          class="admin-form"
+        >
+
+          <label>
+            Número de WhatsApp
+          </label>
+
+          <input
+            type="text"
+            id="whatsapp"
+            placeholder="521XXXXXXXXXX"
+          >
+
+
+          <label>
+            Link general de Mercado Libre
+          </label>
+
+          <input
+            type="url"
+            id="generalMercadoLibre"
+            placeholder="https://www.mercadolibre.com.mx/"
+          >
+
+
+          <button
+            type="submit"
+            class="btn-primary"
+          >
+            💾 Guardar configuración
+          </button>
+
+        </form>
+
+      </section>
+
+
+      <!-- =====================================
+           MENSAJE
+      ====================================== -->
+
+      <div
+        id="adminMessage"
+        class="admin-message"
+        style="display:none;"
+      ></div>
+
+
+    </main>
+
   </div>
 
 
-  <a
-    href="index.html"
-    class="wa"
-  >
-    Ver página
-  </a>
+  <!-- =====================================
+       FIREBASE + ADMIN
+  ====================================== -->
 
-</header>
+  <script type="module">
 
+    import { auth } from "./firebase-config.js";
 
+    import {
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-<!-- =========================
-     CONTENIDO ADMIN
-========================= -->
 
-<main class="admin-wrap">
+    const loginScreen =
+      document.getElementById("loginScreen");
 
+    const adminPanel =
+      document.getElementById("adminPanel");
 
-  <!-- ENCABEZADO -->
+    const loginForm =
+      document.getElementById("loginForm");
 
-  <div class="admin-head">
+    const loginError =
+      document.getElementById("loginError");
 
-    <div>
+    const loginButton =
+      document.getElementById("loginButton");
 
-      <span class="pill">
-        PANEL DE CONTROL
-      </span>
+    const logoutButton =
+      document.getElementById("logoutButton");
 
-      <h1>
-        👑 Administración
-      </h1>
+    const adminUserEmail =
+      document.getElementById("adminUserEmail");
 
-    </div>
 
+    // =====================================
+    // COMPROBAR SESIÓN
+    // =====================================
 
-    <button
-      class="btn danger"
-      id="reset"
-    >
-      Restablecer demo
-    </button>
+    onAuthStateChanged(auth, (user) => {
 
-  </div>
+      if (user) {
 
+        loginScreen.style.display = "none";
 
+        adminPanel.style.display = "block";
 
-  <!-- =========================
-       ESTADÍSTICAS
-  ========================= -->
+        adminUserEmail.textContent =
+          user.email || "";
 
-  <div
-    class="stats"
-    id="stats"
-  ></div>
+        // Cargar administrador
+        const script =
+          document.createElement("script");
 
+        script.type = "module";
 
+        script.src = "./admin.js";
 
-  <!-- =========================
-       MENÚ
-  ========================= -->
+        document.body.appendChild(script);
 
-  <div class="tabs">
+      } else {
 
-    <button
-      class="tab active"
-      data-tab="offers"
-    >
-      🔥 Ofertas
-    </button>
+        loginScreen.style.display = "flex";
 
+        adminPanel.style.display = "none";
 
-    <button
-      class="tab"
-      data-tab="coupons"
-    >
-      🎟️ Cupones
-    </button>
+      }
 
+    });
 
-    <button
-      class="tab"
-      data-tab="categories"
-    >
-      📂 Categorías
-    </button>
 
+    // =====================================
+    // LOGIN
+    // =====================================
 
-    <button
-      class="tab"
-      data-tab="promo"
-    >
-      💳 Mercado Pago
-    </button>
+    loginForm.addEventListener(
+      "submit",
+      async (event) => {
 
+        event.preventDefault();
 
-    <button
-      class="tab"
-      data-tab="settings"
-    >
-      ⚙️ Configuración
-    </button>
+        const email =
+          document.getElementById(
+            "loginEmail"
+          ).value.trim();
 
-  </div>
+        const password =
+          document.getElementById(
+            "loginPassword"
+          ).value;
 
 
+        loginError.textContent = "";
 
-  <!-- =========================
-       OFERTAS
-  ========================= -->
+        loginButton.disabled = true;
 
-  <section
-    class="panel active"
-    id="tab-offers"
-  >
+        loginButton.textContent =
+          "⏳ ENTRANDO...";
 
-    <h2>
-      🔥 Ofertas destacadas
-    </h2>
 
+        try {
 
-    <form
-      id="offerForm"
-      class="form-grid"
-    >
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
 
-      <input
-        name="name"
-        placeholder="Nombre del producto"
-        required
-      >
+        } catch (error) {
 
+          console.error(error);
 
-      <input
-        name="image"
-        placeholder="URL de imagen"
-      >
+          loginError.textContent =
+            "❌ Correo o contraseña incorrectos.";
 
+          loginButton.disabled = false;
 
-      <input
-        name="oldPrice"
-        type="number"
-        step=".01"
-        placeholder="Precio anterior"
-      >
+          loginButton.textContent =
+            "🔐 INICIAR SESIÓN";
 
+        }
 
-      <input
-        name="price"
-        type="number"
-        step=".01"
-        placeholder="Precio final"
-        required
-      >
+      }
+    );
 
 
-      <input
-        name="link"
-        placeholder="Enlace de compra"
-      >
+    // =====================================
+    // CERRAR SESIÓN
+    // =====================================
 
+    logoutButton.addEventListener(
+      "click",
+      async () => {
 
-      <button
-        class="btn"
-        type="submit"
-      >
-        + Agregar oferta
-      </button>
+        await signOut(auth);
 
-    </form>
+        window.location.reload();
 
+      }
+    );
 
-    <div
-      id="offerList"
-      class="admin-list"
-    ></div>
-
-  </section>
-
-
-
-  <!-- =========================
-       CUPONES
-  ========================= -->
-
-  <section
-    class="panel"
-    id="tab-coupons"
-  >
-
-    <h2>
-      🎟️ Cupones
-    </h2>
-
-
-    <form
-      id="couponForm"
-      class="form-grid"
-    >
-
-      <input
-        name="code"
-        placeholder="Código del cupón"
-        required
-      >
-
-
-      <select name="section">
-
-        <option>
-          ⚡ Cupones Relámpago
-        </option>
-
-        <option>
-          🔥 Exclusivos + Tiendas
-        </option>
-
-        <option>
-          💳 Cupones Bancarios
-        </option>
-
-        <option>
-          🎟️ Todos los cupones
-        </option>
-
-      </select>
-
-
-      <input
-        name="min"
-        type="number"
-        placeholder="Compra mínima"
-      >
-
-
-      <input
-        name="max"
-        type="number"
-        placeholder="Descuento máximo"
-      >
-
-
-      <input
-        name="discount"
-        placeholder="Ej. 14% OFF"
-      >
-
-
-      <input
-        name="link"
-        placeholder="Enlace de Mercado Libre"
-      >
-
-
-      <button
-        class="btn"
-        type="submit"
-      >
-        + Agregar cupón
-      </button>
-
-    </form>
-
-
-    <div
-      id="couponList"
-      class="admin-list"
-    ></div>
-
-  </section>
-
-
-
-  <!-- =========================
-       CATEGORÍAS
-  ========================= -->
-
-  <section
-    class="panel"
-    id="tab-categories"
-  >
-
-    <h2>
-      📂 Categorías
-    </h2>
-
-
-    <form
-      id="categoryForm"
-      class="form-grid"
-    >
-
-      <input
-        name="name"
-        placeholder="Nombre de la categoría"
-        required
-      >
-
-
-      <input
-        name="emoji"
-        placeholder="Emoji"
-      >
-
-
-      <button
-        class="btn"
-        type="submit"
-      >
-        + Agregar categoría
-      </button>
-
-    </form>
-
-
-    <div
-      id="categoryList"
-      class="admin-list"
-    ></div>
-
-  </section>
-
-
-
-  <!-- =========================
-       MERCADO PAGO
-  ========================= -->
-
-  <section
-    class="panel"
-    id="tab-promo"
-  >
-
-    <h2>
-      💳 Promoción Mercado Pago
-    </h2>
-
-
-    <form
-      id="promoForm"
-      class="form-grid"
-    >
-
-      <input
-        name="title"
-        placeholder="Título"
-        required
-      >
-
-
-      <input
-        name="text"
-        placeholder="Texto de la promoción"
-      >
-
-
-      <input
-        name="image"
-        placeholder="URL de imagen"
-      >
-
-
-      <input
-        name="link"
-        placeholder="Enlace"
-      >
-
-
-      <button
-        class="btn"
-        type="submit"
-      >
-        Guardar promoción
-      </button>
-
-    </form>
-
-  </section>
-
-
-
-  <!-- =========================
-       CONFIGURACIÓN
-  ========================= -->
-
-  <section
-    class="panel"
-    id="tab-settings"
-  >
-
-    <h2>
-      ⚙️ Configuración
-    </h2>
-
-
-    <label>
-
-      WhatsApp
-
-      <input
-        id="waNumber"
-        placeholder="521XXXXXXXXXX"
-      >
-
-    </label>
-
-
-    <label>
-
-      Mercado Libre general
-
-      <input
-        id="mlLink"
-        placeholder="https://www.mercadolibre.com.mx/"
-      >
-
-    </label>
-
-
-    <button
-      class="btn"
-      id="saveSettings"
-    >
-      Guardar configuración
-    </button>
-
-
-    <p class="note">
-
-      Los códigos de cupón se guardan
-      automáticamente en MAYÚSCULAS.
-
-      <br><br>
-
-      Esta versión utiliza almacenamiento
-      local del navegador.
-
-      <br><br>
-
-      Posteriormente puede conectarse
-      directamente con Firebase.
-
-    </p>
-
-  </section>
-
-
-</main>
-
-
-
-<script src="admin.js"></script>
+  </script>
 
 </body>
-
 </html>
