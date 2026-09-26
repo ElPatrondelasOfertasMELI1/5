@@ -1,24 +1,23 @@
 import { auth, db } from "./firebase-config.js";
 
 import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+import {
   collection,
   getDocs,
   getDoc,
   doc,
   setDoc,
-  updateDoc,
-  deleteDoc,
-  increment
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
-
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
+/* =====================================
+   CONFIGURACIÓN
+===================================== */
 
 const ADMIN_UID =
   "XrkjAonD9tWUD6X1rWWJsaQsh9J2";
@@ -27,68 +26,62 @@ const MERCADO_LIBRE_AFILIADO =
   "https://meli.la/1mj3itE";
 
 
-// ======================================================
-// ELEMENTOS
-// ======================================================
+let editingOfferId = null;
+let editingCouponId = null;
+let editingCategoryId = null;
 
-let adminInitialized = false;
+let offerImageBase64 = "";
+let mercadoImageBase64 = "";
+
+let categories = [];
+let offers = [];
+let coupons = [];
 
 
-// ======================================================
-// MENSAJES
-// ======================================================
+/* =====================================
+   UTILIDADES
+===================================== */
 
-function showMessage(
-  message,
-  type = "success"
-) {
+function showMessage(message, type = "success") {
 
-  const box =
-    document.getElementById(
-      "adminMessage"
-    );
+  const element =
+    document.getElementById("adminMessage");
 
-  if (!box) {
-    return;
-  }
+  if (!element) return;
 
-  box.textContent = message;
+  element.textContent =
+    message;
 
-  box.className =
+  element.className =
     `admin-message ${type}`;
 
-  box.style.display =
-    "block";
+  clearTimeout(
+    window.__adminMessageTimer
+  );
 
-  setTimeout(() => {
+  window.__adminMessageTimer =
+    setTimeout(() => {
 
-    box.style.display =
-      "none";
+      element.textContent = "";
+      element.className =
+        "admin-message";
 
-  }, 3500);
+    }, 3500);
 
 }
 
-
-// ======================================================
-// ESCAPE HTML
-// ======================================================
 
 function escapeHTML(value) {
 
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
 }
 
-
-// ======================================================
-// DINERO
-// ======================================================
 
 function money(value) {
 
@@ -106,11 +99,9 @@ function money(value) {
 }
 
 
-// ======================================================
-// IMAGEN
-// GALERÍA → BASE64
-// CON COMPRESIÓN
-// ======================================================
+/* =====================================
+   IMÁGENES → BASE64
+===================================== */
 
 function imageToBase64(
   file,
@@ -130,155 +121,107 @@ function imageToBase64(
       }
 
 
-      if (
-        !file.type.startsWith(
-          "image/"
-        )
-      ) {
-
-        reject(
-          new Error(
-            "El archivo seleccionado no es una imagen."
-          )
-        );
-
-        return;
-
-      }
-
-
       const reader =
         new FileReader();
 
 
-      reader.onload = () => {
+      reader.onload =
+        (event) => {
 
-        const image =
-          new Image();
-
-
-        image.onload = () => {
-
-          let width =
-            image.width;
-
-          let height =
-            image.height;
+          const img =
+            new Image();
 
 
-          /*
-           * Reducimos imágenes
-           * demasiado grandes.
-           */
+          img.onload =
+            () => {
 
-          if (
-            width > maxSize ||
-            height > maxSize
-          ) {
+              let width =
+                img.width;
 
-            if (
-              width > height
-            ) {
+              let height =
+                img.height;
 
-              height =
-                Math.round(
-                  height *
-                  maxSize /
-                  width
+
+              if (width > maxSize) {
+
+                height =
+                  Math.round(
+                    height *
+                    (maxSize / width)
+                  );
+
+                width =
+                  maxSize;
+
+              }
+
+
+              if (height > maxSize) {
+
+                width =
+                  Math.round(
+                    width *
+                    (maxSize / height)
+                  );
+
+                height =
+                  maxSize;
+
+              }
+
+
+              const canvas =
+                document.createElement(
+                  "canvas"
                 );
 
-              width =
-                maxSize;
 
-            } else {
+              canvas.width =
+                width;
 
-              width =
-                Math.round(
-                  width *
-                  maxSize /
-                  height
+              canvas.height =
+                height;
+
+
+              const ctx =
+                canvas.getContext(
+                  "2d"
                 );
 
-              height =
-                maxSize;
 
-            }
-
-          }
-
-
-          const canvas =
-            document.createElement(
-              "canvas"
-            );
+              ctx.drawImage(
+                img,
+                0,
+                0,
+                width,
+                height
+              );
 
 
-          canvas.width =
-            width;
-
-          canvas.height =
-            height;
-
-
-          const ctx =
-            canvas.getContext(
-              "2d"
-            );
+              const result =
+                canvas.toDataURL(
+                  "image/jpeg",
+                  quality
+                );
 
 
-          ctx.drawImage(
-            image,
-            0,
-            0,
-            width,
-            height
-          );
+              resolve(result);
+
+            };
 
 
-          /*
-           * JPEG comprimido.
-           * Esto reduce muchísimo
-           * el tamaño del Base64.
-           */
-
-          const base64 =
-            canvas.toDataURL(
-              "image/jpeg",
-              quality
-            );
+          img.onerror =
+            reject;
 
 
-          resolve(base64);
+          img.src =
+            event.target.result;
 
         };
 
 
-        image.onerror = () => {
-
-          reject(
-            new Error(
-              "No se pudo procesar la imagen."
-            )
-          );
-
-        };
-
-
-        image.src =
-          reader.result;
-
-      };
-
-
-      reader.onerror = () => {
-
-        reject(
-          new Error(
-            "No se pudo leer la imagen."
-          )
-        );
-
-      };
+      reader.onerror =
+        reject;
 
 
       reader.readAsDataURL(file);
@@ -289,169 +232,135 @@ function imageToBase64(
 }
 
 
-// ======================================================
-// PREVIEW DE IMÁGENES
-// ======================================================
-
-function setupImagePreview(
-  inputId,
-  previewId
-) {
-
-  const input =
-    document.getElementById(
-      inputId
-    );
-
-  const preview =
-    document.getElementById(
-      previewId
-    );
-
-
-  if (!input || !preview) {
-    return;
-  }
-
-
-  input.addEventListener(
-    "change",
-    () => {
-
-      const file =
-        input.files?.[0];
-
-
-      if (!file) {
-
-        preview.innerHTML =
-          "";
-
-        return;
-
-      }
-
-
-      const reader =
-        new FileReader();
-
-
-      reader.onload = () => {
-
-        preview.innerHTML = `
-          <img
-            src="${reader.result}"
-            alt="Vista previa"
-          >
-        `;
-
-      };
-
-
-      reader.readAsDataURL(
-        file
-      );
-
-    }
-  );
-
-}
-
-
-// ======================================================
-// INICIALIZAR PREVIEWS
-// ======================================================
+/* =====================================
+   PREVISUALIZACIÓN IMAGEN OFERTA
+===================================== */
 
 function setupImagePreviews() {
 
-  setupImagePreview(
-    "offerImage",
-    "offerImagePreview"
-  );
+  const offerInput =
+    document.getElementById(
+      "offerImage"
+    );
+
+  const offerPreview =
+    document.getElementById(
+      "offerImagePreview"
+    );
 
 
-  setupImagePreview(
-    "mpImage",
-    "mpImagePreview"
-  );
+  if (offerInput) {
+
+    offerInput.addEventListener(
+      "change",
+      async () => {
+
+        const file =
+          offerInput.files[0];
+
+        if (!file) return;
+
+
+        try {
+
+          offerImageBase64 =
+            await imageToBase64(file);
+
+
+          if (offerPreview) {
+
+            offerPreview.innerHTML =
+              `
+              <img
+                src="${offerImageBase64}"
+                alt="Vista previa"
+                class="admin-image-preview"
+              >
+              `;
+
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+          showMessage(
+            "❌ No se pudo cargar la imagen.",
+            "error"
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  const mpInput =
+    document.getElementById(
+      "mpImage"
+    );
+
+  const mpPreview =
+    document.getElementById(
+      "mpImagePreview"
+    );
+
+
+  if (mpInput) {
+
+    mpInput.addEventListener(
+      "change",
+      async () => {
+
+        const file =
+          mpInput.files[0];
+
+        if (!file) return;
+
+
+        try {
+
+          mercadoImageBase64 =
+            await imageToBase64(file);
+
+
+          if (mpPreview) {
+
+            mpPreview.innerHTML =
+              `
+              <img
+                src="${mercadoImageBase64}"
+                alt="Vista previa"
+                class="admin-image-preview"
+              >
+              `;
+
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+          showMessage(
+            "❌ No se pudo cargar la imagen.",
+            "error"
+          );
+
+        }
+
+      }
+    );
+
+  }
 
 }
 
 
-// ======================================================
-// COMPROBAR ADMIN
-// ======================================================
-
-async function checkAdmin(
-  user
-) {
-
-  if (!user) {
-    return false;
-  }
-
-
-  if (
-    user.uid !==
-    ADMIN_UID
-  ) {
-
-    return false;
-
-  }
-
-
-  try {
-
-    const adminRef =
-      doc(
-        db,
-        "admins",
-        user.uid
-      );
-
-
-    const adminSnap =
-      await getDoc(
-        adminRef
-      );
-
-
-    if (
-      !adminSnap.exists()
-    ) {
-
-      return false;
-
-    }
-
-
-    const data =
-      adminSnap.data();
-
-
-    return (
-      data.role ===
-      "admin"
-    );
-
-  } catch (error) {
-
-    console.error(
-      "Error comprobando admin:",
-      error
-    );
-
-    return false;
-
-  }
-
-}
-
-
-// ======================================================
-// PESTAÑAS
-// ======================================================
+/* =====================================
+   TABS
+===================================== */
 
 function setupTabs() {
 
@@ -459,7 +368,6 @@ function setupTabs() {
     document.querySelectorAll(
       ".admin-tab"
     );
-
 
   const panels =
     document.querySelectorAll(
@@ -479,24 +387,10 @@ function setupTabs() {
 
 
           tabs.forEach(
-            (item) => {
-
+            (item) =>
               item.classList.remove(
                 "active"
-              );
-
-            }
-          );
-
-
-          panels.forEach(
-            (panel) => {
-
-              panel.classList.remove(
-                "active"
-              );
-
-            }
+              )
           );
 
 
@@ -505,19 +399,16 @@ function setupTabs() {
           );
 
 
-          const panel =
-            document.getElementById(
-              target
-            );
+          panels.forEach(
+            (panel) => {
 
+              panel.style.display =
+                panel.id === target
+                  ? "block"
+                  : "none";
 
-          if (panel) {
-
-            panel.classList.add(
-              "active"
-            );
-
-          }
+            }
+          );
 
         }
       );
@@ -528,356 +419,183 @@ function setupTabs() {
 }
 
 
-// ======================================================
-// CARGAR ESTADÍSTICAS
-// ======================================================
+/* =====================================
+   CATEGORÍAS
+===================================== */
 
-async function loadStats() {
+async function loadCategories() {
 
-  try {
-
-    const statsRef =
-      doc(
+  const snapshot =
+    await getDocs(
+      collection(
         db,
-        "statistics",
-        "general"
-      );
-
-
-    const snapshot =
-      await getDoc(
-        statsRef
-      );
-
-
-    if (
-      !snapshot.exists()
-    ) {
-
-      return;
-
-    }
-
-
-    const data =
-      snapshot.data();
-
-
-    const visits =
-      data.visits || 0;
-
-    const unique =
-      data.uniqueVisitors || 0;
-
-    const clicks =
-      data.clicks || 0;
-
-    const copies =
-      data.copies || 0;
-
-    const promotions =
-      data.promotions || 0;
-
-    const savings =
-      data.savings || 0;
-
-
-    const elements = {
-
-      statVisits:
-        visits,
-
-      statUnique:
-        unique,
-
-      statClicks:
-        clicks,
-
-      statCopies:
-        copies,
-
-      statPromotions:
-        promotions,
-
-      statSavings:
-        money(savings)
-
-    };
-
-
-    Object.entries(
-      elements
-    ).forEach(
-      ([id, value]) => {
-
-        const element =
-          document.getElementById(
-            id
-          );
-
-
-        if (element) {
-
-          element.textContent =
-            value;
-
-        }
-
-      }
+        "categories"
+      )
     );
 
-  } catch (error) {
 
-    console.error(
-      "Error cargando estadísticas:",
-      error
+  categories =
+    snapshot.docs.map(
+      (item) => ({
+        id: item.id,
+        ...item.data()
+      })
     );
 
-  }
+
+  renderCategorySelect();
+  renderCategories();
 
 }
 
 
-// ======================================================
-// OFERTAS
-// ======================================================
+function renderCategorySelect() {
 
-async function loadOffers() {
+  const select =
+    document.getElementById(
+      "offerCategory"
+    );
+
+  if (!select) return;
+
+
+  select.innerHTML =
+    `
+    <option value="">
+      Selecciona una categoría
+    </option>
+    `;
+
+
+  categories.forEach(
+    (category) => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        category.name || "";
+
+
+      option.textContent =
+        `${category.emoji || "📂"} ${category.name || ""}`;
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+function renderCategories() {
 
   const container =
     document.getElementById(
-      "offersList"
+      "categoriesList"
     );
 
+  if (!container) return;
 
-  if (!container) {
+
+  if (!categories.length) {
+
+    container.innerHTML =
+      "<p>No hay categorías todavía.</p>";
+
     return;
+
   }
 
 
   container.innerHTML =
-    "<p>Cargando ofertas...</p>";
+    categories.map(
+      (category) => `
 
+      <div class="admin-list-item">
 
-  try {
+        <div>
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "offers"
-        )
-      );
+          <strong>
+            ${escapeHTML(
+              category.emoji || "📂"
+            )}
+            ${escapeHTML(
+              category.name || ""
+            )}
+          </strong>
 
-
-    if (
-      snapshot.empty
-    ) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          🔥 No hay ofertas todavía.
         </div>
-      `;
 
-      return;
+        <div class="admin-list-actions">
 
-    }
+          <button
+            type="button"
+            class="edit-button"
+            data-edit-category="${escapeHTML(category.id)}"
+          >
+            ✏️
+          </button>
 
+          <button
+            type="button"
+            class="delete-button"
+            data-delete-category="${escapeHTML(category.id)}"
+          >
+            🗑️
+          </button>
 
-    container.innerHTML = "";
+        </div>
 
-
-    snapshot.forEach(
-      (item) => {
-
-        const data =
-          item.data();
-
-
-        const card =
-          document.createElement(
-            "article"
-          );
-
-
-        card.className =
-          "admin-item";
-
-
-        card.innerHTML = `
-
-          <div class="admin-item-image">
-
-            ${
-              data.image
-                ? `
-                  <img
-                    src="${data.image}"
-                    alt=""
-                  >
-                `
-                : `
-                  <span>🖼️</span>
-                `
-            }
-
-          </div>
-
-
-          <div class="admin-item-content">
-
-            <strong>
-              ${escapeHTML(
-                data.name
-              )}
-            </strong>
-
-
-            ${
-              data.category
-                ? `
-                  <small>
-                    📂 ${escapeHTML(
-                      data.category
-                    )}
-                  </small>
-                `
-                : ""
-            }
-
-
-            <div>
-
-              <span class="old-price">
-                ${money(
-                  data.oldPrice
-                )}
-              </span>
-
-              <strong class="final-price">
-                ${money(
-                  data.price
-                )}
-              </strong>
-
-            </div>
-
-          </div>
-
-
-          <div class="admin-item-actions">
-
-            <a
-              href="${escapeHTML(
-                data.link || "#"
-              )}"
-              target="_blank"
-              rel="noopener"
-              class="btn-secondary"
-            >
-              👁️
-            </a>
-
-
-            <button
-              type="button"
-              class="btn-danger"
-              data-delete-offer="${item.id}"
-            >
-              🗑️
-            </button>
-
-          </div>
-
-        `;
-
-
-        container.appendChild(
-          card
-        );
-
-      }
-    );
-
-
-    setupOfferDeleteButtons();
-
-  } catch (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-      <div class="empty-state">
-        ❌ Error cargando ofertas.
       </div>
-    `;
 
-  }
-
-}
+      `
+    ).join("");
 
 
-// ======================================================
-// BORRAR OFERTA
-// ======================================================
-
-function setupOfferDeleteButtons() {
-
-  document
+  container
     .querySelectorAll(
-      "[data-delete-offer]"
+      "[data-edit-category]"
     )
     .forEach(
       (button) => {
 
         button.addEventListener(
           "click",
-          async () => {
+          () => {
 
             const id =
-              button.dataset.deleteOffer;
+              button.dataset.editCategory;
+
+            editCategory(id);
+
+          }
+        );
+
+      }
+    );
 
 
-            if (
-              !confirm(
-                "¿Eliminar esta oferta?"
-              )
-            ) {
+  container
+    .querySelectorAll(
+      "[data-delete-category]"
+    )
+    .forEach(
+      (button) => {
 
-              return;
+        button.addEventListener(
+          "click",
+          () => {
 
-            }
-
-
-            try {
-
-              await deleteDoc(
-                doc(
-                  db,
-                  "offers",
-                  id
-                )
-              );
-
-
-              showMessage(
-                "✅ Oferta eliminada."
-              );
-
-
-              loadOffers();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showMessage(
-                "❌ No se pudo eliminar.",
-                "error"
-              );
-
-            }
+            deleteCategory(
+              button.dataset.deleteCategory
+            );
 
           }
         );
@@ -888,9 +606,326 @@ function setupOfferDeleteButtons() {
 }
 
 
-// ======================================================
-// GUARDAR OFERTA
-// ======================================================
+async function saveCategory(
+  event
+) {
+
+  event.preventDefault();
+
+
+  const name =
+    document
+      .getElementById(
+        "categoryName"
+      )
+      .value
+      .trim();
+
+
+  const emoji =
+    document
+      .getElementById(
+        "categoryEmoji"
+      )
+      .value
+      .trim();
+
+
+  if (!name) {
+
+    showMessage(
+      "❌ Escribe el nombre de la categoría.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const id =
+    editingCategoryId ||
+    crypto.randomUUID();
+
+
+  await setDoc(
+    doc(
+      db,
+      "categories",
+      id
+    ),
+    {
+      name,
+      emoji,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
+
+
+  editingCategoryId =
+    null;
+
+
+  document
+    .getElementById(
+      "categoryForm"
+    )
+    .reset();
+
+
+  await loadCategories();
+
+
+  showMessage(
+    "✅ Categoría guardada."
+  );
+
+}
+
+
+function editCategory(id) {
+
+  const category =
+    categories.find(
+      (item) =>
+        item.id === id
+    );
+
+
+  if (!category) return;
+
+
+  editingCategoryId =
+    id;
+
+
+  document
+    .getElementById(
+      "categoryName"
+    )
+    .value =
+    category.name || "";
+
+
+  document
+    .getElementById(
+      "categoryEmoji"
+    )
+    .value =
+    category.emoji || "";
+
+}
+
+
+async function deleteCategory(id) {
+
+  if (
+    !confirm(
+      "¿Eliminar esta categoría?"
+    )
+  ) return;
+
+
+  await deleteDoc(
+    doc(
+      db,
+      "categories",
+      id
+    )
+  );
+
+
+  await loadCategories();
+
+
+  showMessage(
+    "🗑️ Categoría eliminada."
+  );
+
+}
+
+
+/* =====================================
+   OFERTAS
+===================================== */
+
+async function loadOffers() {
+
+  const snapshot =
+    await getDocs(
+      collection(
+        db,
+        "offers"
+      )
+    );
+
+
+  offers =
+    snapshot.docs.map(
+      (item) => ({
+        id: item.id,
+        ...item.data()
+      })
+    );
+
+
+  renderOffersAdmin();
+
+}
+
+
+function renderOffersAdmin() {
+
+  const container =
+    document.getElementById(
+      "offersList"
+    );
+
+  if (!container) return;
+
+
+  if (!offers.length) {
+
+    container.innerHTML =
+      "<p>No hay ofertas todavía.</p>";
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    offers.map(
+      (offer) => {
+
+        const image =
+          offer.image || "";
+
+
+        return `
+
+        <div class="admin-list-item">
+
+          <div class="admin-item-main">
+
+            ${
+              image
+                ? `
+                <img
+                  src="${image}"
+                  class="admin-list-image"
+                  alt=""
+                >
+                `
+                : `
+                <div class="admin-list-image no-image">
+                  🖼️
+                </div>
+                `
+            }
+
+            <div>
+
+              <strong>
+                ${escapeHTML(
+                  offer.name || ""
+                )}
+              </strong>
+
+              <small>
+                ${escapeHTML(
+                  offer.category || ""
+                )}
+              </small>
+
+              <small>
+                ${money(
+                  offer.price
+                )}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="admin-list-actions">
+
+            <button
+              type="button"
+              class="edit-button"
+              data-edit-offer="${escapeHTML(offer.id)}"
+            >
+              ✏️
+            </button>
+
+            <button
+              type="button"
+              class="delete-button"
+              data-delete-offer="${escapeHTML(offer.id)}"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    ).join("");
+
+
+  container
+    .querySelectorAll(
+      "[data-edit-offer]"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            editOffer(
+              button.dataset.editOffer
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  container
+    .querySelectorAll(
+      "[data-delete-offer]"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            deleteOffer(
+              button.dataset.deleteOffer
+            );
+
+          }
+        );
+
+      }
+    );
+
+}
+
 
 async function saveOffer(
   event
@@ -923,7 +958,7 @@ async function saveOffer(
         .getElementById(
           "offerOldPrice"
         )
-        .value
+        .value || 0
     );
 
 
@@ -933,7 +968,7 @@ async function saveOffer(
         .getElementById(
           "offerPrice"
         )
-        .value
+        .value || 0
     );
 
 
@@ -946,158 +981,261 @@ async function saveOffer(
       .trim();
 
 
-  const imageFile =
-    document
-      .getElementById(
-        "offerImage"
-      )
-      .files?.[0];
-
-
-  try {
+  if (!name || !price || !link) {
 
     showMessage(
-      "⏳ Procesando imagen..."
-    );
-
-
-    const image =
-      await imageToBase64(
-        imageFile
-      );
-
-
-    const offerRef =
-      doc(
-        collection(
-          db,
-          "offers"
-        )
-      );
-
-
-    await setDoc(
-      offerRef,
-      {
-
-        name,
-
-        category,
-
-        image,
-
-        oldPrice,
-
-        price,
-
-        link,
-
-        clicks: 0,
-
-        createdAt:
-          Date.now()
-
-      }
-    );
-
-
-    document
-      .getElementById(
-        "offerForm"
-      )
-      .reset();
-
-
-    document
-      .getElementById(
-        "offerImagePreview"
-      )
-      .innerHTML =
-      "";
-
-
-    showMessage(
-      "✅ Oferta guardada correctamente."
-    );
-
-
-    loadOffers();
-
-  } catch (error) {
-
-    console.error(error);
-
-    showMessage(
-      "❌ No se pudo guardar la oferta.",
+      "❌ Completa los campos obligatorios.",
       "error"
     );
+
+    return;
+
+  }
+
+
+  const id =
+    editingOfferId ||
+    crypto.randomUUID();
+
+
+  const existing =
+    offers.find(
+      (item) =>
+        item.id === id
+    );
+
+
+  const image =
+    offerImageBase64 ||
+    existing?.image ||
+    "";
+
+
+  await setDoc(
+    doc(
+      db,
+      "offers",
+      id
+    ),
+    {
+      name,
+      category,
+      image,
+      oldPrice,
+      price,
+      link,
+      clicks:
+        existing?.clicks || 0,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
+
+
+  editingOfferId =
+    null;
+
+  offerImageBase64 =
+    "";
+
+
+  document
+    .getElementById(
+      "offerForm"
+    )
+    .reset();
+
+
+  document
+    .getElementById(
+      "offerImagePreview"
+    )
+    .innerHTML =
+    "";
+
+
+  await loadOffers();
+
+
+  showMessage(
+    "✅ Oferta guardada."
+  );
+
+}
+
+
+function editOffer(id) {
+
+  const offer =
+    offers.find(
+      (item) =>
+        item.id === id
+    );
+
+
+  if (!offer) return;
+
+
+  editingOfferId =
+    id;
+
+
+  offerImageBase64 =
+    offer.image || "";
+
+
+  document
+    .getElementById(
+      "offerName"
+    )
+    .value =
+    offer.name || "";
+
+
+  document
+    .getElementById(
+      "offerCategory"
+    )
+    .value =
+    offer.category || "";
+
+
+  document
+    .getElementById(
+      "offerOldPrice"
+    )
+    .value =
+    offer.oldPrice || "";
+
+
+  document
+    .getElementById(
+      "offerPrice"
+    )
+    .value =
+    offer.price || "";
+
+
+  document
+    .getElementById(
+      "offerLink"
+    )
+    .value =
+    offer.link || "";
+
+
+  const preview =
+    document.getElementById(
+      "offerImagePreview"
+    );
+
+
+  if (
+    preview &&
+    offer.image
+  ) {
+
+    preview.innerHTML =
+      `
+      <img
+        src="${offer.image}"
+        class="admin-image-preview"
+        alt=""
+      >
+      `;
 
   }
 
 }
 
 
-// ======================================================
-// CUPONES
-// ======================================================
+async function deleteOffer(id) {
+
+  if (
+    !confirm(
+      "¿Eliminar esta oferta?"
+    )
+  ) return;
+
+
+  await deleteDoc(
+    doc(
+      db,
+      "offers",
+      id
+    )
+  );
+
+
+  await loadOffers();
+
+
+  showMessage(
+    "🗑️ Oferta eliminada."
+  );
+
+}
+
+
+/* =====================================
+   CUPONES
+===================================== */
 
 async function loadCoupons() {
+
+  const snapshot =
+    await getDocs(
+      collection(
+        db,
+        "coupons"
+      )
+    );
+
+
+  coupons =
+    snapshot.docs.map(
+      (item) => ({
+        id: item.id,
+        ...item.data()
+      })
+    );
+
+
+  renderCouponsAdmin();
+
+}
+
+
+function renderCouponsAdmin() {
 
   const container =
     document.getElementById(
       "couponsList"
     );
 
+  if (!container) return;
 
-  if (!container) {
+
+  if (!coupons.length) {
+
+    container.innerHTML =
+      "<p>No hay cupones todavía.</p>";
+
     return;
+
   }
 
 
   container.innerHTML =
-    "<p>Cargando cupones...</p>";
-
-
-  try {
-
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "coupons"
-        )
-      );
-
-
-    if (
-      snapshot.empty
-    ) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          🎟️ No hay cupones todavía.
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    container.innerHTML =
-      "";
-
-
-    snapshot.forEach(
-      (item) => {
-
-        const data =
-          item.data();
-
+    coupons.map(
+      (coupon) => {
 
         const status =
           String(
-            data.status ||
+            coupon.status ||
             "active"
           ).toLowerCase();
 
@@ -1128,198 +1266,74 @@ async function loadCoupons() {
         }
 
 
-        const card =
-          document.createElement(
-            "article"
-          );
+        return `
 
+        <div class="admin-list-item">
 
-        card.className =
-          "admin-item";
+          <div>
 
-
-        card.innerHTML = `
-
-          <div class="admin-item-content">
+            ${
+              coupon.name
+                ? `
+                <strong>
+                  🏦 ${escapeHTML(
+                    coupon.name
+                  )}
+                </strong>
+                `
+                : ""
+            }
 
             <strong>
-              ${escapeHTML(
-                String(
-                  data.code || ""
-                ).toUpperCase()
+              🎟️ ${escapeHTML(
+                coupon.code || ""
               )}
             </strong>
 
-
             <small>
               ${escapeHTML(
-                data.discount ||
-                "Descuento"
+                coupon.discount || ""
               )}
             </small>
-
 
             <small>
               ${statusText}
             </small>
 
-
-            ${
-              data.minimumPurchase
-                ? `
-                  <small>
-                    Compra mínima:
-                    ${money(
-                      data.minimumPurchase
-                    )}
-                  </small>
-                `
-                : ""
-            }
-
-
-            ${
-              data.maximumDiscount
-                ? `
-                  <small>
-                    Descuento máximo:
-                    ${money(
-                      data.maximumDiscount
-                    )}
-                  </small>
-                `
-                : ""
-            }
-
-
-            <small>
-              📋 ${data.copies || 0}
-              copias
-            </small>
-
           </div>
 
 
-          <div class="admin-item-actions">
+          <div class="admin-list-actions">
 
             <button
               type="button"
-              class="btn-secondary"
-              data-toggle-coupon="${item.id}"
+              class="edit-button"
+              data-edit-coupon="${escapeHTML(coupon.id)}"
             >
               ✏️
             </button>
 
-
             <button
               type="button"
-              class="btn-danger"
-              data-delete-coupon="${item.id}"
+              class="delete-button"
+              data-delete-coupon="${escapeHTML(coupon.id)}"
             >
               🗑️
             </button>
 
           </div>
 
+        </div>
+
         `;
 
-
-        container.appendChild(
-          card
-        );
-
       }
-    );
+    ).join("");
 
 
-    setupCouponButtons();
-
-  } catch (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-      <div class="empty-state">
-        ❌ Error cargando cupones.
-      </div>
-    `;
-
-  }
-
-}
-
-
-// ======================================================
-// BOTONES CUPONES
-// ======================================================
-
-function setupCouponButtons() {
-
-  document
+  container
     .querySelectorAll(
-      "[data-delete-coupon]"
-    )
-    .forEach(
-      (button) => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.deleteCoupon;
-
-
-            if (
-              !confirm(
-                "¿Eliminar este cupón?"
-              )
-            ) {
-
-              return;
-
-            }
-
-
-            try {
-
-              await deleteDoc(
-                doc(
-                  db,
-                  "coupons",
-                  id
-                )
-              );
-
-
-              showMessage(
-                "✅ Cupón eliminado."
-              );
-
-
-              loadCoupons();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showMessage(
-                "❌ No se pudo eliminar.",
-                "error"
-              );
-
-            }
-
-          }
-        );
-
-      }
-    );
-
-
-  document
-    .querySelectorAll(
-      "[data-toggle-coupon]"
+      "[data-edit-coupon]"
     )
     .forEach(
       (button) => {
@@ -1328,8 +1342,30 @@ function setupCouponButtons() {
           "click",
           () => {
 
-            showMessage(
-              "ℹ️ Para modificarlo puedes eliminarlo y volverlo a crear."
+            editCoupon(
+              button.dataset.editCoupon
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  container
+    .querySelectorAll(
+      "[data-delete-coupon]"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            deleteCoupon(
+              button.dataset.deleteCoupon
             );
 
           }
@@ -1341,16 +1377,25 @@ function setupCouponButtons() {
 }
 
 
-// ======================================================
-// GUARDAR CUPÓN
-// ======================================================
-
 async function saveCoupon(
   event
 ) {
 
   event.preventDefault();
 
+
+  /* NOMBRE */
+
+  const name =
+    document
+      .getElementById(
+        "couponName"
+      )
+      .value
+      .trim();
+
+
+  /* CÓDIGO */
 
   const code =
     document
@@ -1362,6 +1407,8 @@ async function saveCoupon(
       .toUpperCase();
 
 
+  /* SECCIÓN */
+
   const section =
     document
       .getElementById(
@@ -1370,6 +1417,8 @@ async function saveCoupon(
       .value;
 
 
+  /* ESTADO */
+
   const status =
     document
       .getElementById(
@@ -1377,6 +1426,8 @@ async function saveCoupon(
       )
       .value;
 
+
+  /* DESCUENTO */
 
   const discount =
     document
@@ -1387,15 +1438,19 @@ async function saveCoupon(
       .trim();
 
 
+  /* MÍNIMO */
+
   const minimumPurchase =
     Number(
       document
         .getElementById(
           "couponMin"
         )
-        .value
-    ) || 0;
+        .value || 0
+    );
 
+
+  /* MÁXIMO */
 
   const maximumDiscount =
     Number(
@@ -1403,11 +1458,13 @@ async function saveCoupon(
         .getElementById(
           "couponMax"
         )
-        .value
-    ) || 0;
+        .value || 0
+    );
 
 
-  const link =
+  /* LINK */
+
+  let link =
     document
       .getElementById(
         "couponLink"
@@ -1416,451 +1473,317 @@ async function saveCoupon(
       .trim();
 
 
-  try {
-
-    const couponRef =
-      doc(
-        collection(
-          db,
-          "coupons"
-        )
-      );
-
-
-    await setDoc(
-      couponRef,
-      {
-
-        code,
-
-        section,
-
-        status,
-
-        discount,
-
-        minimumPurchase,
-
-        maximumDiscount,
-
-        link,
-
-        copies: 0,
-
-        createdAt:
-          Date.now()
-
-      }
-    );
-
-
-    document
-      .getElementById(
-        "couponForm"
-      )
-      .reset();
-
+  if (!code) {
 
     showMessage(
-      "✅ Cupón guardado correctamente."
-    );
-
-
-    loadCoupons();
-
-  } catch (error) {
-
-    console.error(error);
-
-    showMessage(
-      "❌ No se pudo guardar el cupón.",
+      "❌ Escribe el código del cupón.",
       "error"
     );
 
-  }
-
-}
-
-
-// ======================================================
-// CATEGORÍAS
-// ======================================================
-
-async function loadCategories() {
-
-  const container =
-    document.getElementById(
-      "categoriesList"
-    );
-
-
-  if (!container) {
     return;
+
   }
 
 
-  try {
+  /*
+    Relámpago y Bancarios
+    siempre utilizan el afiliado.
+  */
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "categories"
-        )
-      );
+  if (
+    section === "relampago" ||
+    section === "bancarios"
+  ) {
 
+    link =
+      MERCADO_LIBRE_AFILIADO;
 
-    container.innerHTML =
-      "";
-
-
-    if (
-      snapshot.empty
-    ) {
-
-      container.innerHTML = `
-        <div class="empty-state">
-          📂 No hay categorías.
-        </div>
-      `;
-
-      return;
-
-    }
+  }
 
 
-    snapshot.forEach(
-      (item) => {
-
-        const data =
-          item.data();
+  const id =
+    editingCouponId ||
+    crypto.randomUUID();
 
 
-        const card =
-          document.createElement(
-            "article"
-          );
-
-
-        card.className =
-          "admin-item";
-
-
-        card.innerHTML = `
-
-          <div class="admin-item-content">
-
-            <strong>
-              ${escapeHTML(
-                data.emoji || "📂"
-              )}
-              ${escapeHTML(
-                data.name || ""
-              )}
-            </strong>
-
-          </div>
-
-
-          <div class="admin-item-actions">
-
-            <button
-              type="button"
-              class="btn-danger"
-              data-delete-category="${item.id}"
-            >
-              🗑️
-            </button>
-
-          </div>
-
-        `;
-
-
-        container.appendChild(
-          card
-        );
-
-      }
+  const existing =
+    coupons.find(
+      (item) =>
+        item.id === id
     );
 
 
-    setupCategoryDeleteButtons();
+  await setDoc(
+    doc(
+      db,
+      "coupons",
+      id
+    ),
+    {
+      name,
+      code,
+      section,
+      status,
+      discount,
+      minimumPurchase,
+      maximumDiscount,
+      link,
+      copies:
+        existing?.copies || 0,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
 
-  } catch (error) {
 
-    console.error(error);
+  editingCouponId =
+    null;
 
-  }
-
-}
-
-
-// ======================================================
-// BORRAR CATEGORÍA
-// ======================================================
-
-function setupCategoryDeleteButtons() {
 
   document
-    .querySelectorAll(
-      "[data-delete-category]"
+    .getElementById(
+      "couponForm"
     )
-    .forEach(
-      (button) => {
-
-        button.addEventListener(
-          "click",
-          async () => {
-
-            const id =
-              button.dataset.deleteCategory;
+    .reset();
 
 
-            if (
-              !confirm(
-                "¿Eliminar esta categoría?"
-              )
-            ) {
-
-              return;
-
-            }
+  await loadCoupons();
 
 
-            try {
-
-              await deleteDoc(
-                doc(
-                  db,
-                  "categories",
-                  id
-                )
-              );
-
-
-              showMessage(
-                "✅ Categoría eliminada."
-              );
-
-
-              loadCategories();
-
-            } catch (error) {
-
-              console.error(error);
-
-              showMessage(
-                "❌ No se pudo eliminar.",
-                "error"
-              );
-
-            }
-
-          }
-        );
-
-      }
-    );
+  showMessage(
+    "✅ Cupón guardado."
+  );
 
 }
 
 
-// ======================================================
-// GUARDAR CATEGORÍA
-// ======================================================
+function editCoupon(id) {
 
-async function saveCategory(
-  event
-) {
-
-  event.preventDefault();
-
-
-  const name =
-    document
-      .getElementById(
-        "categoryName"
-      )
-      .value
-      .trim();
-
-
-  const emoji =
-    document
-      .getElementById(
-        "categoryEmoji"
-      )
-      .value
-      .trim();
-
-
-  if (!name) {
-    return;
-  }
-
-
-  try {
-
-    const categoryRef =
-      doc(
-        collection(
-          db,
-          "categories"
-        )
-      );
-
-
-    await setDoc(
-      categoryRef,
-      {
-
-        name,
-
-        emoji,
-
-        createdAt:
-          Date.now()
-
-      }
+  const coupon =
+    coupons.find(
+      (item) =>
+        item.id === id
     );
 
 
-    document
-      .getElementById(
-        "categoryForm"
-      )
-      .reset();
+  if (!coupon) return;
 
 
-    showMessage(
-      "✅ Categoría guardada."
-    );
+  editingCouponId =
+    id;
 
 
-    loadCategories();
+  /*
+    NOMBRE DEL CUPÓN
+  */
 
-  } catch (error) {
+  document
+    .getElementById(
+      "couponName"
+    )
+    .value =
+    coupon.name || "";
 
-    console.error(error);
 
-    showMessage(
-      "❌ No se pudo guardar.",
-      "error"
-    );
+  /*
+    CÓDIGO
+  */
 
-  }
+  document
+    .getElementById(
+      "couponCode"
+    )
+    .value =
+    String(
+      coupon.code || ""
+    ).toUpperCase();
+
+
+  /*
+    SECCIÓN
+  */
+
+  document
+    .getElementById(
+      "couponSection"
+    )
+    .value =
+    coupon.section ||
+    "relampago";
+
+
+  /*
+    ESTADO
+  */
+
+  document
+    .getElementById(
+      "couponStatus"
+    )
+    .value =
+    coupon.status ||
+    "active";
+
+
+  /*
+    DESCUENTO
+  */
+
+  document
+    .getElementById(
+      "couponDiscount"
+    )
+    .value =
+    coupon.discount || "";
+
+
+  /*
+    MÍNIMO
+  */
+
+  document
+    .getElementById(
+      "couponMin"
+    )
+    .value =
+    coupon.minimumPurchase || "";
+
+
+  /*
+    MÁXIMO
+  */
+
+  document
+    .getElementById(
+      "couponMax"
+    )
+    .value =
+    coupon.maximumDiscount || "";
+
+
+  /*
+    LINK
+  */
+
+  document
+    .getElementById(
+      "couponLink"
+    )
+    .value =
+    coupon.link || "";
 
 }
 
 
-// ======================================================
-// MERCADO PAGO
-// ======================================================
+async function deleteCoupon(id) {
+
+  if (
+    !confirm(
+      "¿Eliminar este cupón?"
+    )
+  ) return;
+
+
+  await deleteDoc(
+    doc(
+      db,
+      "coupons",
+      id
+    )
+  );
+
+
+  await loadCoupons();
+
+
+  showMessage(
+    "🗑️ Cupón eliminado."
+  );
+
+}
+
+
+/* =====================================
+   MERCADO PAGO
+===================================== */
 
 async function loadMercadoPago() {
 
-  try {
-
-    const reference =
-      doc(
-        db,
-        "promotions",
-        "mercadopago"
-      );
-
-
-    const snapshot =
-      await getDoc(
-        reference
-      );
-
-
-    if (
-      !snapshot.exists()
-    ) {
-
-      return;
-
-    }
-
-
-    const data =
-      snapshot.data();
-
-
-    const title =
-      document.getElementById(
-        "mpTitle"
-      );
-
-
-    const text =
-      document.getElementById(
-        "mpText"
-      );
-
-
-    const link =
-      document.getElementById(
-        "mpLink"
-      );
-
-
-    if (title) {
-      title.value =
-        data.title || "";
-    }
-
-
-    if (text) {
-      text.value =
-        data.text || "";
-    }
-
-
-    if (link) {
-      link.value =
-        data.link || "";
-    }
-
-
-    if (data.image) {
-
-      const preview =
-        document.getElementById(
-          "mpImagePreview"
-        );
-
-
-      if (preview) {
-
-        preview.innerHTML = `
-          <img
-            src="${data.image}"
-            alt="Mercado Pago"
-          >
-        `;
-
-      }
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Error cargando Mercado Pago:",
-      error
+  const ref =
+    doc(
+      db,
+      "promotions",
+      "mercadopago"
     );
+
+
+  const snapshot =
+    await getDoc(ref);
+
+
+  if (!snapshot.exists())
+    return;
+
+
+  const data =
+    snapshot.data();
+
+
+  document
+    .getElementById(
+      "mpTitle"
+    )
+    .value =
+    data.title || "";
+
+
+  document
+    .getElementById(
+      "mpText"
+    )
+    .value =
+    data.text || "";
+
+
+  document
+    .getElementById(
+      "mpLink"
+    )
+    .value =
+    data.link || "";
+
+
+  mercadoImageBase64 =
+    data.image || "";
+
+
+  const preview =
+    document.getElementById(
+      "mpImagePreview"
+    );
+
+
+  if (
+    preview &&
+    data.image
+  ) {
+
+    preview.innerHTML =
+      `
+      <img
+        src="${data.image}"
+        class="admin-image-preview"
+        alt=""
+      >
+      `;
 
   }
 
 }
 
-
-// ======================================================
-// GUARDAR MERCADO PAGO
-// ======================================================
 
 async function saveMercadoPago(
   event
@@ -1896,179 +1819,93 @@ async function saveMercadoPago(
       .trim();
 
 
-  const imageFile =
-    document
-      .getElementById(
-        "mpImage"
-      )
-      .files?.[0];
-
-
-  try {
-
-    showMessage(
-      "⏳ Procesando imagen..."
-    );
-
-
-    let image = "";
-
-
-    /*
-     * Si no seleccionas una nueva imagen,
-     * conservamos la anterior.
-     */
-
-    if (imageFile) {
-
-      image =
-        await imageToBase64(
-          imageFile
-        );
-
-    } else {
-
-      const current =
-        await getDoc(
-          doc(
-            db,
-            "promotions",
-            "mercadopago"
-          )
-        );
-
-
-      if (
-        current.exists()
-      ) {
-
-        image =
-          current.data().image ||
-          "";
-
-      }
-
-    }
-
-
-    await setDoc(
+  const existing =
+    await getDoc(
       doc(
         db,
         "promotions",
         "mercadopago"
-      ),
-      {
-
-        title,
-
-        text,
-
-        image,
-
-        link,
-
-        updatedAt:
-          Date.now()
-
-      }
+      )
     );
 
 
-    showMessage(
-      "✅ Promoción de Mercado Pago guardada."
-    );
+  const oldImage =
+    existing.exists()
+      ? existing.data().image || ""
+      : "";
 
 
-  } catch (error) {
+  await setDoc(
+    doc(
+      db,
+      "promotions",
+      "mercadopago"
+    ),
+    {
+      title,
+      text,
+      link,
+      image:
+        mercadoImageBase64 ||
+        oldImage,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
 
-    console.error(error);
 
-    showMessage(
-      "❌ No se pudo guardar Mercado Pago.",
-      "error"
-    );
-
-  }
+  showMessage(
+    "✅ Promoción de Mercado Pago guardada."
+  );
 
 }
 
 
-// ======================================================
-// CONFIGURACIÓN
-// ======================================================
+/* =====================================
+   CONFIGURACIÓN
+===================================== */
 
 async function loadSettings() {
 
-  try {
-
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "settings",
-          "general"
-        )
-      );
-
-
-    if (
-      !snapshot.exists()
-    ) {
-
-      return;
-
-    }
-
-
-    const data =
-      snapshot.data();
-
-
-    const whatsapp =
-      document.getElementById(
-        "whatsapp"
-      );
-
-
-    const generalMercadoLibre =
-      document.getElementById(
-        "generalMercadoLibre"
-      );
-
-
-    if (whatsapp) {
-
-      whatsapp.value =
-        data.whatsapp || "";
-
-    }
-
-
-    if (
-      generalMercadoLibre
-    ) {
-
-      generalMercadoLibre.value =
-        data.generalMercadoLibre ||
-        "https://www.mercadolibre.com.mx/";
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Error cargando configuración:",
-      error
+  const snapshot =
+    await getDoc(
+      doc(
+        db,
+        "settings",
+        "general"
+      )
     );
 
-  }
+
+  if (!snapshot.exists())
+    return;
+
+
+  const data =
+    snapshot.data();
+
+
+  document
+    .getElementById(
+      "whatsapp"
+    )
+    .value =
+    data.whatsapp || "";
+
+
+  document
+    .getElementById(
+      "generalMercadoLibre"
+    )
+    .value =
+    data.generalMercadoLibre ||
+    "https://www.mercadolibre.com.mx/";
 
 }
 
-
-// ======================================================
-// GUARDAR CONFIGURACIÓN
-// ======================================================
 
 async function saveSettings(
   event
@@ -2095,37 +1932,227 @@ async function saveSettings(
       .trim();
 
 
+  await setDoc(
+    doc(
+      db,
+      "settings",
+      "general"
+    ),
+    {
+      whatsapp,
+      generalMercadoLibre,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
+
+
+  showMessage(
+    "✅ Configuración guardada."
+  );
+
+}
+
+
+/* =====================================
+   ESTADÍSTICAS
+===================================== */
+
+async function loadStats() {
+
   try {
 
-    await setDoc(
-      doc(
-        db,
-        "settings",
-        "general"
-      ),
-      {
+    const snapshot =
+      await getDoc(
+        doc(
+          db,
+          "statistics",
+          "general"
+        )
+      );
 
-        whatsapp,
 
-        generalMercadoLibre,
+    if (!snapshot.exists())
+      return;
 
-        updatedAt:
-          Date.now()
+
+    const data =
+      snapshot.data();
+
+
+    document
+      .getElementById(
+        "statVisits"
+      )
+      .textContent =
+      data.visits || 0;
+
+
+    document
+      .getElementById(
+        "statUnique"
+      )
+      .textContent =
+      data.uniqueVisitors || 0;
+
+
+    document
+      .getElementById(
+        "statClicks"
+      )
+      .textContent =
+      data.clicks || 0;
+
+
+    document
+      .getElementById(
+        "statCopies"
+      )
+      .textContent =
+      data.copies || 0;
+
+
+    document
+      .getElementById(
+        "statPromotions"
+      )
+      .textContent =
+      data.promotions || 0;
+
+
+    document
+      .getElementById(
+        "statSavings"
+      )
+      .textContent =
+      money(
+        data.savings || 0
+      );
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando estadísticas:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================
+   FORMULARIOS
+===================================== */
+
+function setupForms() {
+
+  document
+    .getElementById(
+      "offerForm"
+    )
+    ?.addEventListener(
+      "submit",
+      saveOffer
+    );
+
+
+  document
+    .getElementById(
+      "couponForm"
+    )
+    ?.addEventListener(
+      "submit",
+      saveCoupon
+    );
+
+
+  document
+    .getElementById(
+      "categoryForm"
+    )
+    ?.addEventListener(
+      "submit",
+      saveCategory
+    );
+
+
+  document
+    .getElementById(
+      "mercadoForm"
+    )
+    ?.addEventListener(
+      "submit",
+      saveMercadoPago
+    );
+
+
+  document
+    .getElementById(
+      "settingsForm"
+    )
+    ?.addEventListener(
+      "submit",
+      saveSettings
+    );
+
+
+  document
+    .getElementById(
+      "couponCode"
+    )
+    ?.addEventListener(
+      "input",
+      (event) => {
+
+        event.target.value =
+          event.target.value.toUpperCase();
 
       }
     );
 
+}
 
-    showMessage(
-      "✅ Configuración guardada."
-    );
+
+/* =====================================
+   INICIALIZAR
+===================================== */
+
+async function initializeAdmin() {
+
+  try {
+
+    setupTabs();
+
+    setupForms();
+
+    setupImagePreviews();
+
+    await loadCategories();
+
+    await loadOffers();
+
+    await loadCoupons();
+
+    await loadMercadoPago();
+
+    await loadSettings();
+
+    await loadStats();
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Error inicializando administración:",
+      error
+    );
+
 
     showMessage(
-      "❌ No se pudo guardar la configuración.",
+      "❌ Ocurrió un error cargando el panel.",
       "error"
     );
 
@@ -2134,221 +2161,23 @@ async function saveSettings(
 }
 
 
-// ======================================================
-// FORMULARIOS
-// ======================================================
-
-function setupForms() {
-
-  const offerForm =
-    document.getElementById(
-      "offerForm"
-    );
-
-
-  const couponForm =
-    document.getElementById(
-      "couponForm"
-    );
-
-
-  const categoryForm =
-    document.getElementById(
-      "categoryForm"
-    );
-
-
-  const mercadoForm =
-    document.getElementById(
-      "mercadoForm"
-    );
-
-
-  const settingsForm =
-    document.getElementById(
-      "settingsForm"
-    );
-
-
-  if (offerForm) {
-
-    offerForm.addEventListener(
-      "submit",
-      saveOffer
-    );
-
-  }
-
-
-  if (couponForm) {
-
-    couponForm.addEventListener(
-      "submit",
-      saveCoupon
-    );
-
-  }
-
-
-  if (categoryForm) {
-
-    categoryForm.addEventListener(
-      "submit",
-      saveCategory
-    );
-
-  }
-
-
-  if (mercadoForm) {
-
-    mercadoForm.addEventListener(
-      "submit",
-      saveMercadoPago
-    );
-
-  }
-
-
-  if (settingsForm) {
-
-    settingsForm.addEventListener(
-      "submit",
-      saveSettings
-    );
-
-  }
-
-}
-
-
-// ======================================================
-// CONVERTIR CÓDIGO DE CUPÓN A MAYÚSCULAS
-// ======================================================
-
-function setupCouponUppercase() {
-
-  const input =
-    document.getElementById(
-      "couponCode"
-    );
-
-
-  if (!input) {
-    return;
-  }
-
-
-  input.addEventListener(
-    "input",
-    () => {
-
-      input.value =
-        input.value.toUpperCase();
-
-    }
-  );
-
-}
-
-
-// ======================================================
-// INICIALIZAR ADMIN
-// ======================================================
-
-async function initializeAdmin(
-  user
-) {
-
-  if (adminInitialized) {
-    return;
-  }
-
-
-  const isAdmin =
-    await checkAdmin(
-      user
-    );
-
-
-  if (!isAdmin) {
-
-    alert(
-      "No tienes permisos de administrador."
-    );
-
-
-    await auth.signOut();
-
-    return;
-
-  }
-
-
-  adminInitialized =
-    true;
-
-
-  setupTabs();
-
-  setupForms();
-
-  setupImagePreviews();
-
-  setupCouponUppercase();
-
-
-  await Promise.all([
-
-    loadStats(),
-
-    loadOffers(),
-
-    loadCoupons(),
-
-    loadCategories(),
-
-    loadMercadoPago(),
-
-    loadSettings()
-
-  ]);
-
-}
-
-
-// ======================================================
-// AUTENTICACIÓN
-// ======================================================
-
 onAuthStateChanged(
   auth,
   async (user) => {
 
-    if (!user) {
+    if (!user) return;
+
+
+    if (
+      user.uid !== ADMIN_UID
+    ) {
+
       return;
-    }
-
-
-    try {
-
-      await initializeAdmin(
-        user
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Error inicializando admin:",
-        error
-      );
-
-      showMessage(
-        "❌ Error cargando el panel.",
-        "error"
-      );
 
     }
+
+
+    await initializeAdmin();
 
   }
 );
