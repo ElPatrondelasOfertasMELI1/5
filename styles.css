@@ -1,33 +1,5 @@
-/* =========================================================
-   EL PATRÓN DE LAS OFERTAS
-   STYLES.CSS COMPLETO
-========================================================= */
-
-:root {
-  --yellow: #ffd600;
-  --yellow-dark: #e6b900;
-  --black: #111111;
-  --dark: #1c1c1c;
-  --white: #ffffff;
-  --gray: #f3f3f3;
-  --gray-dark: #777777;
-  --green: #25d366;
-  --red: #e53935;
-  --orange: #ff9800;
-
-  --radius: 18px;
-  --shadow: 0 8px 25px rgba(0,0,0,.10);
-  --shadow-hover: 0 12px 30px rgba(0,0,0,.16);
-}
-
-/* =========================================================
-   RESET
-========================================================= */
-
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {
@@ -35,314 +7,221 @@ html {
 }
 
 body {
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
-
-  background: #f7f7f7;
-  color: var(--black);
-
-  min-height: 100vh;
-  overflow-x: hidden;
+  margin: 0;
+  background: #f6f6f6;
+  color: #111;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* =========================================================
+/* =========================
    HEADER
-========================================================= */
+========================= */
 
 .top {
-  width: 100%;
-  background: var(--black);
-  color: var(--white);
+  height: 70px;
+  background: #111;
+  color: #fff;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: 14px 20px;
+  padding: 0 max(18px, calc((100% - 1180px) / 2));
 
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 20;
 
-  box-shadow: 0 3px 15px rgba(0,0,0,.18);
+  box-shadow: 0 2px 12px #0002;
 }
 
 .brand {
   display: flex;
-  align-items: center;
   gap: 10px;
-  min-width: 0;
-}
-
-.skull {
-  font-size: 34px;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,.4));
-}
-
-.brand div {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
+  align-items: center;
 }
 
 .brand b {
+  display: block;
   font-size: 18px;
-  font-weight: 1000;
-  letter-spacing: -.4px;
+  letter-spacing: .5px;
 }
 
 .brand small {
-  margin-top: 4px;
-  font-size: 10px;
+  display: block;
+  color: #ffd400;
   font-weight: 800;
-  letter-spacing: 1.5px;
-  color: var(--yellow);
+  font-size: 10px;
 }
 
-.wa {
-  background: var(--green);
-  color: white;
+.skull {
+  font-size: 35px;
+}
 
-  padding: 9px 13px;
+.wa,
+.btn {
+  background: #ffd400;
+  color: #111;
 
-  border-radius: 999px;
+  border: 0;
+  border-radius: 12px;
 
-  font-size: 13px;
+  padding: 11px 16px;
+
   font-weight: 900;
+  text-decoration: none;
 
-  white-space: nowrap;
-
-  transition: transform .2s ease;
+  cursor: pointer;
 }
 
-.wa:hover {
-  transform: scale(1.04);
-}
-
-/* =========================================================
-   MAIN
-========================================================= */
-
-main {
-  width: min(1180px, 100%);
-  margin: 0 auto;
-}
-
-/* =========================================================
+/* =========================
    HERO
-========================================================= */
+========================= */
 
 .hero {
-  background:
-    radial-gradient(circle at 85% 20%, rgba(255,214,0,.30), transparent 35%),
-    linear-gradient(135deg, #111 0%, #1d1d1d 100%);
+  max-width: 1180px;
+  margin: auto;
 
-  color: white;
-
-  margin: 16px;
-  border-radius: 24px;
-
-  padding: 34px 24px;
-
-  overflow: hidden;
-  position: relative;
-
-  box-shadow: var(--shadow);
-}
-
-.hero::after {
-  content: "🔥";
-
-  position: absolute;
-
-  right: -10px;
-  bottom: -30px;
-
-  font-size: 150px;
-
-  opacity: .08;
-  transform: rotate(-15deg);
+  padding: 42px 18px 25px;
 }
 
 .hero > div {
-  position: relative;
-  z-index: 2;
+  background:
+    linear-gradient(
+      135deg,
+      #111 0 68%,
+      #ffd400 68%
+    );
+
+  border-radius: 24px;
+
+  padding: 42px;
+
+  color: #fff;
+
+  overflow: hidden;
 }
 
-.pill {
-  display: inline-flex;
-  align-items: center;
+.hero h1 {
+  font-size: clamp(34px, 7vw, 64px);
+  line-height: .98;
 
-  background: var(--yellow);
-  color: var(--black);
+  margin: 15px 0;
+}
+
+.hero h1 strong {
+  color: #ffd400;
+}
+
+.hero p {
+  font-size: 17px;
+  color: #ddd;
+}
+
+/* =========================
+   ETIQUETAS
+========================= */
+
+.pill {
+  display: inline-block;
+
+  background: #ffd400;
+  color: #111;
 
   border-radius: 999px;
 
   padding: 7px 12px;
 
-  font-size: 12px;
-  font-weight: 1000;
-
-  margin-bottom: 14px;
-}
-
-.hero h1 {
-  font-size: clamp(30px, 6vw, 54px);
-  line-height: 1.02;
-
   font-weight: 900;
-
-  max-width: 750px;
+  font-size: 12px;
 }
 
-.hero h1 strong {
-  color: var(--yellow);
-}
-
-.hero p {
-  margin-top: 14px;
-
-  color: #ddd;
-
-  font-size: 15px;
-  line-height: 1.5;
-
-  max-width: 550px;
-}
-
-/* =========================================================
+/* =========================
    CATEGORÍAS
-========================================================= */
+========================= */
 
 .categories {
   display: flex;
   gap: 10px;
 
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto;
 
-  padding: 4px 16px 12px;
+  padding:
+    8px
+    max(18px, calc((100% - 1180px) / 2))
+    18px;
 
   scrollbar-width: none;
-
-  -webkit-overflow-scrolling: touch;
 }
 
 .categories::-webkit-scrollbar {
   display: none;
 }
 
-.categories button {
-  flex: 0 0 auto;
+.cat {
+  background: #fff;
 
-  border: 0;
-
-  background: white;
-
-  color: var(--black);
+  border: 1px solid #ddd;
 
   border-radius: 999px;
 
-  padding: 10px 14px;
+  padding: 10px 15px;
 
-  font-size: 13px;
+  white-space: nowrap;
+
   font-weight: 800;
 
-  box-shadow: 0 4px 14px rgba(0,0,0,.08);
-
   cursor: pointer;
-
-  transition:
-    background .2s ease,
-    color .2s ease,
-    transform .2s ease;
 }
 
-.categories button:hover {
-  transform: translateY(-2px);
-}
-
-.categories button.active {
-  background: var(--yellow);
-  color: var(--black);
-}
-
-/* =========================================================
+/* =========================
    SECCIONES
-========================================================= */
+========================= */
 
 .section {
-  margin: 22px 16px 30px;
+  max-width: 1180px;
+
+  margin: 15px auto;
+
+  padding: 0 18px;
 }
 
 .section-title {
   display: flex;
-  align-items: center;
+
   justify-content: space-between;
-
-  gap: 15px;
-
-  margin-bottom: 14px;
+  align-items: center;
 }
 
 .section-title h2 {
-  font-size: 21px;
-  font-weight: 1000;
-  letter-spacing: -.4px;
+  font-size: 22px;
 }
 
 .section-title a {
-  font-size: 12px;
-  font-weight: 900;
-  color: #666;
-  white-space: nowrap;
+  color: #111;
+  font-weight: 800;
 }
 
-/* =========================================================
-   CARRUSEL
-   IMPORTANTE:
-   El tamaño original de las tarjetas se conserva.
-   El JS se encarga de centrar primera y última tarjeta.
-========================================================= */
+/* =========================
+   CARRUSEL OFERTAS
+   DISEÑO ORIGINAL
+========================= */
 
 .slider {
   display: flex;
-  gap: 16px;
+
+  gap: 14px;
 
   overflow-x: auto;
   overflow-y: hidden;
 
   scroll-snap-type: x mandatory;
+
   scroll-behavior: smooth;
 
+  padding: 4px 0 18px;
+
   scrollbar-width: none;
-
-  padding: 3px 2px 12px;
-
-  cursor: grab;
 
   -webkit-overflow-scrolling: touch;
 }
@@ -351,50 +230,36 @@ main {
   display: none;
 }
 
-.slider:active {
-  cursor: grabbing;
-}
+/* =========================
+   COMPATIBILIDAD CON APP.JS
+========================= */
 
 .offer-card {
-  position: relative;
+  background: #fff;
 
-  flex: 0 0 260px;
+  border-radius: 18px;
 
-  background: white;
-
-  border-radius: var(--radius);
+  min-width: 250px;
+  max-width: 280px;
 
   overflow: hidden;
 
-  box-shadow: var(--shadow);
+  box-shadow: 0 3px 14px #00000012;
 
   scroll-snap-align: center;
-  scroll-snap-stop: always;
 
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+  scroll-snap-stop: always;
 
   cursor: pointer;
 }
 
-.offer-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
-}
-
-/* =========================================================
-   IMAGEN DE OFERTA
-========================================================= */
-
 .offer-image-wrap {
-  height: 215px;
+  height: 190px;
 
-  background: #f3f3f3;
+  background: #eee;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
   overflow: hidden;
 
@@ -407,14 +272,148 @@ main {
 
   object-fit: contain;
 
-  padding: 10px;
-
   display: block;
 }
 
-/* =========================================================
+.offer-card .card-body {
+  padding: 15px;
+}
+
+.offer-card .offer-title {
+  font-weight: 900;
+
+  line-height: 1.25;
+
+  margin-bottom: 7px;
+}
+
+.offer-card .offer-old-price {
+  text-decoration: line-through;
+
+  color: #888;
+
+  font-size: 13px;
+}
+
+.offer-card .offer-price {
+  font-size: 27px;
+
+  font-weight: 950;
+
+  margin: 4px 0 10px;
+}
+
+.offer-card .offer-button {
+  display: block;
+
+  width: 100%;
+
+  text-align: center;
+
+  background: #111;
+
+  color: #fff;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  padding: 11px;
+
+  text-decoration: none;
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+/* =========================
+   COMPATIBILIDAD CON DISEÑO
+   ANTERIOR DE PRODUCTOS
+========================= */
+
+.card {
+  background: #fff;
+
+  border-radius: 18px;
+
+  min-width: 250px;
+  max-width: 280px;
+
+  overflow: hidden;
+
+  box-shadow: 0 3px 14px #00000012;
+
+  scroll-snap-align: start;
+}
+
+.product-img {
+  height: 190px;
+
+  background: #eee;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 55px;
+}
+
+.product-img img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.old {
+  text-decoration: line-through;
+
+  color: #888;
+
+  font-size: 13px;
+}
+
+.off {
+  color: #09863b;
+
+  font-weight: 900;
+
+  margin-left: 6px;
+}
+
+.price {
+  font-size: 27px;
+
+  font-weight: 950;
+
+  margin: 4px 0 10px;
+}
+
+.buy {
+  display: block;
+
+  text-align: center;
+
+  background: #111;
+
+  color: #fff;
+
+  border-radius: 10px;
+
+  padding: 11px;
+
+  text-decoration: none;
+
+  font-weight: 900;
+}
+
+/* =========================
    BADGE DESCUENTO
-========================================================= */
+========================= */
 
 .discount-badge {
   position: absolute;
@@ -422,354 +421,216 @@ main {
   top: 10px;
   left: 10px;
 
-  background: var(--red);
-  color: white;
+  background: #09863b;
+
+  color: #fff;
 
   border-radius: 999px;
 
   padding: 6px 9px;
 
   font-size: 11px;
-  font-weight: 1000;
 
-  z-index: 5;
-}
-
-/* =========================================================
-   CONTENIDO OFERTA
-========================================================= */
-
-.offer-content {
-  padding: 14px;
-}
-
-.offer-title {
-  font-size: 15px;
   font-weight: 900;
 
-  line-height: 1.25;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-
-  overflow: hidden;
-
-  min-height: 38px;
+  z-index: 2;
 }
 
-.offer-old-price {
-  margin-top: 10px;
-
-  color: #999;
-
-  font-size: 12px;
-
-  text-decoration: line-through;
-}
-
-.offer-price {
-  margin-top: 2px;
-
-  color: var(--black);
-
-  font-size: 23px;
-
-  font-weight: 1000;
-}
-
-.offer-button {
-  width: 100%;
-
-  border: 0;
-
-  background: var(--yellow);
-  color: var(--black);
-
-  padding: 11px;
-
-  margin-top: 12px;
-
-  border-radius: 12px;
-
-  font-size: 13px;
-  font-weight: 1000;
-
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    transform .2s ease;
-}
-
-.offer-button:hover {
-  background: #ffca00;
-  transform: translateY(-1px);
-}
-
-.offer-clicks {
-  margin-top: 8px;
-
-  font-size: 11px;
-  color: #888;
-
-  text-align: center;
-}
-
-/* =========================================================
+/* =========================
    MERCADO PAGO
-========================================================= */
+========================= */
 
 .mp-card {
-  margin: 20px 16px 30px;
+  max-width: 1180px;
 
-  background:
-    linear-gradient(
-      135deg,
-      #111 0%,
-      #202020 100%
-    );
+  margin: 15px auto 28px;
 
-  color: white;
+  padding: 22px 18px;
+}
+
+.mp-inner {
+  background: #111;
+
+  color: #fff;
 
   border-radius: 20px;
 
-  min-height: 160px;
+  padding: 24px;
 
-  overflow: hidden;
-
-  box-shadow: var(--shadow);
-
-  position: relative;
-}
-
-.mp-card img {
-  width: 100%;
-  height: 190px;
-
-  object-fit: cover;
-
-  display: block;
-}
-
-.mp-card-content {
-  padding: 20px;
-}
-
-.mp-card h3 {
-  font-size: 21px;
-  font-weight: 1000;
-}
-
-.mp-card p {
-  margin-top: 7px;
-
-  color: #ddd;
-
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.mp-card a {
-  display: inline-flex;
-
-  margin-top: 12px;
-
-  background: var(--yellow);
-  color: var(--black);
-
-  padding: 9px 13px;
-
-  border-radius: 10px;
-
-  font-size: 12px;
-  font-weight: 1000;
-}
-
-/* =========================================================
-   CUPONES
-========================================================= */
-
-.coupon-section {
-  margin-bottom: 26px;
-}
-
-.coupon-section-title {
   display: flex;
-  align-items: center;
+
   justify-content: space-between;
 
-  margin-bottom: 12px;
+  align-items: center;
+
+  gap: 20px;
 }
 
-.coupon-section-title h3 {
-  font-size: 18px;
-  font-weight: 1000;
+.mp-inner h2 {
+  margin: 0 0 7px;
+
+  color: #ffd400;
 }
 
-.coupon-slider {
+/* =========================
+   CUPONES
+========================= */
+
+.coupon-wrap h3 {
+  margin-bottom: 10px;
+}
+
+.coupon-row {
   display: flex;
 
   gap: 14px;
 
-  overflow-x: auto;
+  overflow: auto;
 
-  padding: 3px 2px 12px;
+  padding-bottom: 12px;
 
   scrollbar-width: none;
-
-  -webkit-overflow-scrolling: touch;
 }
 
-.coupon-slider::-webkit-scrollbar {
+.coupon-row::-webkit-scrollbar {
   display: none;
 }
 
-.coupon-card {
-  flex: 0 0 280px;
+.coupon {
+  background: #fff;
 
-  background: white;
+  border-radius: 17px;
 
-  border-radius: 18px;
+  padding: 15px;
 
-  padding: 16px;
+  min-width: 245px;
 
-  box-shadow: var(--shadow);
-
-  position: relative;
-
-  overflow: hidden;
+  box-shadow: 0 2px 12px #0001;
 }
 
-.coupon-card::before {
-  content: "";
+.coupon strong {
+  font-size: 22px;
+}
 
-  position: absolute;
+.coupon .code {
+  background: #f1f1f1;
 
-  top: 0;
-  left: 0;
+  border: 1px dashed #aaa;
 
+  padding: 9px;
+
+  margin: 10px 0;
+
+  border-radius: 8px;
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  text-align: center;
+}
+
+.copy {
   width: 100%;
-  height: 5px;
 
-  background: var(--yellow);
+  background: #ffd400;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  padding: 10px;
+
+  font-weight: 950;
+
+  cursor: pointer;
 }
+
+.coupon small {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #666;
+}
+
+/* =========================
+   NOMBRE DEL CUPÓN
+   NUEVO
+========================= */
 
 .coupon-name {
   display: inline-flex;
+
   align-items: center;
 
   width: fit-content;
 
-  background: #f3f3f3;
+  background: #f1f1f1;
 
   color: #222;
 
   border-radius: 8px;
 
-  padding: 6px 10px;
+  padding: 6px 9px;
 
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 
   font-size: 12px;
+
   font-weight: 900;
 }
 
-.coupon-code {
-  font-size: 21px;
-  font-weight: 1000;
-
-  letter-spacing: 1px;
-
-  margin-top: 5px;
-}
-
-.coupon-discount {
-  margin-top: 9px;
-
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.coupon-info {
-  margin-top: 8px;
-
-  color: #666;
-
-  font-size: 12px;
-  line-height: 1.6;
-}
+/* =========================
+   ESTADOS DE CUPÓN
+   NUEVO
+========================= */
 
 .coupon-status {
-  display: inline-flex;
+  display: inline-block;
 
-  align-items: center;
-
-  margin-top: 10px;
-
-  border-radius: 999px;
+  margin-top: 8px;
 
   padding: 5px 8px;
 
+  border-radius: 999px;
+
   font-size: 10px;
-  font-weight: 1000;
+
+  font-weight: 900;
 }
 
 .coupon-status.active {
-  background: #e8f7ed;
+  background: #e6f7ec;
+
   color: #16833a;
 }
 
 .coupon-status.warning {
-  background: #fff2d8;
-  color: #b36b00;
+  background: #fff0d5;
+
+  color: #a96600;
 }
 
 .coupon-status.expired {
   background: #fde8e8;
+
   color: #c62828;
 }
 
-.coupon-copy {
-  width: 100%;
+/* =========================
+   CUPÓN AGOTADO
+========================= */
 
-  border: 0;
+.coupon.expired .copy {
+  background: #e9e9e9;
 
-  background: var(--black);
-  color: white;
-
-  border-radius: 11px;
-
-  padding: 11px;
-
-  margin-top: 13px;
-
-  font-size: 12px;
-  font-weight: 1000;
-
-  cursor: pointer;
-
-  transition:
-    background .2s ease,
-    transform .2s ease;
+  color: #222;
 }
 
-.coupon-copy:hover {
-  background: #292929;
-}
-
-.coupon-copy:active {
-  transform: scale(.98);
-}
-
-.coupon-card.expired .coupon-copy {
-  background: #eee;
-  color: #333;
-}
-
-/* =========================================================
-   WHATSAPP FLOTANTE
-========================================================= */
+/* =========================
+   WHATSAPP
+========================= */
 
 .wa-float {
   position: fixed;
@@ -777,73 +638,249 @@ main {
   right: 18px;
   bottom: 18px;
 
-  z-index: 1500;
+  z-index: 30;
 }
 
 .wa-float a {
-  width: 56px;
-  height: 56px;
+  width: 55px;
+  height: 55px;
 
   border-radius: 50%;
 
-  background: var(--green);
-  color: white;
+  display: grid;
+  place-items: center;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #22c55e;
 
-  font-size: 28px;
+  color: #fff;
 
-  box-shadow: 0 8px 25px rgba(0,0,0,.25);
+  font-size: 27px;
 
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease;
+  box-shadow: 0 6px 20px #0003;
 }
 
-.wa-float a:hover {
-  transform: scale(1.08);
-
-  box-shadow:
-    0 10px 30px rgba(0,0,0,.30);
-}
-
-/* =========================================================
+/* =========================
    FOOTER
-========================================================= */
+========================= */
 
 footer {
-  background: var(--black);
-  color: #aaa;
-
   text-align: center;
 
-  padding: 22px 15px;
+  padding: 35px 18px;
 
-  margin-top: 35px;
-
-  font-size: 12px;
+  color: #777;
 }
 
-/* =========================================================
-   ADMIN / IMÁGENES
-========================================================= */
+/* =========================
+   ADMIN
+========================= */
+
+.admin-wrap {
+  max-width: 1180px;
+
+  margin: auto;
+
+  padding: 25px 18px;
+}
+
+.admin-head {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.danger {
+  background: #e9e9e9;
+}
+
+.stats {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 12px;
+
+  margin: 20px 0;
+}
+
+.stat {
+  background: #fff;
+
+  padding: 18px;
+
+  border-radius: 15px;
+}
+
+.stat b {
+  display: block;
+
+  font-size: 28px;
+}
+
+.stat span {
+  color: #777;
+}
+
+/* =========================
+   TABS
+========================= */
+
+.tabs {
+  display: flex;
+
+  gap: 8px;
+
+  overflow: auto;
+
+  margin-bottom: 15px;
+}
+
+.tab {
+  border: 0;
+
+  background: #ddd;
+
+  padding: 11px 15px;
+
+  border-radius: 10px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #ffd400;
+}
+
+/* =========================
+   PANELES
+========================= */
+
+.panel {
+  display: none;
+
+  background: #fff;
+
+  padding: 20px;
+
+  border-radius: 18px;
+}
+
+.panel.active {
+  display: block;
+}
+
+/* =========================
+   FORMULARIOS
+========================= */
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 10px;
+
+  margin: 15px 0;
+}
+
+.form-grid input,
+.form-grid select,
+.panel label input {
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 9px;
+
+  background: #fafafa;
+}
+
+/* =========================
+   LISTAS ADMIN
+========================= */
+
+.admin-list {
+  display: grid;
+
+  gap: 8px;
+}
+
+.admin-item {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  align-items: center;
+
+  border: 1px solid #eee;
+
+  padding: 12px;
+
+  border-radius: 10px;
+}
+
+.mini-actions button {
+  border: 0;
+
+  background: #eee;
+
+  padding: 7px 10px;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+}
+
+.note {
+  color: #666;
+}
+
+.panel label {
+  display: block;
+
+  margin: 10px 0;
+}
+
+.panel label input {
+  display: block;
+
+  margin-top: 5px;
+}
+
+/* =========================
+   IMÁGENES ADMIN
+   NUEVO
+========================= */
 
 .admin-image-preview {
   width: 100%;
+
   max-width: 260px;
 
   min-height: 120px;
 
   margin-top: 10px;
 
-  background: #f3f3f3;
+  background: #eee;
 
   border-radius: 12px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   overflow: hidden;
@@ -851,6 +888,7 @@ footer {
 
 .admin-image-preview img {
   width: 100%;
+
   max-height: 220px;
 
   object-fit: contain;
@@ -860,23 +898,26 @@ footer {
 
 .admin-list-image {
   width: 70px;
+
   height: 70px;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
   object-fit: contain;
 
-  background: #f3f3f3;
+  background: #eee;
 
   flex-shrink: 0;
 }
 
 .admin-list-image.no-image {
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
-  color: #999;
+  color: #888;
 
   font-size: 11px;
 }
@@ -886,7 +927,7 @@ footer {
 
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
 
   min-width: 0;
 }
@@ -898,7 +939,7 @@ footer {
 .admin-list-actions {
   display: flex;
 
-  gap: 7px;
+  gap: 6px;
 
   flex-shrink: 0;
 }
@@ -907,9 +948,9 @@ footer {
 .delete-button {
   border: 0;
 
-  border-radius: 9px;
+  border-radius: 7px;
 
-  padding: 8px 10px;
+  padding: 7px 9px;
 
   font-size: 11px;
 
@@ -919,75 +960,58 @@ footer {
 }
 
 .edit-button {
-  background: var(--yellow);
-  color: var(--black);
+  background: #ffd400;
+
+  color: #111;
 }
 
 .delete-button {
-  background: #ffe4e4;
+  background: #ffe3e3;
+
   color: #c62828;
 }
 
-/* =========================================================
+/* =========================
    CELULAR
-========================================================= */
+========================= */
 
-@media (max-width: 700px) {
+@media (max-width: 650px) {
+
+  .hero > div {
+    padding: 28px 22px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mp-inner {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
 
   .top {
-    padding:
-      12px
-      14px;
-  }
-
-  .skull {
-    font-size: 29px;
-  }
-
-  .brand b {
-    font-size: 16px;
-  }
-
-  .brand small {
-    font-size: 9px;
+    padding: 0 14px;
   }
 
   .wa {
-    padding: 8px 10px;
-
-    font-size: 11px;
+    padding: 9px 11px;
   }
 
-  .hero {
-    margin: 12px;
-
-    padding:
-      28px
-      20px;
-
-    border-radius: 20px;
+  .brand b {
+    font-size: 15px;
   }
 
-  .hero h1 {
-    font-size: 31px;
-  }
-
-  .hero p {
-    font-size: 14px;
-  }
-
-  .section {
-    margin-left: 12px;
-    margin-right: 12px;
-  }
-
-  .section-title h2 {
-    font-size: 19px;
-  }
-
-  /* Mantiene el tamaño original de las tarjetas */
+  /* Mantener diseño original del carrusel */
   .offer-card {
-    flex-basis: 235px;
+    min-width: 250px;
+    max-width: 280px;
+
     scroll-snap-align: center;
   }
 
@@ -995,105 +1019,33 @@ footer {
     height: 190px;
   }
 
-  .coupon-card {
-    flex-basis: 270px;
+  .admin-item {
+    align-items: flex-start;
   }
 
-  .mp-card {
-    margin-left: 12px;
-    margin-right: 12px;
+  .admin-list-actions {
+    flex-direction: column;
   }
+
 }
 
-/* =========================================================
+/* =========================
    CELULAR PEQUEÑO
-========================================================= */
+========================= */
 
 @media (max-width: 420px) {
 
-  .top {
-    padding: 11px 10px;
-  }
-
-  .brand {
-    gap: 7px;
-  }
-
-  .skull {
-    font-size: 26px;
-  }
-
-  .brand b {
-    font-size: 14px;
-  }
-
-  .brand small {
-    font-size: 8px;
-    letter-spacing: 1px;
-  }
-
-  .wa {
-    padding: 7px 9px;
-    font-size: 10px;
-  }
-
-  .hero {
-    margin: 10px;
-    padding: 25px 17px;
-  }
-
-  .hero h1 {
-    font-size: 28px;
-  }
-
-  .pill {
-    font-size: 10px;
-  }
-
   .offer-card {
-    flex-basis: 220px;
-    scroll-snap-align: center;
+    min-width: 250px;
   }
 
   .offer-image-wrap {
-    height: 180px;
+    height: 190px;
   }
 
-  .coupon-card {
-    flex-basis: 255px;
+  .admin-list-image {
+    width: 55px;
+    height: 55px;
   }
 
-  .wa-float {
-    right: 14px;
-    bottom: 14px;
-  }
-
-  .wa-float a {
-    width: 52px;
-    height: 52px;
-    font-size: 25px;
-  }
-}
-
-/* =========================================================
-   REDUCCIÓN DE MOVIMIENTO
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  html {
-    scroll-behavior: auto;
-  }
-
-  .slider {
-    scroll-behavior: auto;
-  }
-
-  .offer-card,
-  .wa,
-  .wa-float a,
-  .offer-button,
-  .coupon-copy {
-    transition: none;
-  }
 }
