@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>
+    Admin · El Patrón de las Ofertas
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+</head>
+
+
+<body class="admin">
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header class="top">
+
+  <div class="brand">
+
+    <span class="skull">
+      💀
+    </span>
+
+    <div>
+
+      <b>
+        EL PATRÓN
+      </b>
+
+      <small>
+        ADMIN
+      </small>
+
+    </div>
+
+  </div>
+
+
+  <a
+    href="index.html"
+    class="wa"
+  >
+    Ver página
+  </a>
+
+</header>
+
+
+
+<!-- =========================
+     CONTENIDO ADMIN
+========================= -->
+
+<main class="admin-wrap">
+
+
+  <!-- ENCABEZADO -->
+
+  <div class="admin-head">
+
+    <div>
+
+      <span class="pill">
+        PANEL DE CONTROL
+      </span>
+
+      <h1>
+        👑 Administración
+      </h1>
+
+    </div>
+
+
+    <button
+      class="btn danger"
+      id="reset"
+    >
+      Restablecer demo
+    </button>
+
+  </div>
+
+
+
+  <!-- =========================
+       ESTADÍSTICAS
+  ========================= -->
+
+  <div
+    class="stats"
+    id="stats"
+  ></div>
+
+
+
+  <!-- =========================
+       MENÚ
+  ========================= -->
+
+  <div class="tabs">
+
+    <button
+      class="tab active"
+      data-tab="offers"
+    >
+      🔥 Ofertas
+    </button>
+
+
+    <button
+      class="tab"
+      data-tab="coupons"
+    >
+      🎟️ Cupones
+    </button>
+
+
+    <button
+      class="tab"
+      data-tab="categories"
+    >
+      📂 Categorías
+    </button>
+
+
+    <button
+      class="tab"
+      data-tab="promo"
+    >
+      💳 Mercado Pago
+    </button>
+
+
+    <button
+      class="tab"
+      data-tab="settings"
+    >
+      ⚙️ Configuración
+    </button>
+
+  </div>
+
+
+
+  <!-- =========================
+       OFERTAS
+  ========================= -->
+
+  <section
+    class="panel active"
+    id="tab-offers"
+  >
+
+    <h2>
+      🔥 Ofertas destacadas
+    </h2>
+
+
+    <form
+      id="offerForm"
+      class="form-grid"
+    >
+
+      <input
+        name="name"
+        placeholder="Nombre del producto"
+        required
+      >
+
+
+      <input
+        name="image"
+        placeholder="URL de imagen"
+      >
+
+
+      <input
+        name="oldPrice"
+        type="number"
+        step=".01"
+        placeholder="Precio anterior"
+      >
+
+
+      <input
+        name="price"
+        type="number"
+        step=".01"
+        placeholder="Precio final"
+        required
+      >
+
+
+      <input
+        name="link"
+        placeholder="Enlace de compra"
+      >
+
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        + Agregar oferta
+      </button>
+
+    </form>
+
+
+    <div
+      id="offerList"
+      class="admin-list"
+    ></div>
+
+  </section>
+
+
+
+  <!-- =========================
+       CUPONES
+  ========================= -->
+
+  <section
+    class="panel"
+    id="tab-coupons"
+  >
+
+    <h2>
+      🎟️ Cupones
+    </h2>
+
+
+    <form
+      id="couponForm"
+      class="form-grid"
+    >
+
+      <input
+        name="code"
+        placeholder="Código del cupón"
+        required
+      >
+
+
+      <select name="section">
+
+        <option>
+          ⚡ Cupones Relámpago
+        </option>
+
+        <option>
+          🔥 Exclusivos + Tiendas
+        </option>
+
+        <option>
+          💳 Cupones Bancarios
+        </option>
+
+        <option>
+          🎟️ Todos los cupones
+        </option>
+
+      </select>
+
+
+      <input
+        name="min"
+        type="number"
+        placeholder="Compra mínima"
+      >
+
+
+      <input
+        name="max"
+        type="number"
+        placeholder="Descuento máximo"
+      >
+
+
+      <input
+        name="discount"
+        placeholder="Ej. 14% OFF"
+      >
+
+
+      <input
+        name="link"
+        placeholder="Enlace de Mercado Libre"
+      >
+
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        + Agregar cupón
+      </button>
+
+    </form>
+
+
+    <div
+      id="couponList"
+      class="admin-list"
+    ></div>
+
+  </section>
+
+
+
+  <!-- =========================
+       CATEGORÍAS
+  ========================= -->
+
+  <section
+    class="panel"
+    id="tab-categories"
+  >
+
+    <h2>
+      📂 Categorías
+    </h2>
+
+
+    <form
+      id="categoryForm"
+      class="form-grid"
+    >
+
+      <input
+        name="name"
+        placeholder="Nombre de la categoría"
+        required
+      >
+
+
+      <input
+        name="emoji"
+        placeholder="Emoji"
+      >
+
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        + Agregar categoría
+      </button>
+
+    </form>
+
+
+    <div
+      id="categoryList"
+      class="admin-list"
+    ></div>
+
+  </section>
+
+
+
+  <!-- =========================
+       MERCADO PAGO
+  ========================= -->
+
+  <section
+    class="panel"
+    id="tab-promo"
+  >
+
+    <h2>
+      💳 Promoción Mercado Pago
+    </h2>
+
+
+    <form
+      id="promoForm"
+      class="form-grid"
+    >
+
+      <input
+        name="title"
+        placeholder="Título"
+        required
+      >
+
+
+      <input
+        name="text"
+        placeholder="Texto de la promoción"
+      >
+
+
+      <input
+        name="image"
+        placeholder="URL de imagen"
+      >
+
+
+      <input
+        name="link"
+        placeholder="Enlace"
+      >
+
+
+      <button
+        class="btn"
+        type="submit"
+      >
+        Guardar promoción
+      </button>
+
+    </form>
+
+  </section>
+
+
+
+  <!-- =========================
+       CONFIGURACIÓN
+  ========================= -->
+
+  <section
+    class="panel"
+    id="tab-settings"
+  >
+
+    <h2>
+      ⚙️ Configuración
+    </h2>
+
+
+    <label>
+
+      WhatsApp
+
+      <input
+        id="waNumber"
+        placeholder="521XXXXXXXXXX"
+      >
+
+    </label>
+
+
+    <label>
+
+      Mercado Libre general
+
+      <input
+        id="mlLink"
+        placeholder="https://www.mercadolibre.com.mx/"
+      >
+
+    </label>
+
+
+    <button
+      class="btn"
+      id="saveSettings"
+    >
+      Guardar configuración
+    </button>
+
+
+    <p class="note">
+
+      Los códigos de cupón se guardan
+      automáticamente en MAYÚSCULAS.
+
+      <br><br>
+
+      Esta versión utiliza almacenamiento
+      local del navegador.
+
+      <br><br>
+
+      Posteriormente puede conectarse
+      directamente con Firebase.
+
+    </p>
+
+  </section>
+
+
+</main>
+
+
+
+<script src="admin.js"></script>
+
+</body>
+
+</html>
