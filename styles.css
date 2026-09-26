@@ -1,3 +1,8 @@
+/* =========================================================
+   EL PATRÓN DE LAS OFERTAS
+   ESTILOS GENERALES + PANEL ADMINISTRATIVO
+========================================================= */
+
 * {
   box-sizing: border-box;
 }
@@ -8,19 +13,43 @@ html {
 
 body {
   margin: 0;
-  background: #f6f6f6;
+  background: #f5f5f5;
   color: #111;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+:root {
+  --yellow: #ffd400;
+  --yellow-dark: #e6bd00;
+  --black: #111111;
+  --white: #ffffff;
+  --gray-bg: #f5f5f5;
+  --gray: #777;
+  --border: #e3e3e3;
+  --green: #20b15a;
+  --red: #dc2626;
+  --shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  --radius: 16px;
+}
+
+/* =========================================================
+   HEADER PÁGINA PRINCIPAL
+========================================================= */
 
 .top {
   height: 70px;
-  background: #111;
-  color: #fff;
+  background: var(--black);
+  color: var(--white);
 
   display: flex;
   align-items: center;
@@ -32,7 +61,7 @@ body {
   top: 0;
   z-index: 20;
 
-  box-shadow: 0 2px 12px #0002;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .brand {
@@ -44,12 +73,12 @@ body {
 .brand b {
   display: block;
   font-size: 18px;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
 }
 
 .brand small {
   display: block;
-  color: #ffd400;
+  color: var(--yellow);
   font-weight: 800;
   font-size: 10px;
 }
@@ -60,8 +89,8 @@ body {
 
 .wa,
 .btn {
-  background: #ffd400;
-  color: #111;
+  background: var(--yellow);
+  color: var(--black);
 
   border: 0;
   border-radius: 12px;
@@ -70,18 +99,21 @@ body {
 
   font-weight: 900;
   text-decoration: none;
-
   cursor: pointer;
 }
 
-/* =========================
+.wa:hover,
+.btn:hover {
+  background: var(--yellow-dark);
+}
+
+/* =========================================================
    HERO
-========================= */
+========================================================= */
 
 .hero {
   max-width: 1180px;
   margin: auto;
-
   padding: 42px 18px 25px;
 }
 
@@ -89,28 +121,24 @@ body {
   background:
     linear-gradient(
       135deg,
-      #111 0 68%,
-      #ffd400 68%
+      var(--black) 0 68%,
+      var(--yellow) 68%
     );
 
   border-radius: 24px;
-
   padding: 42px;
-
-  color: #fff;
-
+  color: var(--white);
   overflow: hidden;
 }
 
 .hero h1 {
   font-size: clamp(34px, 7vw, 64px);
-  line-height: .98;
-
+  line-height: 0.98;
   margin: 15px 0;
 }
 
 .hero h1 strong {
-  color: #ffd400;
+  color: var(--yellow);
 }
 
 .hero p {
@@ -118,15 +146,15 @@ body {
   color: #ddd;
 }
 
-/* =========================
+/* =========================================================
    ETIQUETAS
-========================= */
+========================================================= */
 
 .pill {
   display: inline-block;
 
-  background: #ffd400;
-  color: #111;
+  background: var(--yellow);
+  color: var(--black);
 
   border-radius: 999px;
 
@@ -136,15 +164,15 @@ body {
   font-size: 12px;
 }
 
-/* =========================
+/* =========================================================
    CATEGORÍAS
-========================= */
+========================================================= */
 
 .categories {
   display: flex;
   gap: 10px;
 
-  overflow: auto;
+  overflow-x: auto;
 
   padding:
     8px
@@ -159,10 +187,9 @@ body {
 }
 
 .cat {
-  background: #fff;
+  background: var(--white);
 
   border: 1px solid #ddd;
-
   border-radius: 999px;
 
   padding: 10px 15px;
@@ -170,25 +197,21 @@ body {
   white-space: nowrap;
 
   font-weight: 800;
-
   cursor: pointer;
 }
 
-/* =========================
+/* =========================================================
    SECCIONES
-========================= */
+========================================================= */
 
 .section {
   max-width: 1180px;
-
   margin: 15px auto;
-
   padding: 0 18px;
 }
 
 .section-title {
   display: flex;
-
   justify-content: space-between;
   align-items: center;
 }
@@ -198,17 +221,17 @@ body {
 }
 
 .section-title a {
-  color: #111;
+  color: var(--black);
   font-weight: 800;
 }
 
-/* =========================
-   CARRUSEL OFERTAS
-========================= */
+/* =========================================================
+   CARRUSELES
+========================================================= */
 
-.slider {
+.slider,
+.coupon-row {
   display: flex;
-
   gap: 14px;
 
   overflow-x: auto;
@@ -220,16 +243,17 @@ body {
   scrollbar-width: none;
 }
 
-.slider::-webkit-scrollbar {
+.slider::-webkit-scrollbar,
+.coupon-row::-webkit-scrollbar {
   display: none;
 }
 
-/* =========================
+/* =========================================================
    PRODUCTOS
-========================= */
+========================================================= */
 
 .card {
-  background: #fff;
+  background: var(--white);
 
   border-radius: 18px;
 
@@ -238,7 +262,7 @@ body {
 
   overflow: hidden;
 
-  box-shadow: 0 3px 14px #00000012;
+  box-shadow: var(--shadow);
 
   scroll-snap-align: start;
 }
@@ -257,7 +281,6 @@ body {
 .product-img img {
   width: 100%;
   height: 100%;
-
   object-fit: contain;
 }
 
@@ -267,25 +290,19 @@ body {
 
 .old {
   text-decoration: line-through;
-
   color: #888;
-
   font-size: 13px;
 }
 
 .off {
   color: #09863b;
-
   font-weight: 900;
-
   margin-left: 6px;
 }
 
 .price {
   font-size: 27px;
-
   font-weight: 950;
-
   margin: 4px 0 10px;
 }
 
@@ -294,22 +311,20 @@ body {
 
   text-align: center;
 
-  background: #111;
-
-  color: #fff;
+  background: var(--black);
+  color: var(--white);
 
   border-radius: 10px;
 
   padding: 11px;
 
   text-decoration: none;
-
   font-weight: 900;
 }
 
-/* =========================
+/* =========================================================
    MERCADO PAGO
-========================= */
+========================================================= */
 
 .mp-card {
   max-width: 1180px;
@@ -320,9 +335,8 @@ body {
 }
 
 .mp-inner {
-  background: #111;
-
-  color: #fff;
+  background: var(--black);
+  color: var(--white);
 
   border-radius: 20px;
 
@@ -331,7 +345,6 @@ body {
   display: flex;
 
   justify-content: space-between;
-
   align-items: center;
 
   gap: 20px;
@@ -339,36 +352,19 @@ body {
 
 .mp-inner h2 {
   margin: 0 0 7px;
-
-  color: #ffd400;
+  color: var(--yellow);
 }
 
-/* =========================
+/* =========================================================
    CUPONES
-========================= */
+========================================================= */
 
 .coupon-wrap h3 {
   margin-bottom: 10px;
 }
 
-.coupon-row {
-  display: flex;
-
-  gap: 14px;
-
-  overflow: auto;
-
-  padding-bottom: 12px;
-
-  scrollbar-width: none;
-}
-
-.coupon-row::-webkit-scrollbar {
-  display: none;
-}
-
 .coupon {
-  background: #fff;
+  background: var(--white);
 
   border-radius: 17px;
 
@@ -376,7 +372,7 @@ body {
 
   min-width: 245px;
 
-  box-shadow: 0 2px 12px #0001;
+  box-shadow: var(--shadow);
 }
 
 .coupon strong {
@@ -404,7 +400,7 @@ body {
 .copy {
   width: 100%;
 
-  background: #ffd400;
+  background: var(--yellow);
 
   border: 0;
 
@@ -419,15 +415,13 @@ body {
 
 .coupon small {
   display: block;
-
   margin-top: 8px;
-
   color: #666;
 }
 
-/* =========================
+/* =========================================================
    WHATSAPP
-========================= */
+========================================================= */
 
 .wa-float {
   position: fixed;
@@ -448,29 +442,774 @@ body {
   place-items: center;
 
   background: #22c55e;
-
-  color: #fff;
+  color: var(--white);
 
   font-size: 27px;
 
-  box-shadow: 0 6px 20px #0003;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* =========================
+/* =========================================================
    FOOTER
-========================= */
+========================================================= */
 
 footer {
   text-align: center;
-
   padding: 35px 18px;
+  color: #777;
+}
+
+/* =========================================================
+   =========================================================
+   PANEL ADMINISTRATIVO
+   =========================================================
+========================================================= */
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+.admin-login {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 212, 0, 0.25),
+      transparent 35%
+    ),
+    #111;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+
+  background: var(--white);
+
+  border-radius: 24px;
+
+  padding: 35px;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.35);
+
+  text-align: center;
+}
+
+.login-logo {
+  width: 75px;
+  height: 75px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  background: var(--yellow);
+
+  font-size: 42px;
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.login-card h1 {
+  margin: 5px 0 0;
+
+  font-size: 30px;
+  font-weight: 950;
+
+  letter-spacing: 1px;
+}
+
+.login-card h2 {
+  margin: 0;
+
+  font-size: 18px;
+
+  color: #555;
+
+  letter-spacing: 2px;
+}
+
+.login-subtitle {
+  margin: 10px 0 28px;
+
+  color: #777;
+
+  font-size: 14px;
+}
+
+.login-card form {
+  text-align: left;
+}
+
+.login-card label {
+  display: block;
+
+  margin: 14px 0 6px;
+
+  font-size: 14px;
+
+  font-weight: 800;
+}
+
+.login-card input {
+  width: 100%;
+
+  padding: 14px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 11px;
+
+  background: #fafafa;
+
+  font-size: 15px;
+
+  outline: none;
+}
+
+.login-card input:focus {
+  border-color: var(--yellow);
+
+  box-shadow:
+    0 0 0 3px rgba(255, 212, 0, 0.18);
+}
+
+.login-card .btn-primary {
+  width: 100%;
+
+  margin-top: 20px;
+}
+
+.login-error {
+  min-height: 20px;
+
+  margin: 12px 0 0;
+
+  color: var(--red);
+
+  font-size: 13px;
+
+  text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+
+  margin-top: 24px;
+
+  color: #555;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--black);
+}
+
+/* =========================================================
+   ADMIN PAGE
+========================================================= */
+
+.admin-page {
+  min-height: 100vh;
+
+  background: #f4f4f4;
+}
+
+/* =========================================================
+   ADMIN HEADER
+========================================================= */
+
+.admin-header {
+  min-height: 72px;
+
+  background: var(--black);
+
+  color: var(--white);
+
+  padding:
+    12px
+    max(18px, calc((100% - 1180px) / 2));
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 100;
+
+  box-shadow:
+    0 3px 15px rgba(0, 0, 0, 0.2);
+}
+
+.admin-header strong {
+  display: block;
+
+  color: var(--yellow);
+
+  font-size: 18px;
+}
+
+.admin-header small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #bbb;
+
+  font-size: 12px;
+}
+
+.admin-header-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* =========================================================
+   ADMIN CONTAINER
+========================================================= */
+
+.admin-container {
+  width: 100%;
+
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+  padding: 30px 18px 60px;
+}
+
+.admin-title {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 24px;
+}
+
+.admin-title h1 {
+  margin: 0;
+
+  font-size: 30px;
+
+  font-weight: 950;
+}
+
+.admin-title p {
+  margin: 7px 0 0;
 
   color: #777;
 }
 
-/* =========================
-   ADMIN
-========================= */
+/* =========================================================
+   BOTONES ADMIN
+========================================================= */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 44px;
+
+  padding: 11px 17px;
+
+  border-radius: 11px;
+
+  border: 0;
+
+  font-weight: 900;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: var(--yellow);
+
+  color: var(--black);
+}
+
+.btn-primary:hover {
+  background: var(--yellow-dark);
+}
+
+.btn-secondary {
+  background: #fff;
+
+  color: var(--black);
+}
+
+.btn-secondary:hover {
+  background: #eee;
+}
+
+.btn-danger {
+  background: #dc2626;
+
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none !important;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+.stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: var(--white);
+
+  border-radius: var(--radius);
+
+  padding: 20px;
+
+  min-height: 125px;
+
+  box-shadow: var(--shadow);
+
+  border: 1px solid #eee;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+}
+
+.stat-card > span {
+  font-size: 24px;
+
+  margin-bottom: 8px;
+}
+
+.stat-card strong {
+  display: block;
+
+  font-size: 27px;
+
+  line-height: 1;
+
+  font-weight: 950;
+}
+
+.stat-card small {
+  margin-top: 7px;
+
+  color: #777;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.admin-tabs {
+  display: flex;
+
+  gap: 8px;
+
+  overflow-x: auto;
+
+  padding-bottom: 8px;
+
+  margin-bottom: 18px;
+
+  scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tab {
+  flex-shrink: 0;
+
+  border: 0;
+
+  background: #e5e5e5;
+
+  color: #333;
+
+  padding: 12px 17px;
+
+  border-radius: 11px;
+
+  font-weight: 850;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.admin-tab:hover {
+  background: #d8d8d8;
+}
+
+.admin-tab.active {
+  background: var(--yellow);
+
+  color: var(--black);
+
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   PANELES
+========================================================= */
+
+.admin-panel {
+  display: none;
+
+  background: var(--white);
+
+  border-radius: 18px;
+
+  padding: 25px;
+
+  box-shadow: var(--shadow);
+
+  border: 1px solid #eaeaea;
+
+  margin-bottom: 20px;
+}
+
+.admin-panel.active {
+  display: block;
+}
+
+.panel-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+  padding-bottom: 17px;
+
+  border-bottom: 1px solid #eee;
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+
+  font-weight: 950;
+}
+
+.panel-header p {
+  margin: 5px 0 0;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   FORMULARIOS
+========================================================= */
+
+.admin-form {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 25px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  width: 100%;
+
+  min-height: 46px;
+
+  padding: 12px 13px;
+
+  border: 1px solid #dcdcdc;
+
+  border-radius: 10px;
+
+  background: #fafafa;
+
+  color: #111;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-form textarea {
+  min-height: 100px;
+
+  resize: vertical;
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+  border-color: var(--yellow);
+
+  background: #fff;
+
+  box-shadow:
+    0 0 0 3px rgba(255, 212, 0, 0.18);
+}
+
+.admin-form label {
+  grid-column: 1 / -1;
+
+  font-size: 13px;
+
+  font-weight: 850;
+
+  margin-top: 4px;
+}
+
+.admin-form button {
+  min-height: 46px;
+}
+
+/* Formularios con textarea */
+#mercadoForm textarea {
+  grid-column: 1 / -1;
+}
+
+/* Configuración */
+#settingsForm label {
+  grid-column: 1 / -1;
+
+  margin-bottom: -7px;
+}
+
+/* =========================================================
+   LISTAS
+========================================================= */
+
+.admin-list {
+  display: grid;
+
+  gap: 10px;
+}
+
+.admin-item {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  background: #fafafa;
+
+  border: 1px solid #e7e7e7;
+
+  border-radius: 13px;
+
+  padding: 13px;
+
+  transition:
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.admin-item:hover {
+  background: #fff;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.admin-item-image {
+  width: 65px;
+  height: 65px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  object-fit: contain;
+
+  background: #eee;
+}
+
+.admin-item > div:first-child {
+  flex: 1;
+
+  min-width: 0;
+}
+
+.admin-item strong {
+  display: block;
+
+  font-size: 15px;
+
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+.admin-item small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #777;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+.admin-item button {
+  flex-shrink: 0;
+}
+
+.btn-delete {
+  border: 0;
+
+  background: #fee2e2;
+
+  color: #b91c1c;
+
+  padding: 9px 12px;
+
+  border-radius: 9px;
+
+  font-weight: 850;
+
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #fecaca;
+}
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+.admin-message {
+  position: fixed;
+
+  right: 20px;
+
+  bottom: 20px;
+
+  z-index: 999;
+
+  max-width: 360px;
+
+  padding: 14px 17px;
+
+  background: var(--black);
+
+  color: var(--white);
+
+  border-left: 5px solid var(--yellow);
+
+  border-radius: 11px;
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.25);
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   COMPATIBILIDAD CON ADMIN ANTERIOR
+========================================================= */
 
 .admin-wrap {
   max-width: 1180px;
@@ -493,38 +1232,6 @@ footer {
 .danger {
   background: #e9e9e9;
 }
-
-.stats {
-  display: grid;
-
-  grid-template-columns: repeat(4, 1fr);
-
-  gap: 12px;
-
-  margin: 20px 0;
-}
-
-.stat {
-  background: #fff;
-
-  padding: 18px;
-
-  border-radius: 15px;
-}
-
-.stat b {
-  display: block;
-
-  font-size: 28px;
-}
-
-.stat span {
-  color: #777;
-}
-
-/* =========================
-   TABS
-========================= */
 
 .tabs {
   display: flex;
@@ -553,17 +1260,13 @@ footer {
 }
 
 .tab.active {
-  background: #ffd400;
+  background: var(--yellow);
 }
-
-/* =========================
-   PANELES
-========================= */
 
 .panel {
   display: none;
 
-  background: #fff;
+  background: var(--white);
 
   padding: 20px;
 
@@ -574,14 +1277,11 @@ footer {
   display: block;
 }
 
-/* =========================
-   FORMULARIOS
-========================= */
-
 .form-grid {
   display: grid;
 
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
   gap: 10px;
 
@@ -602,42 +1302,22 @@ footer {
   background: #fafafa;
 }
 
-/* =========================
-   LISTAS ADMIN
-========================= */
+.stat {
+  background: #fff;
 
-.admin-list {
-  display: grid;
+  padding: 18px;
 
-  gap: 8px;
+  border-radius: 15px;
 }
 
-.admin-item {
-  display: flex;
+.stat b {
+  display: block;
 
-  justify-content: space-between;
-
-  gap: 10px;
-
-  align-items: center;
-
-  border: 1px solid #eee;
-
-  padding: 12px;
-
-  border-radius: 10px;
+  font-size: 28px;
 }
 
-.mini-actions button {
-  border: 0;
-
-  background: #eee;
-
-  padding: 7px 10px;
-
-  border-radius: 7px;
-
-  cursor: pointer;
+.stat span {
+  color: #777;
 }
 
 .note {
@@ -650,34 +1330,155 @@ footer {
   margin: 10px 0;
 }
 
-.panel label input {
-  display: block;
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-  margin-top: 5px;
+@media (max-width: 1050px) {
+
+  .stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
 }
 
-/* =========================
-   CELULAR
-========================= */
+@media (max-width: 750px) {
 
-@media (max-width: 650px) {
+  .admin-header {
+    align-items: flex-start;
 
-  .hero > div {
-    padding: 28px 22px;
+    flex-direction: column;
+
+    padding: 15px 18px;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+  }
+
+  .admin-header-actions .btn-secondary,
+  .admin-header-actions .btn-danger {
+    flex: 1;
+  }
+
+  .admin-title h1 {
+    font-size: 25px;
   }
 
   .stats {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
-  .form-grid {
+  .admin-form {
     grid-template-columns: 1fr;
+  }
+
+  .admin-panel {
+    padding: 18px;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+  }
+
+}
+
+@media (max-width: 550px) {
+
+  .login-card {
+    padding: 25px 20px;
+
+    border-radius: 20px;
+  }
+
+  .login-card h1 {
+    font-size: 26px;
+  }
+
+  .login-card h2 {
+    font-size: 16px;
+  }
+
+  .admin-container {
+    padding:
+      22px
+      12px
+      50px;
+  }
+
+  .admin-title {
+    margin-bottom: 18px;
+  }
+
+  .admin-title h1 {
+    font-size: 22px;
+  }
+
+  .admin-title p {
+    font-size: 13px;
+  }
+
+  .stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 9px;
+  }
+
+  .stat-card {
+    min-height: 105px;
+
+    padding: 14px;
+  }
+
+  .stat-card > span {
+    font-size: 20px;
+  }
+
+  .stat-card strong {
+    font-size: 22px;
+  }
+
+  .stat-card small {
+    font-size: 11px;
+  }
+
+  .admin-panel {
+    padding: 15px;
+
+    border-radius: 14px;
+  }
+
+  .admin-item {
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+  }
+
+  .admin-item button {
+    margin-left: auto;
+  }
+
+  .admin-message {
+    left: 12px;
+
+    right: 12px;
+
+    bottom: 12px;
+
+    max-width: none;
   }
 
   .mp-inner {
     flex-direction: column;
 
     align-items: flex-start;
+  }
+
+  .hero > div {
+    padding: 28px 22px;
   }
 
   .top {
@@ -690,6 +1491,31 @@ footer {
 
   .brand b {
     font-size: 15px;
+  }
+
+}
+
+@media (max-width: 400px) {
+
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .admin-header strong {
+    font-size: 16px;
+  }
+
+  .admin-header-actions {
+    flex-direction: column;
+  }
+
+  .admin-header-actions .btn-secondary,
+  .admin-header-actions .btn-danger {
+    width: 100%;
   }
 
 }
