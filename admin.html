@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>El Patrón de las Ofertas | Admin</title>
 
-  <link rel="stylesheet" href="styles.css">
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
 </head>
 
 <body>
@@ -15,12 +22,15 @@
        LOGIN
   ====================================== -->
 
-  <section id="loginScreen" class="admin-login">
+  <section
+    id="loginScreen"
+    class="admin-login"
+  >
 
     <div class="login-card">
 
       <div class="login-logo">
-        🔥
+        💀
       </div>
 
       <h1>EL PATRÓN</h1>
@@ -64,11 +74,17 @@
           🔐 INICIAR SESIÓN
         </button>
 
-        <p id="loginError" class="login-error"></p>
+        <p
+          id="loginError"
+          class="login-error"
+        ></p>
 
       </form>
 
-      <a href="index.html" class="back-link">
+      <a
+        href="index.html"
+        class="back-link"
+      >
         ← Volver a la página
       </a>
 
@@ -81,15 +97,24 @@
        PANEL ADMINISTRATIVO
   ====================================== -->
 
-  <div id="adminPanel" class="admin-page" style="display:none;">
+  <div
+    id="adminPanel"
+    class="admin-page"
+    style="display:none;"
+  >
 
     <!-- HEADER -->
 
     <header class="admin-header">
 
       <div>
-        <strong>🔥 EL PATRÓN ADMIN</strong>
+
+        <strong>
+          💀 EL PATRÓN ADMIN
+        </strong>
+
         <small id="adminUserEmail"></small>
+
       </div>
 
       <div class="admin-header-actions">
@@ -122,11 +147,16 @@
       <div class="admin-title">
 
         <div>
-          <h1>Panel de administración</h1>
+
+          <h1>
+            Panel de administración
+          </h1>
 
           <p>
-            Administra ofertas, cupones, categorías y promociones.
+            Administra ofertas, cupones,
+            categorías y promociones.
           </p>
+
         </div>
 
       </div>
@@ -136,7 +166,10 @@
            ESTADÍSTICAS
       ====================================== -->
 
-      <section class="stats" id="stats">
+      <section
+        class="stats"
+        id="stats"
+      >
 
         <div class="stat-card">
           <span>👁️</span>
@@ -186,6 +219,7 @@
         <button
           class="admin-tab active"
           data-tab="offersTab"
+          type="button"
         >
           🔥 Ofertas
         </button>
@@ -193,6 +227,7 @@
         <button
           class="admin-tab"
           data-tab="couponsTab"
+          type="button"
         >
           🎟️ Cupones
         </button>
@@ -200,6 +235,7 @@
         <button
           class="admin-tab"
           data-tab="categoriesTab"
+          type="button"
         >
           📂 Categorías
         </button>
@@ -207,6 +243,7 @@
         <button
           class="admin-tab"
           data-tab="mercadoTab"
+          type="button"
         >
           💳 Mercado Pago
         </button>
@@ -214,6 +251,7 @@
         <button
           class="admin-tab"
           data-tab="settingsTab"
+          type="button"
         >
           ⚙️ Configuración
         </button>
@@ -233,16 +271,24 @@
         <div class="panel-header">
 
           <div>
-            <h2>🔥 Ofertas</h2>
+
+            <h2>
+              🔥 Ofertas
+            </h2>
+
             <p>
               Agrega y administra tus ofertas.
             </p>
+
           </div>
 
         </div>
 
 
-        <form id="offerForm" class="admin-form">
+        <form
+          id="offerForm"
+          class="admin-form"
+        >
 
           <input
             type="text"
@@ -251,12 +297,73 @@
             required
           >
 
-          <input
-            type="url"
-            id="offerImage"
-            placeholder="URL de la imagen"
-            required
+
+          <!-- CATEGORÍA -->
+
+          <label for="offerCategory">
+            📂 Categoría
+          </label>
+
+          <select
+            id="offerCategory"
           >
+
+            <option value="">
+              Selecciona una categoría
+            </option>
+
+            <option value="Celulares">
+              📱 Celulares
+            </option>
+
+            <option value="Pantallas">
+              📺 Pantallas
+            </option>
+
+            <option value="Tecnología">
+              💻 Tecnología
+            </option>
+
+            <option value="Videojuegos">
+              🎮 Videojuegos
+            </option>
+
+            <option value="Hogar">
+              🏠 Hogar
+            </option>
+
+            <option value="Moda">
+              👟 Moda
+            </option>
+
+          </select>
+
+
+          <!-- IMAGEN -->
+
+          <div class="image-picker">
+
+            <label for="offerImage">
+              🖼️ Imagen del producto
+            </label>
+
+            <input
+              type="file"
+              id="offerImage"
+              accept="image/*"
+            >
+
+            <small>
+              Selecciona una imagen desde tu galería.
+            </small>
+
+            <div
+              id="offerImagePreview"
+              class="image-preview"
+            ></div>
+
+          </div>
+
 
           <input
             type="number"
@@ -267,6 +374,7 @@
             required
           >
 
+
           <input
             type="number"
             id="offerPrice"
@@ -276,12 +384,14 @@
             required
           >
 
+
           <input
             type="url"
             id="offerLink"
             placeholder="Link del producto"
             required
           >
+
 
           <button
             type="submit"
@@ -313,23 +423,38 @@
         <div class="panel-header">
 
           <div>
-            <h2>🎟️ Cupones</h2>
+
+            <h2>
+              🎟️ Cupones
+            </h2>
+
             <p>
               Administra todos tus códigos de descuento.
             </p>
+
           </div>
 
         </div>
 
 
-        <form id="couponForm" class="admin-form">
+        <form
+          id="couponForm"
+          class="admin-form"
+        >
+
+
+          <!-- CÓDIGO -->
 
           <input
             type="text"
             id="couponCode"
             placeholder="Código del cupón"
+            autocomplete="off"
             required
           >
+
+
+          <!-- SECCIÓN -->
 
           <select id="couponSection">
 
@@ -345,12 +470,33 @@
               💳 Cupones Bancarios
             </option>
 
-            <option value="todos">
-              🎟️ Todos los cupones
+          </select>
+
+
+          <!-- ESTADO -->
+
+          <label for="couponStatus">
+            📊 Estado del cupón
+          </label>
+
+          <select id="couponStatus">
+
+            <option value="active">
+              🟢 Activo
+            </option>
+
+            <option value="soon">
+              🟠 Por agotarse
+            </option>
+
+            <option value="soldout">
+              🔴 Agotado
             </option>
 
           </select>
 
+
+          <!-- DESCUENTO -->
 
           <input
             type="text"
@@ -358,6 +504,9 @@
             placeholder="Ejemplo: 14% OFF"
             required
           >
+
+
+          <!-- MÍNIMO -->
 
           <input
             type="number"
@@ -367,6 +516,9 @@
             step="0.01"
           >
 
+
+          <!-- MÁXIMO -->
+
           <input
             type="number"
             id="couponMax"
@@ -375,11 +527,15 @@
             step="0.01"
           >
 
+
+          <!-- LINK -->
+
           <input
             type="url"
             id="couponLink"
             placeholder="Link Mercado Libre (opcional)"
           >
+
 
           <button
             type="submit"
@@ -411,10 +567,15 @@
         <div class="panel-header">
 
           <div>
-            <h2>📂 Categorías</h2>
+
+            <h2>
+              📂 Categorías
+            </h2>
+
             <p>
               Administra las categorías de la página.
             </p>
+
           </div>
 
         </div>
@@ -432,6 +593,7 @@
             required
           >
 
+
           <input
             type="text"
             id="categoryEmoji"
@@ -439,6 +601,7 @@
             maxlength="4"
             required
           >
+
 
           <button
             type="submit"
@@ -470,10 +633,15 @@
         <div class="panel-header">
 
           <div>
-            <h2>💳 Mercado Pago</h2>
+
+            <h2>
+              💳 Mercado Pago
+            </h2>
+
             <p>
               Configura la promoción destacada.
             </p>
+
           </div>
 
         </div>
@@ -484,12 +652,14 @@
           class="admin-form"
         >
 
+
           <input
             type="text"
             id="mpTitle"
             placeholder="Título"
             required
           >
+
 
           <textarea
             id="mpText"
@@ -498,11 +668,32 @@
             required
           ></textarea>
 
-          <input
-            type="url"
-            id="mpImage"
-            placeholder="URL de la imagen"
-          >
+
+          <!-- IMAGEN MERCADO PAGO -->
+
+          <div class="image-picker">
+
+            <label for="mpImage">
+              🖼️ Imagen de Mercado Pago
+            </label>
+
+            <input
+              type="file"
+              id="mpImage"
+              accept="image/*"
+            >
+
+            <small>
+              Selecciona la imagen desde tu galería.
+            </small>
+
+            <div
+              id="mpImagePreview"
+              class="image-preview"
+            ></div>
+
+          </div>
+
 
           <input
             type="url"
@@ -510,6 +701,7 @@
             placeholder="Link de Mercado Pago"
             required
           >
+
 
           <button
             type="submit"
@@ -535,10 +727,15 @@
         <div class="panel-header">
 
           <div>
-            <h2>⚙️ Configuración</h2>
+
+            <h2>
+              ⚙️ Configuración
+            </h2>
+
             <p>
               Configuración general de la página.
             </p>
+
           </div>
 
         </div>
@@ -549,8 +746,8 @@
           class="admin-form"
         >
 
-          <label>
-            Número de WhatsApp
+          <label for="whatsapp">
+            📱 Número de WhatsApp
           </label>
 
           <input
@@ -560,8 +757,8 @@
           >
 
 
-          <label>
-            Link general de Mercado Libre
+          <label for="generalMercadoLibre">
+            🛒 Link general de Mercado Libre
           </label>
 
           <input
@@ -583,9 +780,7 @@
       </section>
 
 
-      <!-- =====================================
-           MENSAJE
-      ====================================== -->
+      <!-- MENSAJE -->
 
       <div
         id="adminMessage"
@@ -593,14 +788,13 @@
         style="display:none;"
       ></div>
 
-
     </main>
 
   </div>
 
 
   <!-- =====================================
-       FIREBASE + ADMIN
+       FIREBASE LOGIN
   ====================================== -->
 
   <script type="module">
@@ -611,65 +805,117 @@
       onAuthStateChanged,
       signInWithEmailAndPassword,
       signOut
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    }
+    from
+      "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 
     const loginScreen =
-      document.getElementById("loginScreen");
+      document.getElementById(
+        "loginScreen"
+      );
+
 
     const adminPanel =
-      document.getElementById("adminPanel");
+      document.getElementById(
+        "adminPanel"
+      );
+
 
     const loginForm =
-      document.getElementById("loginForm");
+      document.getElementById(
+        "loginForm"
+      );
+
 
     const loginError =
-      document.getElementById("loginError");
+      document.getElementById(
+        "loginError"
+      );
+
 
     const loginButton =
-      document.getElementById("loginButton");
+      document.getElementById(
+        "loginButton"
+      );
+
 
     const logoutButton =
-      document.getElementById("logoutButton");
+      document.getElementById(
+        "logoutButton"
+      );
+
 
     const adminUserEmail =
-      document.getElementById("adminUserEmail");
+      document.getElementById(
+        "adminUserEmail"
+      );
+
+
+    let adminScriptLoaded = false;
 
 
     // =====================================
     // COMPROBAR SESIÓN
     // =====================================
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(
+      auth,
+      (user) => {
 
-      if (user) {
+        if (user) {
 
-        loginScreen.style.display = "none";
+          loginScreen.style.display =
+            "none";
 
-        adminPanel.style.display = "block";
+          adminPanel.style.display =
+            "block";
 
-        adminUserEmail.textContent =
-          user.email || "";
+          adminUserEmail.textContent =
+            user.email || "";
 
-        // Cargar administrador
-        const script =
-          document.createElement("script");
 
-        script.type = "module";
+          /*
+            Cargar admin.js solamente
+            una vez.
+          */
 
-        script.src = "./admin.js";
+          if (!adminScriptLoaded) {
 
-        document.body.appendChild(script);
+            adminScriptLoaded = true;
 
-      } else {
+            const script =
+              document.createElement(
+                "script"
+              );
 
-        loginScreen.style.display = "flex";
+            script.type =
+              "module";
 
-        adminPanel.style.display = "none";
+            script.src =
+              "./admin.js";
+
+            document.body.appendChild(
+              script
+            );
+
+          }
+
+        } else {
+
+          loginScreen.style.display =
+            "flex";
+
+          adminPanel.style.display =
+            "none";
+
+          adminScriptLoaded =
+            false;
+
+        }
 
       }
-
-    });
+    );
 
 
     // =====================================
@@ -682,20 +928,31 @@
 
         event.preventDefault();
 
+
         const email =
-          document.getElementById(
-            "loginEmail"
-          ).value.trim();
+          document
+            .getElementById(
+              "loginEmail"
+            )
+            .value
+            .trim();
+
 
         const password =
-          document.getElementById(
-            "loginPassword"
-          ).value;
+          document
+            .getElementById(
+              "loginPassword"
+            )
+            .value;
 
 
-        loginError.textContent = "";
+        loginError.textContent =
+          "";
 
-        loginButton.disabled = true;
+
+        loginButton.disabled =
+          true;
+
 
         loginButton.textContent =
           "⏳ ENTRANDO...";
@@ -716,7 +973,8 @@
           loginError.textContent =
             "❌ Correo o contraseña incorrectos.";
 
-          loginButton.disabled = false;
+          loginButton.disabled =
+            false;
 
           loginButton.textContent =
             "🔐 INICIAR SESIÓN";
@@ -745,4 +1003,5 @@
   </script>
 
 </body>
+
 </html>
