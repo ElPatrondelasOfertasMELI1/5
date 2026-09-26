@@ -1,19 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>El Patrón de las Ofertas | Admin</title>
+  <title>Administración · El Patrón de las Ofertas</title>
 
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  >
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
@@ -22,10 +16,7 @@
        LOGIN
   ====================================== -->
 
-  <section
-    id="loginScreen"
-    class="admin-login"
-  >
+  <section id="loginScreen" class="admin-login">
 
     <div class="login-card">
 
@@ -33,60 +24,49 @@
         💀
       </div>
 
-      <h1>EL PATRÓN</h1>
-      <h2>DE LAS OFERTAS</h2>
+      <h1>
+        EL PATRÓN
+      </h1>
 
-      <p class="login-subtitle">
+      <p>
         Panel de administración
       </p>
 
       <form id="loginForm">
 
         <label for="loginEmail">
-          Correo electrónico
+          📧 Correo
         </label>
 
         <input
           type="email"
           id="loginEmail"
-          placeholder="Tu correo"
-          autocomplete="email"
+          placeholder="Correo electrónico"
           required
         >
 
         <label for="loginPassword">
-          Contraseña
+          🔐 Contraseña
         </label>
 
         <input
           type="password"
           id="loginPassword"
-          placeholder="Tu contraseña"
-          autocomplete="current-password"
+          placeholder="Contraseña"
           required
         >
 
         <button
           type="submit"
-          class="btn-primary"
           id="loginButton"
+          class="primary-button"
         >
-          🔐 INICIAR SESIÓN
+          🔐 ENTRAR
         </button>
 
-        <p
-          id="loginError"
-          class="login-error"
-        ></p>
+        <p id="loginError" class="admin-error"></p>
 
       </form>
-
-      <a
-        href="index.html"
-        class="back-link"
-      >
-        ← Volver a la página
-      </a>
 
     </div>
 
@@ -94,10 +74,10 @@
 
 
   <!-- =====================================
-       PANEL ADMINISTRATIVO
+       ADMIN PANEL
   ====================================== -->
 
-  <div
+  <section
     id="adminPanel"
     class="admin-page"
     style="display:none;"
@@ -109,27 +89,23 @@
 
       <div>
 
-        <strong>
-          💀 EL PATRÓN ADMIN
-        </strong>
+        <div class="admin-brand">
+          💀 EL PATRÓN
+        </div>
 
-        <small id="adminUserEmail"></small>
+        <small>
+          Panel de administración
+        </small>
 
       </div>
 
-      <div class="admin-header-actions">
+      <div class="admin-user">
 
-        <a
-          href="index.html"
-          target="_blank"
-          class="btn-secondary"
-        >
-          👁️ Ver página
-        </a>
+        <span id="adminUserEmail"></span>
 
         <button
           id="logoutButton"
-          class="btn-danger"
+          class="danger-button"
           type="button"
         >
           🚪 Salir
@@ -142,37 +118,15 @@
 
     <main class="admin-container">
 
-      <!-- TITULO -->
-
-      <div class="admin-title">
-
-        <div>
-
-          <h1>
-            Panel de administración
-          </h1>
-
-          <p>
-            Administra ofertas, cupones,
-            categorías y promociones.
-          </p>
-
-        </div>
-
-      </div>
-
 
       <!-- =====================================
            ESTADÍSTICAS
       ====================================== -->
 
-      <section
-        class="stats"
-        id="stats"
-      >
+      <section class="stats-grid">
 
         <div class="stat-card">
-          <span>👁️</span>
+          <span>👀</span>
           <strong id="statVisits">0</strong>
           <small>Visitas</small>
         </div>
@@ -180,11 +134,11 @@
         <div class="stat-card">
           <span>👤</span>
           <strong id="statUnique">0</strong>
-          <small>Visitantes únicos</small>
+          <small>Visitantes</small>
         </div>
 
         <div class="stat-card">
-          <span>🖱️</span>
+          <span>🛒</span>
           <strong id="statClicks">0</strong>
           <small>Clics</small>
         </div>
@@ -192,11 +146,11 @@
         <div class="stat-card">
           <span>📋</span>
           <strong id="statCopies">0</strong>
-          <small>Cupones copiados</small>
+          <small>Copias</small>
         </div>
 
         <div class="stat-card">
-          <span>🔥</span>
+          <span>📢</span>
           <strong id="statPromotions">0</strong>
           <small>Promociones</small>
         </div>
@@ -204,54 +158,54 @@
         <div class="stat-card">
           <span>💰</span>
           <strong id="statSavings">$0</strong>
-          <small>Ahorro generado</small>
+          <small>Ahorro</small>
         </div>
 
       </section>
 
 
       <!-- =====================================
-           MENÚ
+           TABS
       ====================================== -->
 
       <nav class="admin-tabs">
 
         <button
+          type="button"
           class="admin-tab active"
           data-tab="offersTab"
-          type="button"
         >
           🔥 Ofertas
         </button>
 
         <button
+          type="button"
           class="admin-tab"
           data-tab="couponsTab"
-          type="button"
         >
           🎟️ Cupones
         </button>
 
         <button
+          type="button"
           class="admin-tab"
           data-tab="categoriesTab"
-          type="button"
         >
           📂 Categorías
         </button>
 
         <button
+          type="button"
           class="admin-tab"
           data-tab="mercadoTab"
-          type="button"
         >
           💳 Mercado Pago
         </button>
 
         <button
+          type="button"
           class="admin-tab"
           data-tab="settingsTab"
-          type="button"
         >
           ⚙️ Configuración
         </button>
@@ -265,7 +219,7 @@
 
       <section
         id="offersTab"
-        class="admin-panel active"
+        class="admin-panel"
       >
 
         <div class="panel-header">
@@ -277,7 +231,7 @@
             </h2>
 
             <p>
-              Agrega y administra tus ofertas.
+              Administra las ofertas que aparecerán en la página.
             </p>
 
           </div>
@@ -290,114 +244,86 @@
           class="admin-form"
         >
 
+          <label for="offerName">
+            🏷️ Nombre de la oferta
+          </label>
+
           <input
             type="text"
             id="offerName"
-            placeholder="Nombre del producto"
+            placeholder="Ejemplo: iPhone 17 Pro Max"
             required
           >
 
-
-          <!-- CATEGORÍA -->
 
           <label for="offerCategory">
             📂 Categoría
           </label>
 
-          <select
-            id="offerCategory"
-          >
-
+          <select id="offerCategory">
             <option value="">
               Selecciona una categoría
             </option>
-
-            <option value="Celulares">
-              📱 Celulares
-            </option>
-
-            <option value="Pantallas">
-              📺 Pantallas
-            </option>
-
-            <option value="Tecnología">
-              💻 Tecnología
-            </option>
-
-            <option value="Videojuegos">
-              🎮 Videojuegos
-            </option>
-
-            <option value="Hogar">
-              🏠 Hogar
-            </option>
-
-            <option value="Moda">
-              👟 Moda
-            </option>
-
           </select>
 
 
-          <!-- IMAGEN -->
+          <label for="offerImage">
+            🖼️ Imagen
+          </label>
 
-          <div class="image-picker">
+          <input
+            type="file"
+            id="offerImage"
+            accept="image/*"
+          >
 
-            <label for="offerImage">
-              🖼️ Imagen del producto
-            </label>
+          <div id="offerImagePreview"></div>
 
-            <input
-              type="file"
-              id="offerImage"
-              accept="image/*"
-            >
 
-            <small>
-              Selecciona una imagen desde tu galería.
-            </small>
-
-            <div
-              id="offerImagePreview"
-              class="image-preview"
-            ></div>
-
-          </div>
-
+          <label for="offerOldPrice">
+            💰 Precio anterior
+          </label>
 
           <input
             type="number"
             id="offerOldPrice"
-            placeholder="Precio anterior"
+            placeholder="29999"
             min="0"
             step="0.01"
-            required
           >
 
+
+          <label for="offerPrice">
+            🔥 Precio actual
+          </label>
 
           <input
             type="number"
             id="offerPrice"
-            placeholder="Precio final"
+            placeholder="21232"
             min="0"
             step="0.01"
             required
           >
 
 
+          <label for="offerLink">
+            🔗 Link de Mercado Libre
+          </label>
+
           <input
             type="url"
             id="offerLink"
-            placeholder="Link del producto"
+            placeholder="https://meli.la/..."
             required
           >
 
 
           <button
             type="submit"
-            class="btn-primary"
+            class="primary-button"
           >
-            ➕ Agregar oferta
+            💾 GUARDAR OFERTA
           </button>
 
         </form>
@@ -411,106 +337,108 @@
       </section>
 
 
-<!-- =====================================
-     CUPONES
-====================================== -->
+      <!-- =====================================
+           CUPONES
+      ====================================== -->
 
-<section
-  id="couponsTab"
-  class="admin-panel"
->
+      <section
+        id="couponsTab"
+        class="admin-panel"
+        style="display:none;"
+      >
 
-  <div class="panel-header">
+        <div class="panel-header">
 
-    <div>
+          <div>
 
-      <h2>
-        🎟️ Cupones
-      </h2>
+            <h2>
+              🎟️ Cupones
+            </h2>
 
-      <p>
-        Administra todos tus códigos de descuento.
-      </p>
+            <p>
+              Administra todos tus códigos de descuento.
+            </p>
 
-    </div>
+          </div>
 
-  </div>
-
-
-  <form
-    id="couponForm"
-    class="admin-form"
-  >
-
-    <!-- NOMBRE DEL CUPÓN -->
-
-    <label for="couponName">
-      🏷️ Nombre del cupón
-    </label>
-
-    <input
-      type="text"
-      id="couponName"
-      placeholder="Ejemplo: Banco Santander"
-      autocomplete="off"
-    >
+        </div>
 
 
-    <!-- CÓDIGO DEL CUPÓN -->
+        <form
+          id="couponForm"
+          class="admin-form"
+        >
 
-    <label for="couponCode">
-      🎟️ Código del cupón
-    </label>
+          <!-- NOMBRE DEL CUPÓN -->
 
-    <input
-      type="text"
-      id="couponCode"
-      placeholder="Ejemplo: AHORRO123"
-      autocomplete="off"
-      required
-    >
+          <label for="couponName">
+            🏷️ Nombre del cupón
+          </label>
+
+          <input
+            type="text"
+            id="couponName"
+            placeholder="Ejemplo: Banco Santander"
+            autocomplete="off"
+          >
 
 
-    <!-- SECCIÓN -->
+          <!-- CÓDIGO -->
 
-    <label for="couponSection">
-      📂 Sección
-    </label>
+          <label for="couponCode">
+            🎟️ Código del cupón
+          </label>
 
-    <select id="couponSection">
+          <input
+            type="text"
+            id="couponCode"
+            placeholder="Ejemplo: SANTANDER10"
+            autocomplete="off"
+            required
+          >
 
-      <option value="relampago">
-        ⚡ Cupones Relámpago
-      </option>
 
-      <option value="exclusivos">
-        🔥 Exclusivos + Tiendas
-      </option>
+          <!-- SECCIÓN -->
 
-      <option value="bancarios">
-        💳 Cupones Bancarios
-      </option>
+          <label for="couponSection">
+            📂 Sección
+          </label>
 
-    </select>
+          <select id="couponSection">
+
+            <option value="relampago">
+              ⚡ Cupones Relámpago
+            </option>
+
+            <option value="exclusivos">
+              🔥 Exclusivos + Tiendas
+            </option>
+
+            <option value="bancarios">
+              💳 Cupones Bancarios
+            </option>
+
+          </select>
+
 
           <!-- ESTADO -->
 
           <label for="couponStatus">
-            📊 Estado del cupón
+            🚦 Estado
           </label>
 
           <select id="couponStatus">
 
             <option value="active">
-              🟢 Activo
+              🟢 ACTIVO
             </option>
 
             <option value="soon">
-              🟠 Por agotarse
+              🟠 POR AGOTARSE
             </option>
 
             <option value="soldout">
-              🔴 Agotado
+              🔴 AGOTADO
             </option>
 
           </select>
@@ -518,31 +446,43 @@
 
           <!-- DESCUENTO -->
 
+          <label for="couponDiscount">
+            💸 Descuento
+          </label>
+
           <input
             type="text"
             id="couponDiscount"
-            placeholder="Ejemplo: 14% OFF"
+            placeholder="10% de descuento"
             required
           >
 
 
-          <!-- MÍNIMO -->
+          <!-- COMPRA MÍNIMA -->
+
+          <label for="couponMin">
+            🛒 Compra mínima
+          </label>
 
           <input
             type="number"
             id="couponMin"
-            placeholder="Compra mínima"
+            placeholder="700"
             min="0"
             step="0.01"
           >
 
 
-          <!-- MÁXIMO -->
+          <!-- DESCUENTO MÁXIMO -->
+
+          <label for="couponMax">
+            💰 Descuento máximo
+          </label>
 
           <input
             type="number"
             id="couponMax"
-            placeholder="Descuento máximo"
+            placeholder="88"
             min="0"
             step="0.01"
           >
@@ -550,18 +490,22 @@
 
           <!-- LINK -->
 
+          <label for="couponLink">
+            🔗 Link de Mercado Libre
+          </label>
+
           <input
             type="url"
             id="couponLink"
-            placeholder="Link Mercado Libre (opcional)"
+            placeholder="https://meli.la/..."
           >
 
 
           <button
             type="submit"
-            class="btn-primary"
+            class="primary-button"
           >
-            ➕ Agregar cupón
+            💾 GUARDAR CUPÓN
           </button>
 
         </form>
@@ -582,6 +526,7 @@
       <section
         id="categoriesTab"
         class="admin-panel"
+        style="display:none;"
       >
 
         <div class="panel-header">
@@ -593,7 +538,7 @@
             </h2>
 
             <p>
-              Administra las categorías de la página.
+              Administra las categorías de productos.
             </p>
 
           </div>
@@ -606,28 +551,34 @@
           class="admin-form"
         >
 
+          <label for="categoryName">
+            🏷️ Nombre
+          </label>
+
           <input
             type="text"
             id="categoryName"
-            placeholder="Nombre de categoría"
+            placeholder="Ejemplo: Tecnología"
             required
           >
 
 
+          <label for="categoryEmoji">
+            😀 Emoji
+          </label>
+
           <input
             type="text"
             id="categoryEmoji"
-            placeholder="Emoji 📱"
-            maxlength="4"
-            required
+            placeholder="📱"
           >
 
 
           <button
             type="submit"
-            class="btn-primary"
+            class="primary-button"
           >
-            ➕ Agregar categoría
+            💾 GUARDAR CATEGORÍA
           </button>
 
         </form>
@@ -648,6 +599,7 @@
       <section
         id="mercadoTab"
         class="admin-panel"
+        style="display:none;"
       >
 
         <div class="panel-header">
@@ -659,7 +611,7 @@
             </h2>
 
             <p>
-              Configura la promoción destacada.
+              Configura la promoción de Mercado Pago.
             </p>
 
           </div>
@@ -672,62 +624,57 @@
           class="admin-form"
         >
 
+          <label for="mpTitle">
+            🏷️ Título
+          </label>
 
           <input
             type="text"
             id="mpTitle"
-            placeholder="Título"
-            required
+            placeholder="$100 GRATIS para usuarios nuevos"
           >
 
 
+          <label for="mpText">
+            📝 Descripción
+          </label>
+
           <textarea
             id="mpText"
-            placeholder="Descripción de la promoción"
             rows="4"
-            required
+            placeholder="Descripción de la promoción"
           ></textarea>
 
 
-          <!-- IMAGEN MERCADO PAGO -->
+          <label for="mpImage">
+            🖼️ Imagen
+          </label>
 
-          <div class="image-picker">
+          <input
+            type="file"
+            id="mpImage"
+            accept="image/*"
+          >
 
-            <label for="mpImage">
-              🖼️ Imagen de Mercado Pago
-            </label>
+          <div id="mpImagePreview"></div>
 
-            <input
-              type="file"
-              id="mpImage"
-              accept="image/*"
-            >
 
-            <small>
-              Selecciona la imagen desde tu galería.
-            </small>
-
-            <div
-              id="mpImagePreview"
-              class="image-preview"
-            ></div>
-
-          </div>
-
+          <label for="mpLink">
+            🔗 Link
+          </label>
 
           <input
             type="url"
             id="mpLink"
-            placeholder="Link de Mercado Pago"
-            required
+            placeholder="https://..."
           >
 
 
           <button
             type="submit"
-            class="btn-primary"
+            class="primary-button"
           >
-            💾 Guardar promoción
+            💾 GUARDAR PROMOCIÓN
           </button>
 
         </form>
@@ -742,6 +689,7 @@
       <section
         id="settingsTab"
         class="admin-panel"
+        style="display:none;"
       >
 
         <div class="panel-header">
@@ -767,7 +715,7 @@
         >
 
           <label for="whatsapp">
-            📱 Número de WhatsApp
+            💬 WhatsApp
           </label>
 
           <input
@@ -790,9 +738,9 @@
 
           <button
             type="submit"
-            class="btn-primary"
+            class="primary-button"
           >
-            💾 Guardar configuración
+            💾 GUARDAR CONFIGURACIÓN
           </button>
 
         </form>
@@ -805,142 +753,61 @@
       <div
         id="adminMessage"
         class="admin-message"
-        style="display:none;"
       ></div>
 
     </main>
 
-  </div>
+  </section>
 
 
   <!-- =====================================
-       FIREBASE LOGIN
+       FIREBASE / ADMIN JS
   ====================================== -->
 
   <script type="module">
 
-    import { auth } from "./firebase-config.js";
-
     import {
+      getAuth,
       onAuthStateChanged,
       signInWithEmailAndPassword,
       signOut
     }
-    from
-      "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    import {
+      doc,
+      getDoc
+    }
+    from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    import {
+      db
+    }
+    from "./firebase-config.js";
+
+
+    const auth = getAuth();
 
 
     const loginScreen =
-      document.getElementById(
-        "loginScreen"
-      );
-
+      document.getElementById("loginScreen");
 
     const adminPanel =
-      document.getElementById(
-        "adminPanel"
-      );
-
+      document.getElementById("adminPanel");
 
     const loginForm =
-      document.getElementById(
-        "loginForm"
-      );
-
+      document.getElementById("loginForm");
 
     const loginError =
-      document.getElementById(
-        "loginError"
-      );
-
-
-    const loginButton =
-      document.getElementById(
-        "loginButton"
-      );
-
+      document.getElementById("loginError");
 
     const logoutButton =
-      document.getElementById(
-        "logoutButton"
-      );
+      document.getElementById("logoutButton");
 
 
-    const adminUserEmail =
-      document.getElementById(
-        "adminUserEmail"
-      );
+    const ADMIN_UID =
+      "XrkjAonD9tWUD6X1rWWJsaQsh9J2";
 
-
-    let adminScriptLoaded = false;
-
-
-    // =====================================
-    // COMPROBAR SESIÓN
-    // =====================================
-
-    onAuthStateChanged(
-      auth,
-      (user) => {
-
-        if (user) {
-
-          loginScreen.style.display =
-            "none";
-
-          adminPanel.style.display =
-            "block";
-
-          adminUserEmail.textContent =
-            user.email || "";
-
-
-          /*
-            Cargar admin.js solamente
-            una vez.
-          */
-
-          if (!adminScriptLoaded) {
-
-            adminScriptLoaded = true;
-
-            const script =
-              document.createElement(
-                "script"
-              );
-
-            script.type =
-              "module";
-
-            script.src =
-              "./admin.js";
-
-            document.body.appendChild(
-              script
-            );
-
-          }
-
-        } else {
-
-          loginScreen.style.display =
-            "flex";
-
-          adminPanel.style.display =
-            "none";
-
-          adminScriptLoaded =
-            false;
-
-        }
-
-      }
-    );
-
-
-    // =====================================
-    // LOGIN
-    // =====================================
 
     loginForm.addEventListener(
       "submit",
@@ -948,35 +815,18 @@
 
         event.preventDefault();
 
+        loginError.textContent = "";
 
         const email =
           document
-            .getElementById(
-              "loginEmail"
-            )
+            .getElementById("loginEmail")
             .value
             .trim();
 
-
         const password =
           document
-            .getElementById(
-              "loginPassword"
-            )
+            .getElementById("loginPassword")
             .value;
-
-
-        loginError.textContent =
-          "";
-
-
-        loginButton.disabled =
-          true;
-
-
-        loginButton.textContent =
-          "⏳ ENTRANDO...";
-
 
         try {
 
@@ -993,21 +843,11 @@
           loginError.textContent =
             "❌ Correo o contraseña incorrectos.";
 
-          loginButton.disabled =
-            false;
-
-          loginButton.textContent =
-            "🔐 INICIAR SESIÓN";
-
         }
 
       }
     );
 
-
-    // =====================================
-    // CERRAR SESIÓN
-    // =====================================
 
     logoutButton.addEventListener(
       "click",
@@ -1015,7 +855,101 @@
 
         await signOut(auth);
 
-        window.location.reload();
+      }
+    );
+
+
+    onAuthStateChanged(
+      auth,
+      async (user) => {
+
+        if (!user) {
+
+          loginScreen.style.display =
+            "flex";
+
+          adminPanel.style.display =
+            "none";
+
+          return;
+
+        }
+
+
+        try {
+
+          const adminRef =
+            doc(
+              db,
+              "admins",
+              user.uid
+            );
+
+          const adminSnap =
+            await getDoc(adminRef);
+
+
+          if (
+            user.uid !== ADMIN_UID ||
+            !adminSnap.exists() ||
+            adminSnap.data().role !== "admin"
+          ) {
+
+            await signOut(auth);
+
+            loginError.textContent =
+              "❌ Esta cuenta no tiene permisos de administrador.";
+
+            return;
+
+          }
+
+
+          loginScreen.style.display =
+            "none";
+
+          adminPanel.style.display =
+            "block";
+
+
+          document
+            .getElementById("adminUserEmail")
+            .textContent =
+            user.email || "";
+
+
+          if (
+            !window.__ADMIN_JS_LOADED__
+          ) {
+
+            window.__ADMIN_JS_LOADED__ =
+              true;
+
+            const script =
+              document.createElement("script");
+
+            script.type =
+              "module";
+
+            script.src =
+              "./admin.js";
+
+            document.body.appendChild(
+              script
+            );
+
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+          await signOut(auth);
+
+          loginError.textContent =
+            "❌ No se pudo verificar el administrador.";
+
+        }
 
       }
     );
