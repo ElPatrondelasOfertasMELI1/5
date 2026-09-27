@@ -1,8 +1,3 @@
-// ========================================
-// EL PATRÓN DE LAS OFERTAS
-// ADMIN.JS - FIREBASE
-// ========================================
-
 import { auth, db } from "./firebase-config.js";
 
 import {
@@ -19,25 +14,15 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// ========================================
-// CONFIGURACIÓN
-// ========================================
+/* =====================================
+   CONFIGURACIÓN
+===================================== */
 
 const ADMIN_UID =
   "XrkjAonD9tWUD6X1rWWJsaQsh9J2";
 
 const MERCADO_LIBRE_AFILIADO =
   "https://meli.la/1mj3itE";
-
-const MERCADO_LIBRE_AFILIADO_PRINCIPAL =
-  "https://meli.la/1mj3itE";
-
-const MERCADO_LIBRE_AFILIADO_ALTERNATIVO =
-  "https://meli.la/2ths6Hi";
-
-// ========================================
-// ESTADO
-// ========================================
 
 let editingOfferId = null;
 let editingCouponId = null;
@@ -53,19 +38,20 @@ let banks = [];
 
 let bankLogoBase64 = "";
 
-// ========================================
-// UTILIDADES
-// ========================================
+const MERCADO_LIBRE_AFILIADO_PRINCIPAL =
+  "https://meli.la/1mj3itE";
 
-function showMessage(
-  message,
-  type = "success"
-) {
+const MERCADO_LIBRE_AFILIADO_ALTERNATIVO =
+  "https://meli.la/2ths6Hi";
+
+/* =====================================
+   UTILIDADES
+===================================== */
+
+function showMessage(message, type = "success") {
 
   const element =
-    document.getElementById(
-      "adminMessage"
-    );
+    document.getElementById("adminMessage");
 
   if (!element) return;
 
@@ -76,237 +62,166 @@ function showMessage(
     `admin-message ${type}`;
 
   clearTimeout(
-    showMessage.timer
+    window.__adminMessageTimer
   );
 
-  showMessage.timer =
-    setTimeout(
-      () => {
+  window.__adminMessageTimer =
+    setTimeout(() => {
 
-        element.className =
-          "admin-message";
+      element.textContent = "";
+      element.className =
+        "admin-message";
 
-      },
-      4500
-    );
+    }, 3500);
+
 }
 
-function escapeHTML(
-  value
-) {
+function escapeHTML(value) {
 
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
 }
 
-function money(
-  value
-) {
+function money(value) {
 
-  return Number(
-    value || 0
-  ).toLocaleString(
+  const number =
+    Number(value || 0);
+
+  return number.toLocaleString(
     "es-MX",
     {
-      style:
-        "currency",
-      currency:
-        "MXN"
+      style: "currency",
+      currency: "MXN"
     }
   );
+
 }
 
-// ========================================
-// FECHA MÉXICO
-// ========================================
-
-function getMexicoDateKey() {
-
-  try {
-
-    const formatter =
-      new Intl.DateTimeFormat(
-        "en-CA",
-        {
-          timeZone:
-            "America/Mexico_City",
-          year:
-            "numeric",
-          month:
-            "2-digit",
-          day:
-            "2-digit"
-        }
-      );
-
-    return formatter.format(
-      new Date()
-    );
-
-  } catch (error) {
-
-    const now =
-      new Date();
-
-    return [
-      now.getFullYear(),
-      String(
-        now.getMonth() + 1
-      ).padStart(
-        2,
-        "0"
-      ),
-      String(
-        now.getDate()
-      ).padStart(
-        2,
-        "0"
-      )
-    ].join("-");
-  }
-}
-
-// ========================================
-// FECHA FORMATEADA
-// ========================================
-
-function formatDate(
-  dateKey
-) {
-
-  if (!dateKey) {
-    return "";
-  }
-
-  const parts =
-    String(
-      dateKey
-    ).split("-");
-
-  if (
-    parts.length !== 3
-  ) {
-    return dateKey;
-  }
-
-  return `${parts[2]}/${parts[1]}/${parts[0]}`;
-}
-
-// ========================================
-// OBTENER FECHAS DIARIAS
-// ========================================
-
-function getPreviousDate(
-  dateKey,
-  daysAgo
-) {
-
-  const [
-    year,
-    month,
-    day
-  ] =
-    dateKey
-      .split("-")
-      .map(Number);
-
-  const date =
-    new Date(
-      Date.UTC(
-        year,
-        month - 1,
-        day
-      )
-    );
-
-  date.setUTCDate(
-    date.getUTCDate() -
-      daysAgo
-  );
-
-  return [
-    date.getUTCFullYear(),
-    String(
-      date.getUTCMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    ),
-    String(
-      date.getUTCDate()
-    ).padStart(
-      2,
-      "0"
-    )
-  ].join("-");
-}
-
-// ========================================
-// IMÁGENES
-// ========================================
+/* =====================================
+   IMÁGENES → BASE64
+===================================== */
 
 function imageToBase64(
-  file
+  file,
+  maxSize = 1200,
+  quality = 0.78
 ) {
 
   return new Promise(
-    (
-      resolve,
-      reject
-    ) => {
+    (resolve, reject) => {
 
       if (!file) {
 
         resolve("");
 
         return;
+
       }
 
       const reader =
         new FileReader();
 
       reader.onload =
-        () => {
+        (event) => {
 
-          resolve(
-            reader.result
-          );
+          const img =
+            new Image();
+
+          img.onload =
+            () => {
+
+              let width =
+                img.width;
+
+              let height =
+                img.height;
+
+              if (width > maxSize) {
+
+                height =
+                  Math.round(
+                    height *
+                    (maxSize / width)
+                  );
+
+                width =
+                  maxSize;
+
+              }
+
+              if (height > maxSize) {
+
+                width =
+                  Math.round(
+                    width *
+                    (maxSize / height)
+                  );
+
+                height =
+                  maxSize;
+
+              }
+
+              const canvas =
+                document.createElement(
+                  "canvas"
+                );
+
+              canvas.width =
+                width;
+
+              canvas.height =
+                height;
+
+              const ctx =
+                canvas.getContext(
+                  "2d"
+                );
+
+              ctx.drawImage(
+                img,
+                0,
+                0,
+                width,
+                height
+              );
+
+              const result =
+                canvas.toDataURL(
+                  "image/jpeg",
+                  quality
+                );
+
+              resolve(result);
+
+            };
+
+          img.onerror =
+            reject;
+
+          img.src =
+            event.target.result;
+
         };
 
       reader.onerror =
         reject;
 
-      reader.readAsDataURL(
-        file
-      );
+      reader.readAsDataURL(file);
+
     }
   );
+
 }
 
-// ========================================
-// PREVISUALIZACIÓN IMÁGENES
-// ========================================
+/* =====================================
+   PREVISUALIZACIÓN IMAGEN OFERTA
+===================================== */
 
 function setupImagePreviews() {
 
@@ -320,44 +235,49 @@ function setupImagePreviews() {
       "offerImagePreview"
     );
 
-  if (
-    offerInput &&
-    offerPreview
-  ) {
+  if (offerInput) {
 
     offerInput.addEventListener(
       "change",
       async () => {
 
         const file =
-          offerInput.files?.[0];
+          offerInput.files[0];
 
         if (!file) return;
 
         try {
 
           offerImageBase64 =
-            await imageToBase64(
-              file
-            );
+            await imageToBase64(file);
 
-          offerPreview.innerHTML = `
+          if (offerPreview) {
 
-            <img
-              src="${offerImageBase64}"
-              alt="Vista previa"
-            >
+            offerPreview.innerHTML =
+              `
+              <img
+                src="${offerImageBase64}"
+                alt="Vista previa"
+                class="admin-image-preview"
+              >
+              `;
 
-          `;
+          }
 
         } catch (error) {
 
-          console.error(
-            error
+          console.error(error);
+
+          showMessage(
+            "❌ No se pudo cargar la imagen.",
+            "error"
           );
+
         }
+
       }
     );
+
   }
 
   const mpInput =
@@ -370,50 +290,56 @@ function setupImagePreviews() {
       "mpImagePreview"
     );
 
-  if (
-    mpInput &&
-    mpPreview
-  ) {
+  if (mpInput) {
 
     mpInput.addEventListener(
       "change",
       async () => {
 
         const file =
-          mpInput.files?.[0];
+          mpInput.files[0];
 
         if (!file) return;
 
         try {
 
           mercadoImageBase64 =
-            await imageToBase64(
-              file
-            );
+            await imageToBase64(file);
 
-          mpPreview.innerHTML = `
+          if (mpPreview) {
 
-            <img
-              src="${mercadoImageBase64}"
-              alt="Vista previa"
-            >
+            mpPreview.innerHTML =
+              `
+              <img
+                src="${mercadoImageBase64}"
+                alt="Vista previa"
+                class="admin-image-preview"
+              >
+              `;
 
-          `;
+          }
 
         } catch (error) {
 
-          console.error(
-            error
+          console.error(error);
+
+          showMessage(
+            "❌ No se pudo cargar la imagen.",
+            "error"
           );
+
         }
+
       }
     );
+
   }
+
 }
 
-// ========================================
-// TABS
-// ========================================
+/* =====================================
+   TABS
+===================================== */
 
 function setupTabs() {
 
@@ -428,7 +354,7 @@ function setupTabs() {
     );
 
   tabs.forEach(
-    tab => {
+    (tab) => {
 
       tab.addEventListener(
         "click",
@@ -438,34 +364,38 @@ function setupTabs() {
             tab.dataset.tab;
 
           tabs.forEach(
-            item => {
+            (item) =>
+              item.classList.remove(
+                "active"
+              )
+          );
 
-              item.classList.toggle(
-                "active",
-                item === tab
-              );
-            }
+          tab.classList.add(
+            "active"
           );
 
           panels.forEach(
-            panel => {
+            (panel) => {
 
-              panel.classList.toggle(
-                "active",
-                panel.id ===
-                  `${target}Tab`
-              );
+              panel.style.display =
+                panel.id === target
+                  ? "block"
+                  : "none";
+
             }
           );
+
         }
       );
+
     }
   );
+
 }
 
-// ========================================
-// CATEGORÍAS
-// ========================================
+/* =====================================
+   CATEGORÍAS
+===================================== */
 
 async function loadCategories() {
 
@@ -478,18 +408,16 @@ async function loadCategories() {
     );
 
   categories =
-    snapshot.docs
-      .map(
-        item => ({
-          id:
-            item.id,
-          ...item.data()
-        })
-      );
+    snapshot.docs.map(
+      (item) => ({
+        id: item.id,
+        ...item.data()
+      })
+    );
 
   renderCategorySelect();
-
   renderCategories();
+
 }
 
 function renderCategorySelect() {
@@ -501,41 +429,34 @@ function renderCategorySelect() {
 
   if (!select) return;
 
-  const current =
-    select.value;
-
-  select.innerHTML = `
-
+  select.innerHTML =
+    `
     <option value="">
       Selecciona una categoría
     </option>
+    `;
 
-    ${
-      categories
-        .map(
-          category => `
+  categories.forEach(
+    (category) => {
 
-            <option
-              value="${escapeHTML(
-                category.name || ""
-              )}"
-            >
-              ${escapeHTML(
-                category.name || ""
-              )}
-            </option>
+      const option =
+        document.createElement(
+          "option"
+        );
 
-          `
-        )
-        .join("")
+      option.value =
+        category.name || "";
+
+      option.textContent =
+        `${category.emoji || "📂"} ${category.name || ""}`;
+
+      select.appendChild(
+        option
+      );
+
     }
+  );
 
-  `;
-
-  if (current) {
-    select.value =
-      current;
-  }
 }
 
 function renderCategories() {
@@ -549,92 +470,76 @@ function renderCategories() {
 
   if (!categories.length) {
 
-    container.innerHTML = `
-
-      <div class="admin-empty">
-        No hay categorías.
-      </div>
-
-    `;
+    container.innerHTML =
+      "<p>No hay categorías todavía.</p>";
 
     return;
+
   }
 
   container.innerHTML =
-    categories
-      .map(
-        category => `
+    categories.map(
+      (category) => `
 
-          <div
-            class="admin-list-item"
+      <div class="admin-list-item">
+
+        <div>
+
+          <strong>
+            ${escapeHTML(
+              category.emoji || "📂"
+            )}
+            ${escapeHTML(
+              category.name || ""
+            )}
+          </strong>
+
+        </div>
+
+        <div class="admin-list-actions">
+
+          <button
+            type="button"
+            class="edit-button"
+            data-edit-category="${escapeHTML(category.id)}"
           >
+            ✏️
+          </button>
 
-            <div
-              class="admin-list-item-info"
-            >
+          <button
+            type="button"
+            class="delete-button"
+            data-delete-category="${escapeHTML(category.id)}"
+          >
+            🗑️
+          </button>
 
-              <strong>
-                ${escapeHTML(
-                  category.emoji ||
-                  "📂"
-                )}
-                ${escapeHTML(
-                  category.name ||
-                  ""
-                )}
-              </strong>
+        </div>
 
-            </div>
+      </div>
 
-            <div
-              class="admin-actions"
-            >
-
-              <button
-                type="button"
-                class="edit-button"
-                data-edit-category="${escapeHTML(
-                  category.id
-                )}"
-              >
-                ✏️ Editar
-              </button>
-
-              <button
-                type="button"
-                class="delete-button"
-                data-delete-category="${escapeHTML(
-                  category.id
-                )}"
-              >
-                🗑️ Eliminar
-              </button>
-
-            </div>
-
-          </div>
-
-        `
-      )
-      .join("");
+      `
+    ).join("");
 
   container
     .querySelectorAll(
       "[data-edit-category]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
-            editCategory(
-              button.dataset
-                .editCategory
-            );
+            const id =
+              button.dataset.editCategory;
+
+            editCategory(id);
+
           }
         );
+
       }
     );
 
@@ -643,41 +548,45 @@ function renderCategories() {
       "[data-delete-category]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
             deleteCategory(
-              button.dataset
-                .deleteCategory
+              button.dataset.deleteCategory
             );
+
           }
         );
+
       }
     );
+
 }
 
-async function saveCategory() {
+async function saveCategory(
+  event
+) {
 
-  const nameInput =
-    document.getElementById(
-      "categoryName"
-    );
-
-  const emojiInput =
-    document.getElementById(
-      "categoryEmoji"
-    );
+  event.preventDefault();
 
   const name =
-    nameInput?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "categoryName"
+      )
+      .value
+      .trim();
 
   const emoji =
-    emojiInput?.value.trim() ||
-    "📂";
+    document
+      .getElementById(
+        "categoryEmoji"
+      )
+      .value
+      .trim();
 
   if (!name) {
 
@@ -686,76 +595,53 @@ async function saveCategory() {
       "error"
     );
 
-    nameInput?.focus();
-
     return;
+
   }
 
-  try {
+  const id =
+    editingCategoryId ||
+    crypto.randomUUID();
 
-    const id =
-      editingCategoryId ||
-      crypto.randomUUID();
-
-    await setDoc(
-      doc(
-        db,
-        "categories",
-        id
-      ),
-      {
-        name,
-        emoji,
-        active:
-          true,
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge:
-          true
-      }
-    );
-
-    editingCategoryId =
-      null;
-
-    if (nameInput) {
-      nameInput.value =
-        "";
+  await setDoc(
+    doc(
+      db,
+      "categories",
+      id
+    ),
+    {
+      name,
+      emoji,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
     }
+  );
 
-    if (emojiInput) {
-      emojiInput.value =
-        "";
-    }
+  editingCategoryId =
+    null;
 
-    await loadCategories();
+  document
+    .getElementById(
+      "categoryForm"
+    )
+    .reset();
 
-    showMessage(
-      "✅ Categoría guardada."
-    );
+  await loadCategories();
 
-  } catch (error) {
+  showMessage(
+    "✅ Categoría guardada."
+  );
 
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo guardar la categoría.",
-      "error"
-    );
-  }
 }
 
-function editCategory(
-  id
-) {
+function editCategory(id) {
 
   const category =
     categories.find(
-      item =>
+      (item) =>
         item.id === id
     );
 
@@ -764,79 +650,49 @@ function editCategory(
   editingCategoryId =
     id;
 
-  const nameInput =
-    document.getElementById(
-      "categoryName"
-    );
-
-  const emojiInput =
-    document.getElementById(
-      "categoryEmoji"
-    );
-
-  if (nameInput) {
-    nameInput.value =
-      category.name ||
-      "";
-  }
-
-  if (emojiInput) {
-    emojiInput.value =
-      category.emoji ||
-      "";
-  }
-
   document
     .getElementById(
       "categoryName"
     )
-    ?.focus();
+    .value =
+    category.name || "";
+
+  document
+    .getElementById(
+      "categoryEmoji"
+    )
+    .value =
+    category.emoji || "";
+
 }
 
-async function deleteCategory(
-  id
-) {
+async function deleteCategory(id) {
 
   if (
     !confirm(
       "¿Eliminar esta categoría?"
     )
-  ) {
-    return;
-  }
+  ) return;
 
-  try {
+  await deleteDoc(
+    doc(
+      db,
+      "categories",
+      id
+    )
+  );
 
-    await deleteDoc(
-      doc(
-        db,
-        "categories",
-        id
-      )
-    );
+  await loadCategories();
 
-    await loadCategories();
+  showMessage(
+    "🗑️ Categoría eliminada."
+  );
 
-    showMessage(
-      "🗑️ Categoría eliminada."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo eliminar la categoría.",
-      "error"
-    );
-  }
 }
 
-// ========================================
-// BANCOS / TIENDAS
-// ========================================
+/* =====================================
+   BANCOS / TIENDAS
+===================================== */
 
 async function loadBanks() {
 
@@ -851,14 +707,12 @@ async function loadBanks() {
   banks =
     snapshot.docs.map(
       item => ({
-        id:
-          item.id,
+        id: item.id,
         ...item.data()
       })
     );
 
   renderBankSelect();
-
   renderBanksAdmin();
 }
 
@@ -871,42 +725,31 @@ function renderBankSelect() {
 
   if (!select) return;
 
-  const current =
-    select.value;
-
   select.innerHTML = `
-
     <option value="">
-      Sin banco / tienda
+      🏦 Sin banco / General
     </option>
-
-    ${
-      banks
-        .map(
-          bank => `
-
-            <option
-              value="${escapeHTML(
-                bank.id
-              )}"
-            >
-              ${escapeHTML(
-                bank.name ||
-                ""
-              )}
-            </option>
-
-          `
-        )
-        .join("")
-    }
-
   `;
 
-  if (current) {
-    select.value =
-      current;
-  }
+  banks.forEach(bank => {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      bank.id;
+
+    option.textContent =
+      `🏦 ${bank.name || ""}`;
+
+    select.appendChild(
+      option
+    );
+
+  });
+
 }
 
 function renderBanksAdmin() {
@@ -920,117 +763,84 @@ function renderBanksAdmin() {
 
   if (!banks.length) {
 
-    container.innerHTML = `
-
-      <div class="admin-empty">
-        🏦 No hay bancos o tiendas registrados.
-      </div>
-
-    `;
+    container.innerHTML =
+      "<p>No hay bancos guardados todavía.</p>";
 
     return;
   }
 
   container.innerHTML =
-    banks
-      .map(
-        bank => `
+    banks.map(bank => `
 
-          <div
-            class="admin-list-item"
-          >
+      <div class="admin-list-item">
 
-            <div
-              class="admin-list-item-info"
-            >
+        <div class="admin-item-main">
 
-              ${
-                bank.logo
-                  ? `
+          ${
+            bank.logo
+              ? `
+                <img
+                  src="${bank.logo}"
+                  class="bank-admin-logo"
+                  alt=""
+                >
+              `
+              : `
+                <div class="bank-admin-logo no-image">
+                  🏦
+                </div>
+              `
+          }
 
-                    <img
-                      src="${escapeHTML(
-                        bank.logo
-                      )}"
-                      alt="${escapeHTML(
-                        bank.name ||
-                        ""
-                      )}"
-                      style="
-                        width:44px;
-                        height:44px;
-                        object-fit:contain;
-                        border-radius:8px;
-                        background:#fff;
-                        border:1px solid #ddd;
-                        padding:4px;
-                        margin-right:10px;
-                      "
-                    >
+          <div>
 
-                  `
-                  : `
-                    <span
-                      style="
-                        font-size:28px;
-                        margin-right:10px;
-                      "
-                    >
-                      🏦
-                    </span>
-                  `
-              }
-
-              <strong>
-                ${escapeHTML(
-                  bank.name ||
-                  ""
-                )}
-              </strong>
-
-            </div>
-
-            <div
-              class="admin-actions"
-            >
-
-              <button
-                type="button"
-                class="delete-button"
-                data-delete-bank="${escapeHTML(
-                  bank.id
-                )}"
-              >
-                🗑️ Eliminar
-              </button>
-
-            </div>
+            <strong>
+              ${escapeHTML(
+                bank.name || ""
+              )}
+            </strong>
 
           </div>
 
-        `
-      )
-      .join("");
+        </div>
+
+        <div class="admin-list-actions">
+
+          <button
+            type="button"
+            class="delete-button"
+            data-delete-bank="${escapeHTML(
+              bank.id
+            )}"
+          >
+            🗑️
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join("");
 
   container
     .querySelectorAll(
       "[data-delete-bank]"
     )
-    .forEach(
-      button => {
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-            deleteBank(
-              button.dataset
-                .deleteBank
-            );
-          }
-        );
-      }
-    );
+          deleteBank(
+            button.dataset.deleteBank
+          );
+
+        }
+      );
+
+    });
+
 }
 
 async function saveBank() {
@@ -1053,8 +863,12 @@ async function saveBank() {
       );
 
     const name =
-      nameInput?.value.trim() ||
-      "";
+      nameInput?.value
+        .trim() || "";
+
+    /* =====================================
+       VALIDAR NOMBRE
+    ====================================== */
 
     if (!name) {
 
@@ -1068,6 +882,10 @@ async function saveBank() {
       return;
     }
 
+    /* =====================================
+       VALIDAR LOGO
+    ====================================== */
+
     if (!bankLogoBase64) {
 
       showMessage(
@@ -1080,8 +898,16 @@ async function saveBank() {
       return;
     }
 
+    /* =====================================
+       CREAR ID
+    ====================================== */
+
     const id =
       crypto.randomUUID();
+
+    /* =====================================
+       GUARDAR EN FIRESTORE
+    ====================================== */
 
     await setDoc(
       doc(
@@ -1090,36 +916,40 @@ async function saveBank() {
         id
       ),
       {
-        name:
-          name,
-
-        logo:
-          bankLogoBase64,
-
+        name: name,
+        logo: bankLogoBase64,
         updatedAt:
           new Date().toISOString()
       }
     );
 
-    bankLogoBase64 =
-      "";
+    /* =====================================
+       LIMPIAR FORMULARIO
+    ====================================== */
+
+    bankLogoBase64 = "";
 
     if (nameInput) {
-      nameInput.value =
-        "";
+      nameInput.value = "";
     }
 
     if (logoInput) {
-      logoInput.value =
-        "";
+      logoInput.value = "";
     }
 
     if (preview) {
-      preview.innerHTML =
-        "";
+      preview.innerHTML = "";
     }
 
+    /* =====================================
+       ACTUALIZAR LISTA
+    ====================================== */
+
     await loadBanks();
+
+    /* =====================================
+       CONFIRMACIÓN
+    ====================================== */
 
     showMessage(
       "✅ Banco guardado correctamente. Ya puedes seleccionarlo en tus cupones."
@@ -1136,13 +966,10 @@ async function saveBank() {
       "❌ No se pudo guardar el banco. Revisa las reglas de Firebase.",
       "error"
     );
+
   }
+
 }
-
-async function deleteBank(
-  id
-) {
-
   if (
     !confirm(
       "¿Eliminar este banco y su logo?"
@@ -1151,33 +978,20 @@ async function deleteBank(
     return;
   }
 
-  try {
+  await deleteDoc(
+    doc(
+      db,
+      "banks",
+      id
+    )
+  );
 
-    await deleteDoc(
-      doc(
-        db,
-        "banks",
-        id
-      )
-    );
+  await loadBanks();
 
-    await loadBanks();
+  showMessage(
+    "🗑️ Banco eliminado."
+  );
 
-    showMessage(
-      "🗑️ Banco eliminado."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo eliminar el banco.",
-      "error"
-    );
-  }
 }
 
 function setupBankLogoPreview() {
@@ -1192,19 +1006,14 @@ function setupBankLogoPreview() {
       "bankLogoPreview"
     );
 
-  if (
-    !input ||
-    !preview
-  ) {
-    return;
-  }
+  if (!input) return;
 
   input.addEventListener(
     "change",
     async () => {
 
       const file =
-        input.files?.[0];
+        input.files[0];
 
       if (!file) return;
 
@@ -1212,37 +1021,42 @@ function setupBankLogoPreview() {
 
         bankLogoBase64 =
           await imageToBase64(
-            file
+            file,
+            500,
+            0.82
           );
 
-        preview.innerHTML = `
+        if (preview) {
 
-          <img
-            src="${bankLogoBase64}"
-            alt="Logo"
-            style="
-              width:100%;
-              max-width:120px;
-              height:100px;
-              object-fit:contain;
-            "
-          >
+          preview.innerHTML = `
+            <img
+              src="${bankLogoBase64}"
+              class="bank-logo-preview"
+              alt="Logo"
+            >
+          `;
 
-        `;
+        }
 
       } catch (error) {
 
-        console.error(
-          error
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo cargar el logo.",
+          "error"
         );
+
       }
+
     }
   );
+
 }
 
-// ========================================
-// OFERTAS
-// ========================================
+/* =====================================
+   OFERTAS
+===================================== */
 
 async function loadOffers() {
 
@@ -1256,14 +1070,14 @@ async function loadOffers() {
 
   offers =
     snapshot.docs.map(
-      item => ({
-        id:
-          item.id,
+      (item) => ({
+        id: item.id,
         ...item.data()
       })
     );
 
   renderOffersAdmin();
+
 }
 
 function renderOffersAdmin() {
@@ -1277,121 +1091,111 @@ function renderOffersAdmin() {
 
   if (!offers.length) {
 
-    container.innerHTML = `
-
-      <div class="admin-empty">
-        🛒 No hay ofertas registradas.
-      </div>
-
-    `;
+    container.innerHTML =
+      "<p>No hay ofertas todavía.</p>";
 
     return;
+
   }
 
   container.innerHTML =
-    offers
-      .map(
-        offer => `
+    offers.map(
+      (offer) => {
 
-          <div
-            class="admin-list-item"
-          >
+        const image =
+          offer.image || "";
 
-            <div
-              class="admin-list-item-info"
-            >
+        return `
 
-              ${
-                offer.image
-                  ? `
+        <div class="admin-list-item">
 
-                    <img
-                      src="${escapeHTML(
-                        offer.image
-                      )}"
-                      alt=""
-                      style="
-                        width:58px;
-                        height:58px;
-                        object-fit:contain;
-                        border-radius:10px;
-                        background:#fff;
-                        margin-right:10px;
-                      "
-                    >
+          <div class="admin-item-main">
 
-                  `
-                  : ""
-              }
+            ${
+              image
+                ? `
+                <img
+                  src="${image}"
+                  class="admin-list-image"
+                  alt=""
+                >
+                `
+                : `
+                <div class="admin-list-image no-image">
+                  🖼️
+                </div>
+                `
+            }
 
-              <div>
+            <div>
 
-                <strong>
-                  ${escapeHTML(
-                    offer.name ||
-                    "Oferta"
-                  )}
-                </strong>
+              <strong>
+                ${escapeHTML(
+                  offer.name || ""
+                )}
+              </strong>
 
-                <small>
-                  ${money(
-                    offer.price
-                  )}
-                </small>
+              <small>
+                ${escapeHTML(
+                  offer.category || ""
+                )}
+              </small>
 
-              </div>
-
-            </div>
-
-            <div
-              class="admin-actions"
-            >
-
-              <button
-                type="button"
-                class="edit-button"
-                data-edit-offer="${escapeHTML(
-                  offer.id
-                )}"
-              >
-                ✏️ Editar
-              </button>
-
-              <button
-                type="button"
-                class="delete-button"
-                data-delete-offer="${escapeHTML(
-                  offer.id
-                )}"
-              >
-                🗑️ Eliminar
-              </button>
+              <small>
+                ${money(
+                  offer.price
+                )}
+              </small>
 
             </div>
 
           </div>
 
-        `
-      )
-      .join("");
+          <div class="admin-list-actions">
+
+            <button
+              type="button"
+              class="edit-button"
+              data-edit-offer="${escapeHTML(offer.id)}"
+            >
+              ✏️
+            </button>
+
+            <button
+              type="button"
+              class="delete-button"
+              data-delete-offer="${escapeHTML(offer.id)}"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    ).join("");
 
   container
     .querySelectorAll(
       "[data-edit-offer]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
             editOffer(
-              button.dataset
-                .editOffer
+              button.dataset.editOffer
             );
+
           }
         );
+
       }
     );
 
@@ -1400,169 +1204,153 @@ function renderOffersAdmin() {
       "[data-delete-offer]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
             deleteOffer(
-              button.dataset
-                .deleteOffer
+              button.dataset.deleteOffer
             );
+
           }
         );
+
       }
     );
+
 }
 
-async function saveOffer() {
+async function saveOffer(
+  event
+) {
+
+  event.preventDefault();
 
   const name =
-    document.getElementById(
-      "offerName"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "offerName"
+      )
+      .value
+      .trim();
 
   const category =
-    document.getElementById(
-      "offerCategory"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "offerCategory"
+      )
+      .value
+      .trim();
 
   const oldPrice =
     Number(
-      document.getElementById(
-        "offerOldPrice"
-      )?.value || 0
+      document
+        .getElementById(
+          "offerOldPrice"
+        )
+        .value || 0
     );
 
   const price =
     Number(
-      document.getElementById(
-        "offerPrice"
-      )?.value || 0
+      document
+        .getElementById(
+          "offerPrice"
+        )
+        .value || 0
     );
 
   const link =
-    document.getElementById(
-      "offerLink"
-    )?.value.trim() ||
-    "";
-
-  if (!name) {
-
-    showMessage(
-      "❌ Escribe el nombre de la oferta.",
-      "error"
-    );
-
-    return;
-  }
-
-  if (!price) {
-
-    showMessage(
-      "❌ Escribe el precio de la oferta.",
-      "error"
-    );
-
-    return;
-  }
-
-  try {
-
-    const id =
-      editingOfferId ||
-      crypto.randomUUID();
-
-    const existing =
-      offers.find(
-        item =>
-          item.id ===
-          id
-      );
-
-    const image =
-      offerImageBase64 ||
-      existing?.image ||
-      "";
-
-    await setDoc(
-      doc(
-        db,
-        "offers",
-        id
-      ),
-      {
-        name,
-        category,
-        image,
-        oldPrice,
-        price,
-        link,
-        active:
-          true,
-        clicks:
-          existing?.clicks ||
-          0,
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge:
-          true
-      }
-    );
-
-    editingOfferId =
-      null;
-
-    offerImageBase64 =
-      "";
-
     document
       .getElementById(
-        "offerForm"
+        "offerLink"
       )
-      ?.reset();
+      .value
+      .trim();
 
-    const preview =
-      document.getElementById(
-        "offerImagePreview"
-      );
-
-    if (preview) {
-      preview.innerHTML =
-        "";
-    }
-
-    await loadOffers();
+  if (!name || !price || !link) {
 
     showMessage(
-      "✅ Oferta guardada correctamente."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo guardar la oferta.",
+      "❌ Completa los campos obligatorios.",
       "error"
     );
+
+    return;
+
   }
+
+  const id =
+    editingOfferId ||
+    crypto.randomUUID();
+
+  const existing =
+    offers.find(
+      (item) =>
+        item.id === id
+    );
+
+  const image =
+    offerImageBase64 ||
+    existing?.image ||
+    "";
+
+  await setDoc(
+    doc(
+      db,
+      "offers",
+      id
+    ),
+    {
+      name,
+      category,
+      image,
+      oldPrice,
+      price,
+      link,
+      clicks:
+        existing?.clicks || 0,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
+
+  editingOfferId =
+    null;
+
+  offerImageBase64 =
+    "";
+
+  document
+    .getElementById(
+      "offerForm"
+    )
+    .reset();
+
+  document
+    .getElementById(
+      "offerImagePreview"
+    )
+    .innerHTML =
+    "";
+
+  await loadOffers();
+
+  showMessage(
+    "✅ Oferta guardada."
+  );
+
 }
 
-function editOffer(
-  id
-) {
+function editOffer(id) {
 
   const offer =
     offers.find(
-      item =>
+      (item) =>
         item.id === id
     );
 
@@ -1571,39 +1359,43 @@ function editOffer(
   editingOfferId =
     id;
 
-  document.getElementById(
-    "offerName"
-  ).value =
-    offer.name ||
-    "";
-
-  document.getElementById(
-    "offerCategory"
-  ).value =
-    offer.category ||
-    "";
-
-  document.getElementById(
-    "offerOldPrice"
-  ).value =
-    offer.oldPrice ||
-    "";
-
-  document.getElementById(
-    "offerPrice"
-  ).value =
-    offer.price ||
-    "";
-
-  document.getElementById(
-    "offerLink"
-  ).value =
-    offer.link ||
-    "";
-
   offerImageBase64 =
-    offer.image ||
-    "";
+    offer.image || "";
+
+  document
+    .getElementById(
+      "offerName"
+    )
+    .value =
+    offer.name || "";
+
+  document
+    .getElementById(
+      "offerCategory"
+    )
+    .value =
+    offer.category || "";
+
+  document
+    .getElementById(
+      "offerOldPrice"
+    )
+    .value =
+    offer.oldPrice || "";
+
+  document
+    .getElementById(
+      "offerPrice"
+    )
+    .value =
+    offer.price || "";
+
+  document
+    .getElementById(
+      "offerLink"
+    )
+    .value =
+    offer.link || "";
 
   const preview =
     document.getElementById(
@@ -1615,69 +1407,46 @@ function editOffer(
     offer.image
   ) {
 
-    preview.innerHTML = `
-
+    preview.innerHTML =
+      `
       <img
-        src="${escapeHTML(
-          offer.image
-        )}"
-        alt="Oferta"
+        src="${offer.image}"
+        class="admin-image-preview"
+        alt=""
       >
+      `;
 
-    `;
   }
 
-  document
-    .getElementById(
-      "offerName"
-    )
-    ?.focus();
 }
 
-async function deleteOffer(
-  id
-) {
+async function deleteOffer(id) {
 
   if (
     !confirm(
       "¿Eliminar esta oferta?"
     )
-  ) {
-    return;
-  }
+  ) return;
 
-  try {
+  await deleteDoc(
+    doc(
+      db,
+      "offers",
+      id
+    )
+  );
 
-    await deleteDoc(
-      doc(
-        db,
-        "offers",
-        id
-      )
-    );
+  await loadOffers();
 
-    await loadOffers();
+  showMessage(
+    "🗑️ Oferta eliminada."
+  );
 
-    showMessage(
-      "🗑️ Oferta eliminada."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo eliminar la oferta.",
-      "error"
-    );
-  }
 }
 
-// ========================================
-// CUPONES
-// ========================================
+/* =====================================
+   CUPONES
+===================================== */
 
 async function loadCoupons() {
 
@@ -1691,14 +1460,14 @@ async function loadCoupons() {
 
   coupons =
     snapshot.docs.map(
-      item => ({
-        id:
-          item.id,
+      (item) => ({
+        id: item.id,
         ...item.data()
       })
     );
 
   renderCouponsAdmin();
+
 }
 
 function renderCouponsAdmin() {
@@ -1712,128 +1481,127 @@ function renderCouponsAdmin() {
 
   if (!coupons.length) {
 
-    container.innerHTML = `
-
-      <div class="admin-empty">
-        🎟️ No hay cupones registrados.
-      </div>
-
-    `;
+    container.innerHTML =
+      "<p>No hay cupones todavía.</p>";
 
     return;
+
   }
 
   container.innerHTML =
-    coupons
-      .map(
-        coupon => {
+    coupons.map(
+      (coupon) => {
 
-          const bank =
-            banks.find(
-              item =>
-                String(
-                  item.id
-                ) ===
-                String(
-                  coupon.bankId ||
-                  ""
-                )
-            );
+        const status =
+          String(
+            coupon.status ||
+            "active"
+          ).toLowerCase();
 
-          return `
+        let statusText =
+          "🟢 ACTIVO";
 
-            <div
-              class="admin-list-item"
-            >
+        if (
+          status === "soon" ||
+          status === "por_agotarse"
+        ) {
 
-              <div
-                class="admin-list-item-info"
-              >
+          statusText =
+            "🟠 POR AGOTARSE";
 
-                <div>
-
-                  <strong>
-                    ${escapeHTML(
-                      coupon.name ||
-                      coupon.code ||
-                      "Cupón"
-                    )}
-                  </strong>
-
-                  <small>
-
-                    ${
-                      coupon.discount
-                        ? escapeHTML(
-                            coupon.discount
-                          )
-                        : ""
-                    }
-
-                    ${
-                      bank?.name
-                        ? ` · ${escapeHTML(
-                            bank.name
-                          )}`
-                        : ""
-                    }
-
-                  </small>
-
-                </div>
-
-              </div>
-
-              <div
-                class="admin-actions"
-              >
-
-                <button
-                  type="button"
-                  class="edit-button"
-                  data-edit-coupon="${escapeHTML(
-                    coupon.id
-                  )}"
-                >
-                  ✏️ Editar
-                </button>
-
-                <button
-                  type="button"
-                  class="delete-button"
-                  data-delete-coupon="${escapeHTML(
-                    coupon.id
-                  )}"
-                >
-                  🗑️ Eliminar
-                </button>
-
-              </div>
-
-            </div>
-
-          `;
         }
-      )
-      .join("");
+
+        if (
+          status === "soldout" ||
+          status === "agotado"
+        ) {
+
+          statusText =
+            "🔴 AGOTADO";
+
+        }
+
+        return `
+
+        <div class="admin-list-item">
+
+          <div>
+
+            ${
+              coupon.name
+                ? `
+                <strong>
+                  🏦 ${escapeHTML(
+                    coupon.name
+                  )}
+                </strong>
+                `
+                : ""
+            }
+
+            <strong>
+              🎟️ ${escapeHTML(
+                coupon.code || ""
+              )}
+            </strong>
+
+            <small>
+              ${escapeHTML(
+                coupon.discount || ""
+              )}
+            </small>
+
+            <small>
+              ${statusText}
+            </small>
+
+          </div>
+
+          <div class="admin-list-actions">
+
+            <button
+              type="button"
+              class="edit-button"
+              data-edit-coupon="${escapeHTML(coupon.id)}"
+            >
+              ✏️
+            </button>
+
+            <button
+              type="button"
+              class="delete-button"
+              data-delete-coupon="${escapeHTML(coupon.id)}"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </div>
+
+        `;
+
+      }
+    ).join("");
 
   container
     .querySelectorAll(
       "[data-edit-coupon]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
             editCoupon(
-              button.dataset
-                .editCoupon
+              button.dataset.editCoupon
             );
+
           }
         );
+
       }
     );
 
@@ -1842,118 +1610,168 @@ function renderCouponsAdmin() {
       "[data-delete-coupon]"
     )
     .forEach(
-      button => {
+      (button) => {
 
         button.addEventListener(
           "click",
           () => {
 
             deleteCoupon(
-              button.dataset
-                .deleteCoupon
+              button.dataset.deleteCoupon
             );
+
           }
         );
+
       }
     );
+
 }
 
-async function saveCoupon() {
+async function saveCoupon(
+  event
+) {
+
+  event.preventDefault();
+
+  /* NOMBRE */
 
   const name =
-    document.getElementById(
-      "couponName"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "couponName"
+      )
+      .value
+      .trim();
+
+  /* CÓDIGO */
 
   const code =
-    document.getElementById(
-      "couponCode"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "couponCode"
+      )
+      .value
+      .trim()
+      .toUpperCase();
+
+  /* SECCIÓN */
 
   const section =
-    document.getElementById(
-      "couponSection"
-    )?.value ||
-    "relampago";
+    document
+      .getElementById(
+        "couponSection"
+      )
+      .value;
+
+  /* ESTADO */
 
   const status =
-    document.getElementById(
-      "couponStatus"
-    )?.value ||
-    "active";
+    document
+      .getElementById(
+        "couponStatus"
+      )
+      .value;
+
+  /* DESCUENTO */
 
   const discount =
-    document.getElementById(
-      "couponDiscount"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "couponDiscount"
+      )
+      .value
+      .trim();
+
+  /* MÍNIMO */
 
   const minimumPurchase =
     Number(
-      document.getElementById(
-        "couponMin"
-      )?.value || 0
+      document
+        .getElementById(
+          "couponMin"
+        )
+        .value || 0
     );
+
+  /* MÁXIMO */
 
   const maximumDiscount =
     Number(
-      document.getElementById(
-        "couponMax"
-      )?.value || 0
+      document
+        .getElementById(
+          "couponMax"
+        )
+        .value || 0
     );
 
-  const bankId =
-    document.getElementById(
-      "couponBank"
-    )?.value ||
-    "";
-
-  const affiliateType =
-    document.getElementById(
-      "couponAffiliateType"
-    )?.value ||
-    "principal";
-
-  const linkInput =
-    document.getElementById(
-      "couponLink"
-    );
+    /* LINK */
 
   let link =
-    linkInput?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "couponLink"
+      )
+      .value
+      .trim();
+
+  /* BANCO */
+
+  const bankId =
+    document
+      .getElementById(
+        "couponBank"
+      )
+      ?.value || "";
+
+  /* TIPO DE AFILIADO */
+
+  const affiliateType =
+    document
+      .getElementById(
+        "couponAffiliateType"
+      )
+      ?.value || "principal";
+
+  /* AFILIADO PRINCIPAL */
 
   if (
-    !link &&
-    affiliateType ===
-      "principal"
+    affiliateType === "principal"
   ) {
 
     link =
       MERCADO_LIBRE_AFILIADO_PRINCIPAL;
+
   }
 
+  /* AFILIADO ALTERNATIVO */
+
   if (
-    !link &&
-    affiliateType ===
-      "alternativo"
+    affiliateType === "alternativo"
   ) {
 
     link =
       MERCADO_LIBRE_AFILIADO_ALTERNATIVO;
+
   }
 
-  if (!name) {
+  /* ENLACE MANUAL */
+
+  if (
+    affiliateType === "manual" &&
+    !link
+  ) {
 
     showMessage(
-      "❌ Escribe el nombre del cupón.",
+      "❌ Escribe el enlace personalizado.",
       "error"
     );
 
     return;
+
   }
+
+  /* CÓDIGO OBLIGATORIO */
 
   if (!code) {
 
@@ -1963,111 +1781,73 @@ async function saveCoupon() {
     );
 
     return;
+
   }
 
-  try {
+  const id =
+    editingCouponId ||
+    crypto.randomUUID();
 
-    const id =
-      editingCouponId ||
-      crypto.randomUUID();
-
-    const existing =
-      coupons.find(
-        item =>
-          item.id === id
-      );
-
-    await setDoc(
-      doc(
-        db,
-        "coupons",
-        id
-      ),
-      {
-        name,
-        code:
-          code.toUpperCase(),
-        section,
-        status,
-        discount,
-        minimumPurchase,
-        maximumDiscount,
-        bankId,
-        affiliateType,
-        link,
-        copies:
-          existing?.copies ||
-          0,
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge:
-          true
-      }
+  const existing =
+    coupons.find(
+      (item) =>
+        item.id === id
     );
 
-    editingCouponId =
-      null;
+  await setDoc(
+    doc(
+      db,
+      "coupons",
+      id
+    ),
+        {
+      name,
+      code,
+      section,
+      status,
+      discount,
+      minimumPurchase,
+      maximumDiscount,
 
-    document
-      .getElementById(
-        "couponForm"
-      )
-      ?.reset();
+      bankId,
 
-    const statusInput =
-      document.getElementById(
-        "couponStatus"
-      );
+      affiliateType,
 
-    if (statusInput) {
+      link,
 
-      statusInput.value =
-        "active";
+      copies:
+        existing?.copies || 0,
+
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
     }
+  );
 
-    document
-      .querySelectorAll(
-        ".coupon-status-buttons button"
-      )
-      .forEach(
-        button => {
+  editingCouponId =
+    null;
 
-          button.classList.toggle(
-            "active",
-            button.dataset.status ===
-              "active"
-          );
-        }
-      );
+  document
+    .getElementById(
+      "couponForm"
+    )
+    .reset();
 
-    await loadCoupons();
+  await loadCoupons();
 
-    showMessage(
-      "✅ Cupón guardado correctamente."
-    );
+  showMessage(
+    "✅ Cupón guardado."
+  );
 
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo guardar el cupón.",
-      "error"
-    );
-  }
 }
 
-function editCoupon(
-  id
-) {
+function editCoupon(id) {
 
   const coupon =
     coupons.find(
-      item =>
+      (item) =>
         item.id === id
     );
 
@@ -2076,713 +1856,470 @@ function editCoupon(
   editingCouponId =
     id;
 
-  const setValue =
-    (
-      elementId,
-      value
-    ) => {
-
-      const element =
-        document.getElementById(
-          elementId
-        );
-
-      if (element) {
-
-        element.value =
-          value ?? "";
-      }
-    };
-
-  setValue(
-    "couponName",
-    coupon.name
-  );
-
-  setValue(
-    "couponCode",
-    coupon.code
-  );
-
-  setValue(
-    "couponSection",
-    coupon.section ||
-      "relampago"
-  );
-
-  setValue(
-    "couponStatus",
-    coupon.status ||
-      "active"
-  );
-
-  setValue(
-    "couponDiscount",
-    coupon.discount
-  );
-
-  setValue(
-    "couponMin",
-    coupon.minimumPurchase
-  );
-
-  setValue(
-    "couponMax",
-    coupon.maximumDiscount
-  );
-
-  setValue(
-    "couponBank",
-    coupon.bankId ||
-      ""
-  );
-
-  setValue(
-    "couponAffiliateType",
-    coupon.affiliateType ||
-      "principal"
-  );
-
-  setValue(
-    "couponLink",
-    coupon.link ||
-      ""
-  );
-
-  document
-    .querySelectorAll(
-      ".coupon-status-buttons button"
-    )
-    .forEach(
-      button => {
-
-        button.classList.toggle(
-          "active",
-          button.dataset.status ===
-            (
-              coupon.status ||
-              "active"
-            )
-        );
-      }
-    );
+  /*
+    NOMBRE DEL CUPÓN
+  */
 
   document
     .getElementById(
       "couponName"
     )
-    ?.focus();
+    .value =
+    coupon.name || "";
+
+  /*
+    CÓDIGO
+  */
+
+  document
+    .getElementById(
+      "couponCode"
+    )
+    .value =
+    String(
+      coupon.code || ""
+    ).toUpperCase();
+
+  /*
+    SECCIÓN
+  */
+
+  document
+    .getElementById(
+      "couponSection"
+    )
+    .value =
+    coupon.section ||
+    "relampago";
+
+  /*
+    ESTADO
+  */
+
+  document
+    .getElementById(
+      "couponStatus"
+    )
+    .value =
+    coupon.status ||
+    "active";
+
+  /*
+    DESCUENTO
+  */
+
+  document
+    .getElementById(
+      "couponDiscount"
+    )
+    .value =
+    coupon.discount || "";
+
+  /*
+    MÍNIMO
+  */
+
+  document
+    .getElementById(
+      "couponMin"
+    )
+    .value =
+    coupon.minimumPurchase || "";
+
+  /*
+    MÁXIMO
+  */
+
+  document
+    .getElementById(
+      "couponMax"
+    )
+    .value =
+    coupon.maximumDiscount || "";
+
+    /*
+    LINK
+  */
+
+  document
+    .getElementById(
+      "couponLink"
+    )
+    .value =
+    coupon.link || "";
+
+  /*
+    BANCO
+  */
+
+  const bankSelect =
+    document.getElementById(
+      "couponBank"
+    );
+
+  if (bankSelect) {
+
+    bankSelect.value =
+      coupon.bankId || "";
+
+  }
+
+  /*
+    TIPO DE AFILIADO
+  */
+
+  const affiliateSelect =
+    document.getElementById(
+      "couponAffiliateType"
+    );
+
+  if (affiliateSelect) {
+
+    affiliateSelect.value =
+      coupon.affiliateType ||
+      "principal";
+
+  }
+
+  /*
+    BOTONES DE ESTADO
+  */
+
+  const status =
+    coupon.status ||
+    "active";
+
+  document
+    .querySelectorAll(
+      "[data-status]"
+    )
+    .forEach(
+      (button) => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.status ===
+            status
+        );
+
+      }
+    );
+
 }
 
-async function deleteCoupon(
-  id
-) {
+async function deleteCoupon(id) {
 
   if (
     !confirm(
       "¿Eliminar este cupón?"
     )
-  ) {
-    return;
-  }
+  ) return;
 
-  try {
+  await deleteDoc(
+    doc(
+      db,
+      "coupons",
+      id
+    )
+  );
 
-    await deleteDoc(
-      doc(
-        db,
-        "coupons",
-        id
-      )
-    );
+  await loadCoupons();
 
-    await loadCoupons();
+  showMessage(
+    "🗑️ Cupón eliminado."
+  );
 
-    showMessage(
-      "🗑️ Cupón eliminado."
-    );
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-
-    showMessage(
-      "❌ No se pudo eliminar el cupón.",
-      "error"
-    );
-  }
 }
 
-// ========================================
-// MERCADO PAGO
-// ========================================
+/* =====================================
+   MERCADO PAGO
+===================================== */
 
 async function loadMercadoPago() {
 
-  try {
-
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "promotions",
-          "mercadopago"
-        )
-      );
-
-    if (
-      !snapshot.exists()
-    ) {
-      return;
-    }
-
-    const data =
-      snapshot.data();
-
-    const setValue =
-      (
-        id,
-        value
-      ) => {
-
-        const element =
-          document.getElementById(
-            id
-          );
-
-        if (element) {
-
-          element.value =
-            value ?? "";
-        }
-      };
-
-    setValue(
-      "mpTitle",
-      data.title
+  const ref =
+    doc(
+      db,
+      "promotions",
+      "mercadopago"
     );
 
-    setValue(
-      "mpText",
-      data.text
+  const snapshot =
+    await getDoc(ref);
+
+  if (!snapshot.exists())
+    return;
+
+  const data =
+    snapshot.data();
+
+  document
+    .getElementById(
+      "mpTitle"
+    )
+    .value =
+    data.title || "";
+
+  document
+    .getElementById(
+      "mpText"
+    )
+    .value =
+    data.text || "";
+
+  document
+    .getElementById(
+      "mpLink"
+    )
+    .value =
+    data.link || "";
+
+  mercadoImageBase64 =
+    data.image || "";
+
+  const preview =
+    document.getElementById(
+      "mpImagePreview"
     );
 
-    setValue(
-      "mpLink",
-      data.link
-    );
+  if (
+    preview &&
+    data.image
+  ) {
 
-    if (data.image) {
+    preview.innerHTML =
+      `
+      <img
+        src="${data.image}"
+        class="admin-image-preview"
+        alt=""
+      >
+      `;
 
-      mercadoImageBase64 =
-        data.image;
-
-      const preview =
-        document.getElementById(
-          "mpImagePreview"
-        );
-
-      if (preview) {
-
-        preview.innerHTML = `
-
-          <img
-            src="${escapeHTML(
-              data.image
-            )}"
-            alt="Mercado Pago"
-          >
-
-        `;
-      }
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Error cargando Mercado Pago:",
-      error
-    );
   }
+
 }
 
-async function saveMercadoPago() {
+async function saveMercadoPago(
+  event
+) {
+
+  event.preventDefault();
 
   const title =
-    document.getElementById(
-      "mpTitle"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "mpTitle"
+      )
+      .value
+      .trim();
 
   const text =
-    document.getElementById(
-      "mpText"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "mpText"
+      )
+      .value
+      .trim();
 
   const link =
-    document.getElementById(
-      "mpLink"
-    )?.value.trim() ||
-    "";
+    document
+      .getElementById(
+        "mpLink"
+      )
+      .value
+      .trim();
 
-  if (!title) {
-
-    showMessage(
-      "❌ Escribe el título.",
-      "error"
-    );
-
-    return;
-  }
-
-  try {
-
-    const existing =
-      await getDoc(
-        doc(
-          db,
-          "promotions",
-          "mercadopago"
-        )
-      );
-
-    const oldData =
-      existing.exists()
-        ? existing.data()
-        : {};
-
-    await setDoc(
+  const existing =
+    await getDoc(
       doc(
         db,
         "promotions",
         "mercadopago"
-      ),
-      {
-        title,
-        text,
-        link,
-        image:
-          mercadoImageBase64 ||
-          oldData.image ||
-          "",
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge:
-          true
-      }
+      )
     );
 
-    showMessage(
-      "✅ Promoción de Mercado Pago guardada."
-    );
+  const oldImage =
+    existing.exists()
+      ? existing.data().image || ""
+      : "";
 
-  } catch (error) {
+  await setDoc(
+    doc(
+      db,
+      "promotions",
+      "mercadopago"
+    ),
+    {
+      title,
+      text,
+      link,
+      image:
+        mercadoImageBase64 ||
+        oldImage,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
+    }
+  );
 
-    console.error(
-      error
-    );
+  showMessage(
+    "✅ Promoción de Mercado Pago guardada."
+  );
 
-    showMessage(
-      "❌ No se pudo guardar Mercado Pago.",
-      "error"
-    );
-  }
 }
 
-// ========================================
-// CONFIGURACIÓN GENERAL
-// ========================================
+/* =====================================
+   CONFIGURACIÓN
+===================================== */
 
 async function loadSettings() {
 
-  try {
-
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "settings",
-          "general"
-        )
-      );
-
-    if (
-      !snapshot.exists()
-    ) {
-      return;
-    }
-
-    const data =
-      snapshot.data();
-
-    const whatsapp =
-      document.getElementById(
-        "whatsapp"
-      );
-
-    const mercado =
-      document.getElementById(
-        "generalMercadoLibre"
-      );
-
-    if (whatsapp) {
-
-      whatsapp.value =
-        data.whatsapp ||
-        "";
-    }
-
-    if (mercado) {
-
-      mercado.value =
-        data.generalMercadoLibre ||
-        "";
-    }
-
-  } catch (error) {
-
-    console.error(
-      error
-    );
-  }
-}
-
-async function saveSettings() {
-
-  const whatsapp =
-    document.getElementById(
-      "whatsapp"
-    )?.value.trim() ||
-    "";
-
-  const generalMercadoLibre =
-    document.getElementById(
-      "generalMercadoLibre"
-    )?.value.trim() ||
-    "";
-
-  try {
-
-    await setDoc(
+  const snapshot =
+    await getDoc(
       doc(
         db,
         "settings",
         "general"
-      ),
-      {
-        whatsapp,
-        generalMercadoLibre,
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge:
-          true
-      }
+      )
     );
 
-    showMessage(
-      "✅ Configuración guardada."
-    );
+  if (!snapshot.exists())
+    return;
 
-  } catch (error) {
+  const data =
+    snapshot.data();
 
-    console.error(
-      error
-    );
+  document
+    .getElementById(
+      "whatsapp"
+    )
+    .value =
+    data.whatsapp || "";
 
-    showMessage(
-      "❌ No se pudo guardar la configuración.",
-      "error"
-    );
-  }
+  document
+    .getElementById(
+      "generalMercadoLibre"
+    )
+    .value =
+    data.generalMercadoLibre ||
+    "https://www.mercadolibre.com.mx/";
+
 }
 
-// ========================================
-// MÉTRICAS
-// ========================================
-
-async function getDailyStats(
-  dateKey
+async function saveSettings(
+  event
 ) {
 
-  try {
+  event.preventDefault();
 
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "statistics",
-          `daily_${dateKey}`
-        )
-      );
+  const whatsapp =
+    document
+      .getElementById(
+        "whatsapp"
+      )
+      .value
+      .trim();
 
-    if (
-      !snapshot.exists()
-    ) {
+  const generalMercadoLibre =
+    document
+      .getElementById(
+        "generalMercadoLibre"
+      )
+      .value
+      .trim();
 
-      return {
-        date:
-          dateKey,
-        visits:
-          0,
-        uniqueVisitors:
-          0,
-        clicks:
-          0,
-        copies:
-          0,
-        promotions:
-          0
-      };
+  await setDoc(
+    doc(
+      db,
+      "settings",
+      "general"
+    ),
+    {
+      whatsapp,
+      generalMercadoLibre,
+      updatedAt:
+        new Date().toISOString()
+    },
+    {
+      merge: true
     }
+  );
 
-    const data =
-      snapshot.data();
+  showMessage(
+    "✅ Configuración guardada."
+  );
 
-    return {
-
-      date:
-        dateKey,
-
-      visits:
-        Number(
-          data.visits || 0
-        ),
-
-      uniqueVisitors:
-        Number(
-          data.uniqueVisitors ||
-          0
-        ),
-
-      clicks:
-        Number(
-          data.clicks || 0
-        ),
-
-      copies:
-        Number(
-          data.copies || 0
-        ),
-
-      promotions:
-        Number(
-          data.promotions || 0
-        )
-    };
-
-  } catch (error) {
-
-    console.error(
-      "Error leyendo estadísticas diarias:",
-      error
-    );
-
-    return {
-      date:
-        dateKey,
-      visits:
-        0,
-      uniqueVisitors:
-        0,
-      clicks:
-        0,
-      copies:
-        0,
-      promotions:
-        0
-    };
-  }
 }
 
-// ========================================
-// MÉTRICAS GENERALES
-// ========================================
-
-async function loadGeneralStats() {
-
-  try {
-
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "statistics",
-          "general"
-        )
-      );
-
-    if (
-      !snapshot.exists()
-    ) {
-      return {};
-    }
-
-    return snapshot.data();
-
-  } catch (error) {
-
-    console.error(
-      "Error leyendo estadísticas generales:",
-      error
-    );
-
-    return {};
-  }
-}
-
-// ========================================
-// MÉTRICAS PRINCIPALES
-// ========================================
+/* =====================================
+   ESTADÍSTICAS
+===================================== */
 
 async function loadStats() {
 
   try {
 
-    const general =
-      await loadGeneralStats();
-
-    const todayKey =
-      getMexicoDateKey();
-
-    const today =
-      await getDailyStats(
-        todayKey
+    const snapshot =
+      await getDoc(
+        doc(
+          db,
+          "statistics",
+          "general"
+        )
       );
 
-    // ------------------------------------
-    // ESTADÍSTICAS DE HOY
-    // ------------------------------------
+    if (!snapshot.exists())
+      return;
 
-    const statVisits =
-      document.getElementById(
+    const data =
+      snapshot.data();
+
+    document
+      .getElementById(
         "statVisits"
-      );
+      )
+      .textContent =
+      data.visits || 0;
 
-    const statUnique =
-      document.getElementById(
+    document
+      .getElementById(
         "statUnique"
-      );
+      )
+      .textContent =
+      data.uniqueVisitors || 0;
 
-    const statClicks =
-      document.getElementById(
+    document
+      .getElementById(
         "statClicks"
-      );
+      )
+      .textContent =
+      data.clicks || 0;
 
-    const statCopies =
-      document.getElementById(
+    document
+      .getElementById(
         "statCopies"
-      );
+      )
+      .textContent =
+      data.copies || 0;
 
-    const statPromotions =
-      document.getElementById(
+    document
+      .getElementById(
         "statPromotions"
-      );
+      )
+      .textContent =
+      data.promotions || 0;
 
-    const statSavings =
-      document.getElementById(
+    document
+      .getElementById(
         "statSavings"
+      )
+      .textContent =
+      money(
+        data.savings || 0
       );
-
-    if (statVisits) {
-
-      statVisits.textContent =
-        today.visits
-          .toLocaleString(
-            "es-MX"
-          );
-    }
-
-    if (statUnique) {
-
-      statUnique.textContent =
-        today.uniqueVisitors
-          .toLocaleString(
-            "es-MX"
-          );
-    }
-
-    if (statClicks) {
-
-      statClicks.textContent =
-        today.clicks
-          .toLocaleString(
-            "es-MX"
-          );
-    }
-
-    if (statCopies) {
-
-      statCopies.textContent =
-        today.copies
-          .toLocaleString(
-            "es-MX"
-          );
-    }
-
-    if (statPromotions) {
-
-      statPromotions.textContent =
-        today.promotions
-          .toLocaleString(
-            "es-MX"
-          );
-    }
-
-    if (statSavings) {
-
-      const savings =
-        Number(
-          general.savings ||
-          0
-        );
-
-      statSavings.textContent =
-        money(
-          savings
-        );
-    }
-
-    // ------------------------------------
-    // RESUMEN DE LOS ÚLTIMOS 7 DÍAS
-    // ------------------------------------
-
-    const last7 =
-      [];
-
-    for (
-      let i = 0;
-      i < 7;
-      i++
-    ) {
-
-      const dateKey =
-        getPreviousDate(
-          todayKey,
-          i
-        );
-
-      const stats =
-        i === 0
-          ? today
-          : await getDailyStats(
-              dateKey
-            );
-
-      last7.push(
-        stats
-      );
-    }
-
-    renderMetricsSummary(
-      last7
-    );
 
   } catch (error) {
 
@@ -2790,529 +2327,148 @@ async function loadStats() {
       "Error cargando estadísticas:",
       error
     );
+
   }
+
 }
 
-// ========================================
-// RESUMEN MÉTRICAS
-// ========================================
-
-function renderMetricsSummary(
-  days
-) {
-
-  const container =
-    document.getElementById(
-      "metricsSummary"
-    );
-
-  if (!container) return;
-
-  const totals =
-    days.reduce(
-      (
-        total,
-        day
-      ) => {
-
-        total.visits +=
-          Number(
-            day.visits ||
-            0
-          );
-
-        total.uniqueVisitors +=
-          Number(
-            day.uniqueVisitors ||
-            0
-          );
-
-        total.clicks +=
-          Number(
-            day.clicks ||
-            0
-          );
-
-        total.copies +=
-          Number(
-            day.copies ||
-            0
-          );
-
-        total.promotions +=
-          Number(
-            day.promotions ||
-            0
-          );
-
-        return total;
-
-      },
-      {
-        visits:
-          0,
-
-        uniqueVisitors:
-          0,
-
-        clicks:
-          0,
-
-        copies:
-          0,
-
-        promotions:
-          0
-      }
-    );
-
-  const mostVisits =
-    [...days].sort(
-      (
-        a,
-        b
-      ) =>
-        b.visits -
-        a.visits
-    )[0];
-
-  const mostUsers =
-    [...days].sort(
-      (
-        a,
-        b
-      ) =>
-        b.uniqueVisitors -
-        a.uniqueVisitors
-    )[0];
-
-  container.innerHTML = `
-
-    <div class="metrics-summary-grid">
-
-      <div class="metric-summary-card">
-
-        <span>
-          📅 Últimos 7 días
-        </span>
-
-        <strong>
-          ${totals.visits.toLocaleString(
-            "es-MX"
-          )}
-        </strong>
-
-        <small>
-          visitas
-        </small>
-
-      </div>
-
-      <div class="metric-summary-card">
-
-        <span>
-          👥 Usuarios
-        </span>
-
-        <strong>
-          ${totals.uniqueVisitors.toLocaleString(
-            "es-MX"
-          )}
-        </strong>
-
-        <small>
-          visitantes únicos
-        </small>
-
-      </div>
-
-      <div class="metric-summary-card">
-
-        <span>
-          🖱️ Clics
-        </span>
-
-        <strong>
-          ${totals.clicks.toLocaleString(
-            "es-MX"
-          )}
-        </strong>
-
-        <small>
-          clics
-        </small>
-
-      </div>
-
-      <div class="metric-summary-card">
-
-        <span>
-          🎟️ Cupones
-        </span>
-
-        <strong>
-          ${totals.copies.toLocaleString(
-            "es-MX"
-          )}
-        </strong>
-
-        <small>
-          copias
-        </small>
-
-      </div>
-
-      <div class="metric-summary-card">
-
-        <span>
-          💳 Promociones
-        </span>
-
-        <strong>
-          ${totals.promotions.toLocaleString(
-            "es-MX"
-          )}
-        </strong>
-
-        <small>
-          clics
-        </small>
-
-      </div>
-
-    </div>
-
-    <div class="metrics-highlights">
-
-      <div>
-
-        <strong>
-          📈 Más visitas
-        </strong>
-
-        <span>
-          ${
-            mostVisits
-              ? formatDate(
-                  mostVisits.date
-                )
-              : "-"
-          }
-
-          ·
-
-          ${
-            mostVisits
-              ? mostVisits.visits
-              : 0
-          }
-        </span>
-
-      </div>
-
-      <div>
-
-        <strong>
-          👥 Más usuarios
-        </strong>
-
-        <span>
-          ${
-            mostUsers
-              ? formatDate(
-                  mostUsers.date
-                )
-              : "-"
-          }
-
-          ·
-
-          ${
-            mostUsers
-              ? mostUsers.uniqueVisitors
-              : 0
-          }
-        </span>
-
-      </div>
-
-    </div>
-
-  `;
-}
-
-// ========================================
-// FORMULARIOS
-// ========================================
+/* =====================================
+   FORMULARIOS
+===================================== */
 
 function setupForms() {
 
-  // ------------------------------------
-  // OFERTAS
-  // ------------------------------------
-
-  const offerForm =
-    document.getElementById(
+  document
+    .getElementById(
       "offerForm"
-    );
-
-  if (offerForm) {
-
-    offerForm.addEventListener(
+    )
+    ?.addEventListener(
       "submit",
-      event => {
-
-        event.preventDefault();
-
-        saveOffer();
-      }
+      saveOffer
     );
-  }
 
-  // ------------------------------------
-  // CUPONES
-  // ------------------------------------
-
-  const couponForm =
-    document.getElementById(
+  document
+    .getElementById(
       "couponForm"
-    );
-
-  if (couponForm) {
-
-    couponForm.addEventListener(
+    )
+    ?.addEventListener(
       "submit",
-      event => {
-
-        event.preventDefault();
-
-        saveCoupon();
-      }
+      saveCoupon
     );
-  }
 
-  // ------------------------------------
-  // CATEGORÍAS
-  // ------------------------------------
-
-  const categoryForm =
-    document.getElementById(
+  document
+    .getElementById(
       "categoryForm"
-    );
-
-  if (categoryForm) {
-
-    categoryForm.addEventListener(
+    )
+    ?.addEventListener(
       "submit",
-      event => {
-
-        event.preventDefault();
-
-        saveCategory();
-      }
+      saveCategory
     );
-  }
 
-  // ------------------------------------
-  // MERCADO PAGO
-  // ------------------------------------
-
-  const mercadoForm =
-    document.getElementById(
+  document
+    .getElementById(
       "mercadoForm"
-    );
-
-  if (mercadoForm) {
-
-    mercadoForm.addEventListener(
+    )
+    ?.addEventListener(
       "submit",
-      event => {
-
-        event.preventDefault();
-
-        saveMercadoPago();
-      }
+      saveMercadoPago
     );
-  }
 
-  // ------------------------------------
-  // CONFIGURACIÓN
-  // ------------------------------------
-
-  const settingsForm =
-    document.getElementById(
+  document
+    .getElementById(
       "settingsForm"
-    );
-
-  if (settingsForm) {
-
-    settingsForm.addEventListener(
+    )
+    ?.addEventListener(
       "submit",
-      event => {
+      saveSettings
+    );
 
-        event.preventDefault();
+  document
+    .getElementById(
+      "couponCode"
+    )
+    ?.addEventListener(
+      "input",
+      (event) => {
 
-        saveSettings();
+        event.target.value =
+          event.target.value.toUpperCase();
+
       }
     );
-  }
 
-  // ------------------------------------
-  // BANCO
-  // ------------------------------------
+  /* =====================================
+     BOTONES DE ESTADO DE CUPÓN
+  ====================================== */
 
-  const saveBankButton =
-    document.getElementById(
-      "saveBankButton"
-    );
+  document
+    .querySelectorAll(
+      "[data-status]"
+    )
+    .forEach(
+      (button) => {
 
-  if (
-    saveBankButton
-  ) {
+        button.addEventListener(
+          "click",
+          () => {
 
-    saveBankButton.addEventListener(
-      "click",
-      event => {
+            const status =
+              button.dataset.status;
 
-        event.preventDefault();
-
-        saveBank();
-      }
-    );
-  }
-
-  // ------------------------------------
-  // ESTADO CUPÓN
-  // ------------------------------------
-
-  const statusButtons =
-    document.querySelectorAll(
-      ".coupon-status-buttons button"
-    );
-
-  const statusInput =
-    document.getElementById(
-      "couponStatus"
-    );
-
-  statusButtons.forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          const status =
-            button.dataset.status;
-
-          if (
-            statusInput
-          ) {
-
-            statusInput.value =
-              status;
-          }
-
-          statusButtons.forEach(
-            item => {
-
-              item.classList.toggle(
-                "active",
-                item === button
+            const input =
+              document.getElementById(
+                "couponStatus"
               );
+
+            if (input) {
+
+              input.value =
+                status;
+
             }
-          );
-        }
-      );
-    }
-  );
 
-  // ------------------------------------
-  // LOGOUT
-  // ------------------------------------
+            document
+              .querySelectorAll(
+                "[data-status]"
+              )
+              .forEach(
+                (item) => {
 
-  const logoutButton =
-    document.getElementById(
-      "logoutButton"
+                  item.classList.remove(
+                    "active"
+                  );
+
+                }
+              );
+
+            button.classList.add(
+              "active"
+            );
+
+          }
+        );
+
+      }
     );
 
-  if (
-    logoutButton
-  ) {
+  /* =====================================
+     GUARDAR BANCO
+  ====================================== */
 
-    logoutButton.addEventListener(
+  document
+    .getElementById(
+      "saveBankButton"
+    )
+    ?.addEventListener(
       "click",
-      async () => {
-
-        try {
-
-          await signOut(
-            auth
-          );
-
-        } catch (error) {
-
-          console.error(
-            error
-          );
-
-          showMessage(
-            "❌ No se pudo cerrar sesión.",
-            "error"
-          );
-        }
-      }
-    );
-  }
-
-  // ------------------------------------
-  // TIPO DE AFILIADO
-  // ------------------------------------
-
-  const affiliateType =
-    document.getElementById(
-      "couponAffiliateType"
+      saveBank
     );
 
-  const couponLink =
-    document.getElementById(
-      "couponLink"
-    );
-
-  if (
-    affiliateType &&
-    couponLink
-  ) {
-
-    affiliateType.addEventListener(
-      "change",
-      () => {
-
-        if (
-          affiliateType.value ===
-          "principal"
-        ) {
-
-          couponLink.value =
-            MERCADO_LIBRE_AFILIADO_PRINCIPAL;
-        }
-
-        if (
-          affiliateType.value ===
-          "alternativo"
-        ) {
-
-          couponLink.value =
-            MERCADO_LIBRE_AFILIADO_ALTERNATIVO;
-        }
-      }
-    );
-  }
 }
 
-// ========================================
-// INICIALIZAR ADMIN
-// ========================================
+/* =====================================
+   INICIALIZAR
+===================================== */
 
 async function initializeAdmin() {
 
@@ -3351,47 +2507,26 @@ async function initializeAdmin() {
       "❌ Ocurrió un error cargando el panel.",
       "error"
     );
-  }
-}
 
-// ========================================
-// AUTENTICACIÓN
-// ========================================
+  }
+
+}
 
 onAuthStateChanged(
   auth,
-  async user => {
+  async (user) => {
 
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     if (
-      user.uid !==
-      ADMIN_UID
+      user.uid !== ADMIN_UID
     ) {
-
-      console.warn(
-        "Usuario no autorizado."
-      );
 
       return;
-    }
 
-    const emailElement =
-      document.getElementById(
-        "adminUserEmail"
-      );
-
-    if (
-      emailElement
-    ) {
-
-      emailElement.textContent =
-        user.email ||
-        "";
     }
 
     await initializeAdmin();
+
   }
 );
