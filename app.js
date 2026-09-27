@@ -1897,50 +1897,30 @@ function copyWithExecCommand(
 }
 
 // ========================================
-// COPIA MANUAL
+// REGISTRAR COPIA
 // ========================================
 
-  const message =
-    document.getElementById(
-      "copySuccessMessage"
-    ) ||
-    document.createElement(
-      "div"
+function registerCouponCopy(
+  couponId
+) {
+
+  const coupon =
+    coupons.find(
+      item =>
+        item.id ===
+        couponId
     );
 
-  message.id =
-    "copySuccessMessage";
+  // =====================================
+  // AHORRO
+  // =====================================
 
-  message.className =
-    "copy-success-message show";
-
-  message.innerHTML = `
-
-    <strong>
-
-      📋 Cupón:
-      ${escapeHTML(code)}
-
-    </strong>
-
-    <small>
-      Cópialo manualmente
-    </small>
-
-  `;
-
-  if (
-    !message.parentElement
-  ) {
-
-    document.body.appendChild(
-      message
+  const savings =
+    Number(
+      coupon?.maximumDiscount ||
+      0
     );
-
-  }
-
-}
-
+    
 // ========================================
 // REGISTRAR COPIA
 // ========================================
