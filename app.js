@@ -2487,8 +2487,8 @@ async function initializeApp() {
   try {
 
     // ====================================
-    // CARGA PRIORITARIA
-    // Mostrar primero el contenido visible
+    // CARGA PRINCIPAL
+    // Todo lo visible se solicita al mismo tiempo
     // ====================================
 
     await Promise.all([
@@ -2501,25 +2501,24 @@ async function initializeApp() {
 
       loadMercadoPago(),
 
-      loadCoupons()
+      // Bancos y cupones se cargan juntos
+      // para que los cupones aparezcan completos
+      Promise.all([
+        loadBanks(),
+        loadCoupons()
+      ])
 
     ]);
 
     // ====================================
-    // CARGA SECUNDARIA
-    // No bloquea la página
+    // ESTADÍSTICAS EN SEGUNDO PLANO
+    // No bloquean la página
     // ====================================
 
-    Promise.all([
-
-      registerVisit(),
-
-      loadBanks()
-
-    ]).catch(error => {
+    registerVisit().catch(error => {
 
       console.warn(
-        "Error en carga secundaria:",
+        "No se pudo registrar la visita:",
         error
       );
 
