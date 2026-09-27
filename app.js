@@ -1591,11 +1591,22 @@ const hiddenCode =
         ${statusText}
       </div>
 
+            ${
+        coupon.name
+          ? `
+            <div class="coupon-title">
+              🏷️ ${escapeHTML(
+                coupon.name
+              )}
+            </div>
+          `
+          : ""
+      }
+
       ${
         bankName
           ? `
             <div class="coupon-name">
-
               ${
                 bankLogo
                   ? `
