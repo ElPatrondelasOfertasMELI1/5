@@ -1512,19 +1512,22 @@ function renderCouponCard(
       .toUpperCase()
       .trim();
 
-  const hiddenCode =
-    code.length > 4
-      ? code.substring(0, 4) +
-        "*".repeat(
-          Math.min(
-            5,
-            Math.max(
-              1,
-              code.length - 4
-            )
-          )
-        )
-      : "*****";
+  const visibleLength =
+  Math.ceil(code.length / 2);
+
+const hiddenLength =
+  code.length - visibleLength;
+
+const hiddenCode =
+  code.length > 1
+    ? code.substring(
+        0,
+        visibleLength
+      ) +
+      "*".repeat(
+        hiddenLength
+      )
+    : "*****";
 
   const isSoldOut =
     statusClass ===
