@@ -984,27 +984,45 @@ async function saveBank() {
 
 }
 
-  if (
-    !confirm(
-      "¿Eliminar este banco y su logo?"
-    )
-  ) {
-    return;
+async function deleteBank(id) {
+
+  try {
+
+    if (
+      !confirm(
+        "¿Eliminar este banco y su logo?"
+      )
+    ) {
+      return;
+    }
+
+    await deleteDoc(
+      doc(
+        db,
+        "banks",
+        id
+      )
+    );
+
+    await loadBanks();
+
+    showMessage(
+      "🗑️ Banco eliminado."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "❌ ERROR ELIMINANDO BANCO:",
+      error
+    );
+
+    showMessage(
+      "❌ No se pudo eliminar el banco.",
+      "error"
+    );
+
   }
-
-  await deleteDoc(
-    doc(
-      db,
-      "banks",
-      id
-    )
-  );
-
-  await loadBanks();
-
-  showMessage(
-    "🗑️ Banco eliminado."
-  );
 
 }
 
@@ -1771,10 +1789,19 @@ async function saveCoupon(
 
   /* ENLACE MANUAL */
 
-  if (
-    affiliateType === "manual" &&
-    !link
-  ) {
+ if (
+  affiliateType === "custom" &&
+  !link
+) {
+
+  showMessage(
+    "❌ Escribe el enlace personalizado.",
+    "error"
+  );
+
+  return;
+
+}
 
     showMessage(
       "❌ Escribe el enlace personalizado.",
