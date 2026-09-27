@@ -588,9 +588,12 @@ button {
 .coupon-card {
   position: relative;
   flex: 0 0 270px;
-  min-height: 235px;
+  height: 360px;
   overflow: hidden;
   scroll-snap-align: start;
+
+  display: flex;
+  flex-direction: column;
 
   background: #fff;
   border: 1px solid #e8e8e8;
@@ -731,7 +734,7 @@ button {
   z-index: 3;
 
   width: calc(100% - 30px);
-  margin: 0 15px;
+  margin: auto 15px 0;
 
   border: 0;
   border-radius: 10px;
