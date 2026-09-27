@@ -726,6 +726,58 @@ async function loadMercadoPago() {
 }
 
 // ========================================
+// BANCOS / TIENDAS
+// ========================================
+
+async function loadBanks() {
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "banks"
+        )
+      );
+
+    banks =
+      snapshot.docs.map(
+        item => {
+
+          const data =
+            item.data();
+
+          console.log(
+            "🏦 BANCO CARGADO:",
+            item.id,
+            data
+          );
+
+          return {
+            id: item.id,
+            ...data
+          };
+        }
+      );
+
+    console.log(
+      "🏦 TODOS LOS BANCOS:",
+      banks
+    );
+
+  } catch (error) {
+
+    console.error(
+      "❌ Error cargando bancos:",
+      error
+    );
+
+    banks = [];
+  }
+}
+
+// ========================================
 // CUPONES
 // ========================================
 
@@ -847,7 +899,7 @@ function renderCouponSections() {
                   .join("")
               }
 
-            </div>
+                       </div>
 
           </section>
 
@@ -855,41 +907,6 @@ function renderCouponSections() {
 
       })
       .join("");
-
-// ========================================
-// BANCOS / TIENDAS
-// ========================================
-
-async function loadBanks() {
-
-  try {
-
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "banks"
-        )
-      );
-
-    banks =
-      snapshot.docs.map(
-        item => ({
-          id: item.id,
-          ...item.data()
-        })
-      );
-
-  } catch (error) {
-
-    console.error(
-      "Error cargando bancos:",
-      error
-    );
-
-    banks = [];
-  }
-}
 
   // ========================================
   // COPIAR CUPÓN
@@ -1028,23 +1045,20 @@ function renderCouponCard(
   ====================================== */
 
   const bank =
-    banks.find(
-      item =>
-        item.id ===
-        coupon.bankId
-    );
+  banks.find(
+    item =>
+      String(item.id) ===
+      String(coupon.bankId || "")
+  );
 
+const bankName =
+  bank?.name ||
+  "";
 
-  const bankName =
-    bank?.name ||
-    coupon.name ||
-    "";
-
-
-  const bankLogo =
-    String(
-      bank?.logo || ""
-    ).trim();
+const bankLogo =
+  bank?.logo
+    ? String(bank.logo).trim()
+    : "";
 
 
   return `
@@ -1721,19 +1735,26 @@ async function initializeApp() {
 
     await Promise.all([
 
-      loadSettings(),
+  loadSettings(),
 
-      registerVisit(),
+  registerVisit(),
 
-      loadCategories(),
+  loadCategories(),
 
-      loadOffers(),
+  loadOffers(),
 
-      loadMercadoPago(),
+  loadMercadoPago()
 
-      loadCoupons()
+]);
 
-    ]);
+// Primero cargamos bancos
+// para que los logos estén disponibles
+// cuando se dibujen los cupones.
+
+await loadBanks();
+
+// Después cargamos cupones
+await loadCoupons();
 
   } catch (error) {
 
