@@ -1203,3 +1203,348 @@ footer {
   }
 
 }
+
+/* =========================
+   PROMOCIÓN MERCADO PAGO
+========================= */
+
+.mp-promo {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 25px;
+
+  overflow: hidden;
+
+  min-height: 230px;
+
+  padding: 28px;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #009ee3,
+      #0074c8
+    );
+
+  color: #fff;
+
+  text-decoration: none;
+
+  box-shadow:
+    0 8px 25px #0074c833;
+
+  cursor: pointer;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.mp-promo::before {
+  content: "";
+
+  position: absolute;
+
+  width: 220px;
+  height: 220px;
+
+  border-radius: 50%;
+
+  background: #ffffff18;
+
+  right: -70px;
+  top: -80px;
+}
+
+.mp-promo::after {
+  content: "";
+
+  position: absolute;
+
+  width: 130px;
+  height: 130px;
+
+  border-radius: 50%;
+
+  background: #ffffff12;
+
+  left: 35%;
+  bottom: -80px;
+}
+
+.mp-promo:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 12px 30px #0074c855;
+}
+
+
+/* =========================
+   LOGO ANIMADO
+========================= */
+
+.mp-logo-animation {
+  position: relative;
+
+  width: 145px;
+  height: 145px;
+
+  display: grid;
+
+  place-items: center;
+
+  flex-shrink: 0;
+
+  z-index: 2;
+}
+
+.mp-logo-circle {
+  width: 115px;
+  height: 115px;
+
+  border-radius: 50%;
+
+  background: #fff;
+
+  color: #009ee3;
+
+  display: grid;
+
+  place-items: center;
+
+  font-size: 35px;
+
+  font-weight: 950;
+
+  box-shadow:
+    0 8px 25px #004f8840;
+
+  animation:
+    mercadoPagoFloat
+    2.8s ease-in-out
+    infinite;
+}
+
+.mp-logo-circle::before {
+  content: "";
+
+  position: absolute;
+
+  width: 135px;
+  height: 135px;
+
+  border: 2px solid #ffffff55;
+
+  border-radius: 50%;
+
+  animation:
+    mercadoPagoPulse
+    2.8s ease-out
+    infinite;
+}
+
+.mp-logo-circle span {
+  letter-spacing: -2px;
+}
+
+
+/* =========================
+   CONTENIDO
+========================= */
+
+.mp-promo-content {
+  position: relative;
+
+  z-index: 2;
+
+  flex: 1;
+}
+
+.mp-promo-badge {
+  display: inline-block;
+
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  background: #ffffff22;
+
+  border: 1px solid #ffffff35;
+
+  font-size: 11px;
+
+  font-weight: 900;
+
+  margin-bottom: 8px;
+}
+
+.mp-promo-content h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: clamp(
+    32px,
+    5vw,
+    48px
+  );
+
+  line-height: 1;
+}
+
+.mp-promo-content h3 {
+  margin: 5px 0 12px;
+
+  font-size: 21px;
+
+  color: #fff;
+}
+
+.mp-promo-content p {
+  margin: 6px 0;
+
+  color: #fff;
+
+  font-size: 14px;
+
+  line-height: 1.45;
+}
+
+.mp-promo-content strong {
+  color: #fff;
+
+  font-weight: 950;
+}
+
+
+/* =========================
+   BOTÓN
+========================= */
+
+.mp-promo-button {
+  display: inline-block;
+
+  margin-top: 13px;
+
+  padding: 12px 17px;
+
+  border-radius: 10px;
+
+  background: #fff;
+
+  color: #0074c8;
+
+  font-weight: 950;
+
+  box-shadow:
+    0 4px 12px #004f8830;
+}
+
+.mp-promo-content small {
+  display: block;
+
+  margin-top: 8px;
+
+  color: #ffffffcc;
+
+  font-size: 10px;
+}
+
+
+/* =========================
+   ANIMACIONES
+========================= */
+
+@keyframes mercadoPagoFloat {
+
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  50% {
+    transform:
+      translateY(-9px)
+      rotate(3deg);
+  }
+
+}
+
+@keyframes mercadoPagoPulse {
+
+  0% {
+    transform: scale(.85);
+
+    opacity: .8;
+  }
+
+  70% {
+    transform: scale(1.15);
+
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.15);
+
+    opacity: 0;
+  }
+
+}
+
+
+/* =========================
+   CELULAR
+========================= */
+
+@media (max-width: 650px) {
+
+  .mp-promo {
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    padding: 25px 18px;
+
+    gap: 8px;
+  }
+
+  .mp-logo-animation {
+    width: 125px;
+    height: 125px;
+  }
+
+  .mp-logo-circle {
+    width: 95px;
+    height: 95px;
+
+    font-size: 29px;
+  }
+
+  .mp-promo-content h2 {
+    font-size: 38px;
+  }
+
+  .mp-promo-content h3 {
+    font-size: 18px;
+  }
+
+  .mp-promo-content p {
+    font-size: 13px;
+  }
+
+  .mp-promo-button {
+    width: 100%;
+  }
+
+}
