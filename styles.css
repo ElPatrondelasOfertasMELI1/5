@@ -689,7 +689,8 @@ button {
   height: 43px;
   min-height: 43px;
 
-  margin: 0 15px 10px;
+  margin: auto 15px 10px;
+
   padding: 10px 8px;
 
   text-align: center;
