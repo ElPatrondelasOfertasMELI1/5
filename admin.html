@@ -357,66 +357,205 @@
 
 
       <!-- =================================================
-           MÉTRICAS POR PERIODO
-      ================================================== -->
+     MÉTRICAS POR PERIODO
+================================================== -->
 
-      <section class="admin-dashboard-section">
+<section class="admin-dashboard-section">
 
-        <div class="panel-header">
+  <div class="panel-header">
 
-          <div>
+    <div>
+      <h2>📈 Métricas</h2>
 
-            <h2>
-              📈 Métricas
-            </h2>
+      <p>
+        Consulta el comportamiento de tus visitantes y ofertas.
+      </p>
+    </div>
 
-            <p>
-              Consulta el comportamiento de los últimos días.
-            </p>
-
-          </div>
-
-        </div>
+  </div>
 
 
-        <div class="admin-metrics-placeholder">
+  <!-- RESUMEN DE PERIODOS -->
 
-          <div>
-            <strong>
-              📅 Últimos 7 días
-            </strong>
+  <div class="admin-period-cards">
 
-            <span>
-              Usuarios · Visitas · Clics · Cupones
-            </span>
-          </div>
+    <div class="admin-period-card">
 
+      <span>📅</span>
 
-          <div>
-            <strong>
-              📅 Últimos 30 días
-            </strong>
+      <div>
+        <strong>Últimos 7 días</strong>
 
-            <span>
-              Tendencia y actividad diaria
-            </span>
-          </div>
+        <small>
+          Actividad reciente
+        </small>
+      </div>
+
+    </div>
 
 
-          <div>
-            <strong>
-              🕛 Corte diario
-            </strong>
+    <div class="admin-period-card">
 
-            <span>
-              Cada día comienza a las 00:00
-            </span>
-          </div>
+      <span>📆</span>
 
-        </div>
+      <div>
+        <strong>Últimos 30 días</strong>
 
-      </section>
+        <small>
+          Tendencia mensual
+        </small>
+      </div>
 
+    </div>
+
+
+    <div class="admin-period-card">
+
+      <span>🕛</span>
+
+      <div>
+        <strong>Corte diario</strong>
+
+        <small>
+          00:00 · México
+        </small>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MÉTRICAS DE 7 DÍAS -->
+
+  <div class="admin-metrics-box">
+
+    <div class="admin-metrics-box-header">
+
+      <div>
+        <h3>📊 Últimos 7 días</h3>
+
+        <p>
+          Actividad diaria de tu página.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="admin-daily-grid">
+
+      <div>
+        <span>👤 Usuarios</span>
+        <strong id="metricUsers7">0</strong>
+      </div>
+
+      <div>
+        <span>👁️ Visitas</span>
+        <strong id="metricVisits7">0</strong>
+      </div>
+
+      <div>
+        <span>🖱️ Clics</span>
+        <strong id="metricClicks7">0</strong>
+      </div>
+
+      <div>
+        <span>🎟️ Cupones</span>
+        <strong id="metricCopies7">0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- MÉTRICAS DE 30 DÍAS -->
+
+  <div class="admin-metrics-box">
+
+    <div class="admin-metrics-box-header">
+
+      <div>
+        <h3>📆 Últimos 30 días</h3>
+
+        <p>
+          Resumen de actividad del último mes.
+        </p>
+      </div>
+
+    </div>
+
+
+    <div class="admin-daily-grid">
+
+      <div>
+        <span>👤 Usuarios</span>
+        <strong id="metricUsers30">0</strong>
+      </div>
+
+      <div>
+        <span>👁️ Visitas</span>
+        <strong id="metricVisits30">0</strong>
+      </div>
+
+      <div>
+        <span>🖱️ Clics</span>
+        <strong id="metricClicks30">0</strong>
+      </div>
+
+      <div>
+        <span>🎟️ Cupones</span>
+        <strong id="metricCopies30">0</strong>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- DÍA CON MÁS ACTIVIDAD -->
+
+  <div class="admin-metrics-highlight">
+
+    <span>🔥</span>
+
+    <div>
+
+      <strong>
+        Día con más actividad
+      </strong>
+
+      <small id="metricBestDay">
+        Sin datos todavía
+      </small>
+
+    </div>
+
+  </div>
+
+
+  <!-- AHORRO -->
+
+  <div class="admin-metrics-highlight">
+
+    <span>💰</span>
+
+    <div>
+
+      <strong>
+        Ahorro registrado
+      </strong>
+
+      <small id="metricSavings">
+        $0
+      </small>
+
+    </div>
+
+  </div>
+
+</section>
 
       <!-- =================================================
            ADMINISTRACIÓN
