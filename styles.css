@@ -688,13 +688,17 @@ button {
   border-radius: 9px;
 
   color: #111;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .5px;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .7px;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  /* Código oculto/borroso */
+  filter: blur(4px);
+  user-select: none;
 }
 
 /* INFORMACIÓN */
@@ -705,10 +709,10 @@ button {
 
   margin: 0 15px 11px;
 
-  color: #555;
-  font-size: 11px;
-  line-height: 1.45;
-  font-weight: 700;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 900;
 }
 
 /* BOTÓN */
@@ -742,6 +746,16 @@ button {
 
 .coupon-copy:active {
   transform: scale(.97);
+}
+
+/* =========================================================
+   CUPÓN COPIADO
+========================================================= */
+
+.coupon-copy.copied {
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 4px 9px rgba(37,211,102,.25);
 }
 
 /* CONTADOR */
