@@ -916,74 +916,144 @@ function renderBanksAdmin() {
 
 async function saveBank() {
 
-  const name =
-    document
-      .getElementById(
-        "bankName"
-      )
-      ?.value
-      .trim();
+  try {
 
-  if (!name) {
+    const nameInput =
+      document.getElementById(
+        "bankName"
+      );
+
+    const logoInput =
+      document.getElementById(
+        "bankLogo"
+      );
+
+    const preview =
+      document.getElementById(
+        "bankLogoPreview"
+      );
+
+
+    const name =
+      nameInput?.value
+        .trim() || "";
+
+
+    /* =====================================
+       VALIDAR NOMBRE
+    ====================================== */
+
+    if (!name) {
+
+      showMessage(
+        "❌ Escribe el nombre del banco o tienda.",
+        "error"
+      );
+
+      nameInput?.focus();
+
+      return;
+    }
+
+
+    /* =====================================
+       VALIDAR LOGO
+    ====================================== */
+
+    if (!bankLogoBase64) {
+
+      showMessage(
+        "❌ Primero selecciona un logo.",
+        "error"
+      );
+
+      logoInput?.click();
+
+      return;
+    }
+
+
+    /* =====================================
+       CREAR ID
+    ====================================== */
+
+    const id =
+      crypto.randomUUID();
+
+
+    /* =====================================
+       GUARDAR EN FIRESTORE
+    ====================================== */
+
+    await setDoc(
+      doc(
+        db,
+        "banks",
+        id
+      ),
+      {
+        name: name,
+        logo: bankLogoBase64,
+        updatedAt:
+          new Date().toISOString()
+      }
+    );
+
+
+    /* =====================================
+       LIMPIAR FORMULARIO
+    ====================================== */
+
+    bankLogoBase64 = "";
+
+
+    if (nameInput) {
+      nameInput.value = "";
+    }
+
+
+    if (logoInput) {
+      logoInput.value = "";
+    }
+
+
+    if (preview) {
+      preview.innerHTML = "";
+    }
+
+
+    /* =====================================
+       ACTUALIZAR LISTA
+    ====================================== */
+
+    await loadBanks();
+
+
+    /* =====================================
+       CONFIRMACIÓN
+    ====================================== */
 
     showMessage(
-      "❌ Escribe el nombre del banco.",
+      "✅ Banco guardado correctamente. Ya puedes seleccionarlo en tus cupones."
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "❌ ERROR GUARDANDO BANCO:",
+      error
+    );
+
+
+    showMessage(
+      "❌ No se pudo guardar el banco. Revisa las reglas de Firebase.",
       "error"
     );
 
-    return;
   }
 
-  const id =
-    crypto.randomUUID();
-
-  await setDoc(
-    doc(
-      db,
-      "banks",
-      id
-    ),
-    {
-      name,
-      logo:
-        bankLogoBase64 || "",
-      updatedAt:
-        new Date().toISOString()
-    }
-  );
-
-  bankLogoBase64 =
-    "";
-
-  document
-    .getElementById(
-      "bankName"
-    )
-    .value = "";
-
-  document
-    .getElementById(
-      "bankLogo"
-    )
-    .value = "";
-
-  document
-    .getElementById(
-      "bankLogoPreview"
-    )
-    .innerHTML = "";
-
-  await loadBanks();
-
-  showMessage(
-    "✅ Banco guardado."
-  );
-
 }
-
-
-async function deleteBank(id) {
-
   if (
     !confirm(
       "¿Eliminar este banco y su logo?"
