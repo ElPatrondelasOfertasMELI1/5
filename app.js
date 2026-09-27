@@ -47,6 +47,7 @@ let generalSettings = {
 let offers = [];
 let coupons = [];
 let categories = [];
+let banks = [];
 
 // ========================================
 // UTILIDADES
@@ -855,6 +856,41 @@ function renderCouponSections() {
       })
       .join("");
 
+// ========================================
+// BANCOS / TIENDAS
+// ========================================
+
+async function loadBanks() {
+
+  try {
+
+    const snapshot =
+      await getDocs(
+        collection(
+          db,
+          "banks"
+        )
+      );
+
+    banks =
+      snapshot.docs.map(
+        item => ({
+          id: item.id,
+          ...item.data()
+        })
+      );
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando bancos:",
+      error
+    );
+
+    banks = [];
+  }
+}
+
   // ========================================
   // COPIAR CUPÓN
   // ========================================
@@ -936,10 +972,8 @@ function renderCouponCard(
 
   if (
     rawStatus === "soon" ||
-    rawStatus ===
-      "por_agotarse" ||
-    rawStatus ===
-      "por agotarse"
+    rawStatus === "por_agotarse" ||
+    rawStatus === "por agotarse"
   ) {
 
     statusClass =
@@ -951,8 +985,7 @@ function renderCouponCard(
 
   if (
     rawStatus === "soldout" ||
-    rawStatus ===
-      "agotado"
+    rawStatus === "agotado"
   ) {
 
     statusClass =
@@ -962,12 +995,14 @@ function renderCouponCard(
       "🔴 AGOTADO";
   }
 
+
   const code =
     String(
       coupon.code || ""
     )
       .toUpperCase()
       .trim();
+
 
   const hiddenCode =
     code.length > 4
@@ -983,9 +1018,34 @@ function renderCouponCard(
         )
       : "*****";
 
+
   const isSoldOut =
-    statusClass ===
-    "expired";
+    statusClass === "expired";
+
+
+  /* =====================================
+     BANCO
+  ====================================== */
+
+  const bank =
+    banks.find(
+      item =>
+        item.id ===
+        coupon.bankId
+    );
+
+
+  const bankName =
+    bank?.name ||
+    coupon.name ||
+    "";
+
+
+  const bankLogo =
+    String(
+      bank?.logo || ""
+    ).trim();
+
 
   return `
 
@@ -1000,18 +1060,44 @@ function renderCouponCard(
         ${statusText}
       </div>
 
+
       ${
-        coupon.name
+        bankName
           ? `
             <div class="coupon-name">
-              🏦
-              ${escapeHTML(
-                coupon.name
-              )}
+
+              ${
+                bankLogo
+                  ? `
+                    <img
+                      src="${escapeHTML(
+                        bankLogo
+                      )}"
+                      alt="${escapeHTML(
+                        bankName
+                      )}"
+                      class="coupon-bank-logo"
+                      loading="lazy"
+                    >
+                  `
+                  : `
+                    <span class="coupon-bank-icon">
+                      🏦
+                    </span>
+                  `
+              }
+
+              <span>
+                ${escapeHTML(
+                  bankName
+                )}
+              </span>
+
             </div>
           `
           : ""
       }
+
 
       <div class="coupon-discount">
         ${escapeHTML(
@@ -1020,9 +1106,11 @@ function renderCouponCard(
         )}
       </div>
 
+
       <div class="coupon-code">
         ${hiddenCode}
       </div>
+
 
       ${
         coupon.minimumPurchase
@@ -1039,6 +1127,7 @@ function renderCouponCard(
           : ""
       }
 
+
       ${
         coupon.maximumDiscount
           ? `
@@ -1053,6 +1142,7 @@ function renderCouponCard(
           `
           : ""
       }
+
 
       ${
         isSoldOut
@@ -1079,6 +1169,7 @@ function renderCouponCard(
             </button>
           `
       }
+
 
       <small class="coupon-copies">
         📋
