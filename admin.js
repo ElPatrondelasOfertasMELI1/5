@@ -647,6 +647,14 @@ async function saveCategory(
       .value
       .trim();
 
+    const link =
+    document
+      .getElementById(
+        "categoryLink"
+      )
+      .value
+      .trim();
+
   if (!name) {
 
     showMessage(
@@ -668,12 +676,13 @@ async function saveCategory(
       "categories",
       id
     ),
-    {
-      name,
-      emoji,
-      updatedAt:
-        new Date().toISOString()
-    },
+   {
+  name,
+  emoji,
+  link,
+  updatedAt:
+    new Date().toISOString()
+},
     {
       merge: true
     }
@@ -717,11 +726,18 @@ function editCategory(id) {
     category.name || "";
 
   document
-    .getElementById(
-      "categoryEmoji"
-    )
-    .value =
-    category.emoji || "";
+  .getElementById(
+    "categoryEmoji"
+  )
+  .value =
+  category.emoji || "";
+
+document
+  .getElementById(
+    "categoryLink"
+  )
+  .value =
+  category.link || "";
 
 }
 
