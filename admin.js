@@ -862,9 +862,11 @@ async function saveBank() {
         "bankLogoPreview"
       );
 
+
     const name =
       nameInput?.value
         .trim() || "";
+
 
     /* =====================================
        VALIDAR NOMBRE
@@ -882,6 +884,7 @@ async function saveBank() {
       return;
     }
 
+
     /* =====================================
        VALIDAR LOGO
     ====================================== */
@@ -898,12 +901,14 @@ async function saveBank() {
       return;
     }
 
+
     /* =====================================
        CREAR ID
     ====================================== */
 
     const id =
       crypto.randomUUID();
+
 
     /* =====================================
        GUARDAR EN FIRESTORE
@@ -923,29 +928,35 @@ async function saveBank() {
       }
     );
 
+
     /* =====================================
        LIMPIAR FORMULARIO
     ====================================== */
 
     bankLogoBase64 = "";
 
+
     if (nameInput) {
       nameInput.value = "";
     }
+
 
     if (logoInput) {
       logoInput.value = "";
     }
 
+
     if (preview) {
       preview.innerHTML = "";
     }
+
 
     /* =====================================
        ACTUALIZAR LISTA
     ====================================== */
 
     await loadBanks();
+
 
     /* =====================================
        CONFIRMACIÓN
@@ -955,12 +966,14 @@ async function saveBank() {
       "✅ Banco guardado correctamente. Ya puedes seleccionarlo en tus cupones."
     );
 
+
   } catch (error) {
 
     console.error(
       "❌ ERROR GUARDANDO BANCO:",
       error
     );
+
 
     showMessage(
       "❌ No se pudo guardar el banco. Revisa las reglas de Firebase.",
@@ -970,7 +983,22 @@ async function saveBank() {
   }
 
 }
-  
+
+  if (
+    !confirm(
+      "¿Eliminar este banco y su logo?"
+    )
+  ) {
+    return;
+  }
+
+  await deleteDoc(
+    doc(
+      db,
+      "banks",
+      id
+    )
+  );
 
   await loadBanks();
 
