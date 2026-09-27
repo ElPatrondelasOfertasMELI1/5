@@ -577,61 +577,48 @@ async function registerOfferClick(
 // MERCADO LIBRE
 // ========================================
 
-function openMercadoLibre(
-  couponOrLink
-) {
+function openMercadoLibre(destination) {
 
-  let destination =
-    MERCADO_LIBRE_AFILIADO;
+  let url = "";
 
+  // Si recibimos un cupón u objeto
   if (
-    typeof couponOrLink ===
-      "object" &&
-    couponOrLink
+    destination &&
+    typeof destination === "object"
   ) {
 
-    const section =
-      String(
-        couponOrLink.section || ""
-      ).toLowerCase();
+    url =
+      destination.link ||
+      destination.url ||
+      "";
 
-    // Relámpago y bancarios
-    // utilizan el enlace afiliado.
+  }
 
-    if (
-      section === "relampago" ||
-      section === "bancarios"
-    ) {
+  // Si recibimos directamente una URL
+  else if (
+    typeof destination === "string"
+  ) {
 
-      destination =
-        MERCADO_LIBRE_AFILIADO;
+    url = destination;
 
-    } else {
+  }
 
-      destination =
-        couponOrLink.link ||
-        generalSettings
-          .generalMercadoLibre ||
-        MERCADO_LIBRE_AFILIADO;
-    }
+  // Si no existe enlace, usar afiliado general
+  if (!url) {
 
-  } else if (couponOrLink) {
-
-    destination =
-      couponOrLink;
+    url =
+      MERCADO_LIBRE_AFILIADO;
   }
 
   const cleanUrl =
-    safeUrl(destination);
+    String(url).trim();
 
-  // DIRECTO.
-  // Sin esperar Firebase.
-  // Sin temporizador.
+  if (!cleanUrl) return;
 
+  // 🚀 REDIRECCIÓN INMEDIATA
   window.location.href =
     cleanUrl;
 }
-
 // ========================================
 // MERCADO PAGO
 // ========================================
@@ -1111,9 +1098,7 @@ function renderCouponCard(
 // COPIAR CUPÓN - ULTRARRÁPIDO
 // ========================================
 
-function copyCoupon(
-  couponId
-) {
+function copyCoupon(couponId) {
 
   const coupon =
     coupons.find(
@@ -1132,52 +1117,38 @@ function copyCoupon(
 
   if (!code) {
 
-    alert(
-      "Este cupón no tiene código."
+    openMercadoLibre(
+      coupon
     );
 
     return;
   }
 
-  /*
-    IMPORTANTE:
-
-    No usamos await.
-
-    La copia comienza directamente
-    desde el click del usuario.
-
-    Firebase NO bloquea la navegación.
-  */
+  // ========================================
+  // COPIAR DIRECTAMENTE
+  // ========================================
 
   let copied = false;
 
-  // ========================================
-  // CLIPBOARD API
-  // ========================================
+  try {
 
-  if (
-    navigator.clipboard &&
-    typeof
-      navigator.clipboard
-        .writeText ===
+    if (
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText ===
         "function"
-  ) {
+    ) {
 
-    try {
-
-      navigator.clipboard
-        .writeText(code);
+      navigator.clipboard.writeText(code);
 
       copied = true;
-
-    } catch (error) {
-
-      console.warn(
-        "Clipboard API:",
-        error
-      );
     }
+
+  } catch (error) {
+
+    console.warn(
+      "Clipboard:",
+      error
+    );
   }
 
   // ========================================
@@ -1193,22 +1164,8 @@ function copyCoupon(
   }
 
   // ========================================
-  // MENSAJE
-  // ========================================
-
-  if (!copied) {
-
-    showManualCopy(
-      code
-    );
-
-  } else {
-
-    showCopySuccess();
-  }
-
-  // ========================================
-  // FIREBASE EN SEGUNDO PLANO
+  // REGISTRAR COPIA
+  // NO ESPERAMOS FIREBASE
   // ========================================
 
   registerCouponCopy(
@@ -1216,14 +1173,13 @@ function copyCoupon(
   );
 
   // ========================================
-  // MERCADO LIBRE INMEDIATO
+  // 🚀 ABRIR MERCADO LIBRE YA
   // ========================================
 
   openMercadoLibre(
     coupon
   );
 }
-
 // ========================================
 // COPIA ALTERNATIVA
 // ========================================
