@@ -970,21 +970,7 @@ async function saveBank() {
   }
 
 }
-  if (
-    !confirm(
-      "¿Eliminar este banco y su logo?"
-    )
-  ) {
-    return;
-  }
-
-  await deleteDoc(
-    doc(
-      db,
-      "banks",
-      id
-    )
-  );
+  
 
   await loadBanks();
 
