@@ -696,8 +696,6 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 
-  /* Código oculto/borroso */
-  filter: blur(4px);
   user-select: none;
 }
 
