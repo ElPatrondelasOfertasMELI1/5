@@ -36,6 +36,15 @@ let mercadoImageBase64 = "";
 let categories = [];
 let offers = [];
 let coupons = [];
+let banks = [];
+
+let bankLogoBase64 = "";
+
+const MERCADO_LIBRE_AFILIADO_PRINCIPAL =
+  "https://meli.la/1mj3itE";
+
+const MERCADO_LIBRE_AFILIADO_ALTERNATIVO =
+  "https://meli.la/2ths6Hi";
 
 
 /* =====================================
@@ -748,6 +757,317 @@ async function deleteCategory(id) {
 
 }
 
+/* =====================================
+   BANCOS / TIENDAS
+===================================== */
+
+async function loadBanks() {
+
+  const snapshot =
+    await getDocs(
+      collection(
+        db,
+        "banks"
+      )
+    );
+
+  banks =
+    snapshot.docs.map(
+      item => ({
+        id: item.id,
+        ...item.data()
+      })
+    );
+
+  renderBankSelect();
+  renderBanksAdmin();
+}
+
+
+function renderBankSelect() {
+
+  const select =
+    document.getElementById(
+      "couponBank"
+    );
+
+  if (!select) return;
+
+  select.innerHTML = `
+    <option value="">
+      🏦 Sin banco / General
+    </option>
+  `;
+
+  banks.forEach(bank => {
+
+    const option =
+      document.createElement(
+        "option"
+      );
+
+    option.value =
+      bank.id;
+
+    option.textContent =
+      `🏦 ${bank.name || ""}`;
+
+    select.appendChild(
+      option
+    );
+
+  });
+
+}
+
+
+function renderBanksAdmin() {
+
+  const container =
+    document.getElementById(
+      "banksList"
+    );
+
+  if (!container) return;
+
+  if (!banks.length) {
+
+    container.innerHTML =
+      "<p>No hay bancos guardados todavía.</p>";
+
+    return;
+  }
+
+  container.innerHTML =
+    banks.map(bank => `
+
+      <div class="admin-list-item">
+
+        <div class="admin-item-main">
+
+          ${
+            bank.logo
+              ? `
+                <img
+                  src="${bank.logo}"
+                  class="bank-admin-logo"
+                  alt=""
+                >
+              `
+              : `
+                <div class="bank-admin-logo no-image">
+                  🏦
+                </div>
+              `
+          }
+
+          <div>
+
+            <strong>
+              ${escapeHTML(
+                bank.name || ""
+              )}
+            </strong>
+
+          </div>
+
+        </div>
+
+        <div class="admin-list-actions">
+
+          <button
+            type="button"
+            class="delete-button"
+            data-delete-bank="${escapeHTML(
+              bank.id
+            )}"
+          >
+            🗑️
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+
+  container
+    .querySelectorAll(
+      "[data-delete-bank]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          deleteBank(
+            button.dataset.deleteBank
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+async function saveBank() {
+
+  const name =
+    document
+      .getElementById(
+        "bankName"
+      )
+      ?.value
+      .trim();
+
+  if (!name) {
+
+    showMessage(
+      "❌ Escribe el nombre del banco.",
+      "error"
+    );
+
+    return;
+  }
+
+  const id =
+    crypto.randomUUID();
+
+  await setDoc(
+    doc(
+      db,
+      "banks",
+      id
+    ),
+    {
+      name,
+      logo:
+        bankLogoBase64 || "",
+      updatedAt:
+        new Date().toISOString()
+    }
+  );
+
+  bankLogoBase64 =
+    "";
+
+  document
+    .getElementById(
+      "bankName"
+    )
+    .value = "";
+
+  document
+    .getElementById(
+      "bankLogo"
+    )
+    .value = "";
+
+  document
+    .getElementById(
+      "bankLogoPreview"
+    )
+    .innerHTML = "";
+
+  await loadBanks();
+
+  showMessage(
+    "✅ Banco guardado."
+  );
+
+}
+
+
+async function deleteBank(id) {
+
+  if (
+    !confirm(
+      "¿Eliminar este banco y su logo?"
+    )
+  ) {
+    return;
+  }
+
+  await deleteDoc(
+    doc(
+      db,
+      "banks",
+      id
+    )
+  );
+
+  await loadBanks();
+
+  showMessage(
+    "🗑️ Banco eliminado."
+  );
+
+}
+
+
+function setupBankLogoPreview() {
+
+  const input =
+    document.getElementById(
+      "bankLogo"
+    );
+
+  const preview =
+    document.getElementById(
+      "bankLogoPreview"
+    );
+
+  if (!input) return;
+
+  input.addEventListener(
+    "change",
+    async () => {
+
+      const file =
+        input.files[0];
+
+      if (!file) return;
+
+      try {
+
+        bankLogoBase64 =
+          await imageToBase64(
+            file,
+            500,
+            0.82
+          );
+
+        if (preview) {
+
+          preview.innerHTML = `
+            <img
+              src="${bankLogoBase64}"
+              class="bank-logo-preview"
+              alt="Logo"
+            >
+          `;
+
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "❌ No se pudo cargar el logo.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
 
 /* =====================================
    OFERTAS
@@ -1462,7 +1782,7 @@ async function saveCoupon(
     );
 
 
-  /* LINK */
+    /* LINK */
 
   let link =
     document
@@ -1472,6 +1792,69 @@ async function saveCoupon(
       .value
       .trim();
 
+
+  /* BANCO */
+
+  const bankId =
+    document
+      .getElementById(
+        "couponBank"
+      )
+      ?.value || "";
+
+
+  /* TIPO DE AFILIADO */
+
+  const affiliateType =
+    document
+      .getElementById(
+        "couponAffiliateType"
+      )
+      ?.value || "principal";
+
+
+  /* AFILIADO PRINCIPAL */
+
+  if (
+    affiliateType === "principal"
+  ) {
+
+    link =
+      MERCADO_LIBRE_AFILIADO_PRINCIPAL;
+
+  }
+
+
+  /* AFILIADO ALTERNATIVO */
+
+  if (
+    affiliateType === "alternativo"
+  ) {
+
+    link =
+      MERCADO_LIBRE_AFILIADO_ALTERNATIVO;
+
+  }
+
+
+  /* ENLACE MANUAL */
+
+  if (
+    affiliateType === "manual" &&
+    !link
+  ) {
+
+    showMessage(
+      "❌ Escribe el enlace personalizado.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  /* CÓDIGO OBLIGATORIO */
 
   if (!code) {
 
@@ -1484,21 +1867,6 @@ async function saveCoupon(
 
   }
 
-
-  /*
-    Relámpago y Bancarios
-    siempre utilizan el afiliado.
-  */
-
-  if (
-    section === "relampago" ||
-    section === "bancarios"
-  ) {
-
-    link =
-      MERCADO_LIBRE_AFILIADO;
-
-  }
 
 
   const id =
@@ -1519,7 +1887,7 @@ async function saveCoupon(
       "coupons",
       id
     ),
-    {
+        {
       name,
       code,
       section,
@@ -1527,9 +1895,16 @@ async function saveCoupon(
       discount,
       minimumPurchase,
       maximumDiscount,
+
+      bankId,
+
+      affiliateType,
+
       link,
+
       copies:
         existing?.copies || 0,
+
       updatedAt:
         new Date().toISOString()
     },
@@ -1664,7 +2039,7 @@ function editCoupon(id) {
     coupon.maximumDiscount || "";
 
 
-  /*
+    /*
     LINK
   */
 
@@ -1674,6 +2049,67 @@ function editCoupon(id) {
     )
     .value =
     coupon.link || "";
+
+
+  /*
+    BANCO
+  */
+
+  const bankSelect =
+    document.getElementById(
+      "couponBank"
+    );
+
+  if (bankSelect) {
+
+    bankSelect.value =
+      coupon.bankId || "";
+
+  }
+
+
+  /*
+    TIPO DE AFILIADO
+  */
+
+  const affiliateSelect =
+    document.getElementById(
+      "couponAffiliateType"
+    );
+
+  if (affiliateSelect) {
+
+    affiliateSelect.value =
+      coupon.affiliateType ||
+      "principal";
+
+  }
+
+
+  /*
+    BOTONES DE ESTADO
+  */
+
+  const status =
+    coupon.status ||
+    "active";
+
+
+  document
+    .querySelectorAll(
+      "[data-status]"
+    )
+    .forEach(
+      (button) => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.status ===
+            status
+        );
+
+      }
+    );
 
 }
 
@@ -2114,6 +2550,78 @@ function setupForms() {
       }
     );
 
+  /* =====================================
+     BOTONES DE ESTADO DE CUPÓN
+  ====================================== */
+
+  document
+    .querySelectorAll(
+      "[data-status]"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const status =
+              button.dataset.status;
+
+
+            const input =
+              document.getElementById(
+                "couponStatus"
+              );
+
+
+            if (input) {
+
+              input.value =
+                status;
+
+            }
+
+
+            document
+              .querySelectorAll(
+                "[data-status]"
+              )
+              .forEach(
+                (item) => {
+
+                  item.classList.remove(
+                    "active"
+                  );
+
+                }
+              );
+
+
+            button.classList.add(
+              "active"
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  /* =====================================
+     GUARDAR BANCO
+  ====================================== */
+
+  document
+    .getElementById(
+      "saveBankButton"
+    )
+    ?.addEventListener(
+      "click",
+      saveBank
+    );
+
 }
 
 
@@ -2131,7 +2639,11 @@ async function initializeAdmin() {
 
     setupImagePreviews();
 
+    setupBankLogoPreview();
+
     await loadCategories();
+
+    await loadBanks();
 
     await loadOffers();
 
