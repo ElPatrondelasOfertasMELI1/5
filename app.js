@@ -653,118 +653,83 @@ function openMercadoLibre(
 
 }
 
-
 /* =====================================
+
    MERCADO PAGO
+
 ===================================== */
 
 async function loadMercadoPago() {
 
   const container =
-    document.getElementById(
-      "mercadopago"
-    );
+    document.getElementById("mercadopago");
 
   if (!container) return;
 
+  const mercadoPagoLink =
+    "https://mpago.li/1VU1UaW";
 
-  try {
+  container.innerHTML = `
 
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "promotions",
-          "mercadopago"
-        )
-      );
+    <a
+      href="${mercadoPagoLink}"
+      target="_blank"
+      rel="noopener"
+      class="mp-promo"
+    >
 
-
-    if (!snapshot.exists()) {
-
-      container.innerHTML = "";
-
-      return;
-
-    }
-
-
-    const data =
-      snapshot.data();
-
-
-    container.innerHTML = `
-
-      <div class="mp-inner">
-
-        ${
-          data.image
-            ? `
-              <div class="mp-image-box">
-                <img
-                  src="${escapeHTML(
-                    data.image
-                  )}"
-                  alt="Mercado Pago"
-                  class="mp-image"
-                  loading="lazy"
-                >
-              </div>
-            `
-            : ""
-        }
-
-
-        <div class="mp-info">
-
-          <h2>
-            ${escapeHTML(
-              data.title ||
-              "$100 GRATIS para usuarios nuevos de Mercado Pago"
-            )}
-          </h2>
-
-          <p>
-            ${escapeHTML(
-              data.text || ""
-            )}
-          </p>
-
-
-          ${
-            data.link
-              ? `
-                <a
-                  href="${escapeHTML(
-                    data.link
-                  )}"
-                  target="_blank"
-                  rel="noopener"
-                  class="mp-button"
-                >
-                  💳 VER PROMOCIÓN
-                </a>
-              `
-              : ""
-          }
-
+      <div class="mp-logo-animation">
+        <div class="mp-logo-circle">
+          <span>MP</span>
         </div>
+      </div>
+
+      <div class="mp-promo-content">
+
+        <div class="mp-promo-badge">
+          💳 MERCADO PAGO
+        </div>
+
+        <h2>
+          ¡$100 GRATIS!
+        </h2>
+
+        <h3>
+          En tu primera compra
+        </h3>
+
+        <p>
+          Hola! 👋
+        </p>
+
+        <p>
+          Te regalo
+          <strong>
+            $100 de descuento
+          </strong>
+          para que uses Mercado Pago por primera vez.
+        </p>
+
+        <p>
+          Tienes <strong>7 días</strong> para usar el descuento
+          y aplica para un pago de <strong>$200</strong> 🤑
+        </p>
+
+        <div class="mp-promo-button">
+          🚀 DESCARGA MERCADO PAGO
+        </div>
+
+        <small>
+          Toca la tarjeta para obtener la promoción
+        </small>
 
       </div>
 
-    `;
+    </a>
 
-  } catch (error) {
-
-    console.error(
-      "Error cargando Mercado Pago:",
-      error
-    );
-
-  }
+  `;
 
 }
-
 
 /* =====================================
    CUPONES
