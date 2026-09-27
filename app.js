@@ -31,6 +31,8 @@ const MERCADO_PAGO_LINK =
 const MERCADO_PAGO_LOGO =
   "./IMG_1100.png";
 
+const MERCADO_LIBRE_LOGO = "./IMG_1137.png";
+
 const HERO_TITLE =
   `Encuentra la oferta.<br><strong>Activa el ahorro.</strong>`;
 
@@ -1558,25 +1560,20 @@ const hiddenCode =
   // BANCO
   // =====================================
 
-  const bank =
-    banks.find(
-      item =>
-        String(item.id) ===
-        String(
-          coupon.bankId || ""
-        )
-    );
+  const bank = banks.find(
+  item => String(item.id) === String(coupon.bankId || "")
+);
 
-  const bankName =
-    bank?.name ||
-    "";
+const isRelampago =
+  String(coupon.section || "").toLowerCase() === "relampago";
 
-  const bankLogo =
-    bank?.logo
-      ? String(
-          bank.logo
-        ).trim()
-      : "";
+const bankName = isRelampago
+  ? "Mercado Libre"
+  : (bank?.name || "");
+
+const bankLogo = isRelampago
+  ? MERCADO_LIBRE_LOGO
+  : (bank?.logo ? String(bank.logo).trim() : "");
 
   return `
 
