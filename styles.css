@@ -635,10 +635,13 @@ button {
 
 .coupon-status {
   display: inline-flex;
+  align-self: flex-start;
   align-items: center;
-  margin: 17px 15px 8px;
+  width: fit-content;
 
+  margin: 17px 15px 8px;
   padding: 5px 9px;
+
   border-radius: 20px;
 
   background: #e9fff0;
@@ -679,7 +682,12 @@ button {
   position: relative;
   z-index: 2;
 
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 43px;
+  min-height: 43px;
 
   margin: 0 15px 10px;
   padding: 10px 8px;
@@ -719,7 +727,7 @@ button {
   position: relative;
   z-index: 2;
 
-  margin: 0 15px 11px;
+  margin: 0 15px 5px;
 
   color: #444;
   font-size: 14px;
