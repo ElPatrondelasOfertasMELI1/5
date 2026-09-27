@@ -1105,152 +1105,94 @@ function renderCouponCard(coupon) {
 
 
 /* =====================================
-   COPIAR CUPÓN
-===================================== */
-
-async function copyCoupon(couponId) {
-
-  const coupon =
-    coupons.find(
-      item =>
-        item.id === couponId
-    );
-
-  if (!coupon) return;
-
-
-  const code =
-    String(
-      coupon.code || ""
-    ).toUpperCase();
-
-
-  if (!code) return;
-
-
-  try {
-
-    await copyToClipboard(code);
-
-
-    await updateDoc(
-      doc(
-        db,
-        "coupons",
-        couponId
-      ),
-      {
-        copies: increment(1)
-      }
-    );
-
-
-    await setDoc(
-      doc(
-        db,
-        "statistics",
-        "general"
-      ),
-      {
-        copies: increment(1)
-      },
-      {
-        merge: true
-      }
-    );
-
-
-    coupon.copies =
-      Number(
-        coupon.copies || 0
-      ) + 1;
-
-
-    showCopySuccess();
-
-
-    setTimeout(
-      () => {
-
-        openMercadoLibre(
-          coupon
-        );
-
-      },
-      1000
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Error copiando cupón:",
-      error
-    );
-
-    alert(
-      "No se pudo copiar el cupón."
-    );
-
-  }
-
-}
-
-
-/* =====================================
    PORTAPAPELES
 ===================================== */
 
 async function copyToClipboard(text) {
 
-  if (
-    navigator.clipboard &&
-    window.isSecureContext
-  ) {
+  const code = String(text || "").trim();
 
-    await navigator.clipboard.writeText(
-      text
+  if (!code) {
+    throw new Error("Cupón vacío");
+  }
+
+  /* Método moderno */
+  try {
+
+    if (
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === "function"
+    ) {
+
+      await navigator.clipboard.writeText(code);
+
+      return true;
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "Clipboard API no disponible, usando método alternativo:",
+      error
     );
-
-    return;
 
   }
 
 
-  const textarea =
-    document.createElement(
-      "textarea"
+  /* Método alternativo */
+  try {
+
+    const textarea =
+      document.createElement("textarea");
+
+    textarea.value = code;
+
+    textarea.setAttribute(
+      "readonly",
+      ""
     );
 
-  textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    textarea.style.opacity = "0";
 
-  textarea.style.position =
-    "fixed";
+    document.body.appendChild(textarea);
 
-  textarea.style.opacity =
-    "0";
+    textarea.focus();
+    textarea.select();
 
-  document.body.appendChild(
-    textarea
+    textarea.setSelectionRange(
+      0,
+      textarea.value.length
+    );
+
+    const successful =
+      document.execCommand("copy");
+
+    document.body.removeChild(
+      textarea
+    );
+
+    if (successful) {
+      return true;
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error con método alternativo:",
+      error
+    );
+
+  }
+
+
+  throw new Error(
+    "No se pudo copiar el cupón"
   );
 
-  textarea.select();
-
-  const successful =
-    document.execCommand("copy");
-
-  textarea.remove();
-
-  if (!successful) {
-
-    throw new Error(
-      "No se pudo copiar"
-    );
-
-  }
-
 }
-
 
 /* =====================================
    MENSAJE COPIADO
