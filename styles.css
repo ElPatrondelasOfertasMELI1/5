@@ -699,6 +699,17 @@ button {
   user-select: none;
 }
 
+.coupon-code-visible {
+  filter: none;
+  color: #111;
+}
+
+.coupon-code-hidden {
+  filter: blur(4px);
+  color: #111;
+  user-select: none;
+}
+
 /* INFORMACIÓN */
 
 .coupon-info {
