@@ -1074,8 +1074,27 @@ function openMercadoLibre(
 
   if (!cleanUrl) return;
 
-  window.location.href =
+  const link =
+    document.createElement(
+      "a"
+    );
+
+  link.href =
     cleanUrl;
+
+  link.target =
+    "_blank";
+
+  link.rel =
+    "noopener noreferrer";
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  link.remove();
 
 }
 
