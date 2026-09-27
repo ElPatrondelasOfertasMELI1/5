@@ -1800,11 +1800,25 @@ function copyCoupon(
 
   }
 
-  registerCouponCopy(
+    registerCouponCopy(
     couponId
   );
 
-  showCopySuccess();
+  const button =
+    document.querySelector(
+      `[data-copy-coupon="${couponId}"]`
+    );
+
+  if (button) {
+
+    button.classList.add(
+      "copied"
+    );
+
+    button.textContent =
+      "✅ CUPÓN COPIADO";
+
+  }
 
   openMercadoLibre(
     coupon
@@ -1885,10 +1899,6 @@ function copyWithExecCommand(
 // ========================================
 // COPIA MANUAL
 // ========================================
-
-function showManualCopy(
-  code
-) {
 
   const message =
     document.getElementById(
@@ -2032,64 +2042,6 @@ function registerCouponCopy(
 
 }
 
-// ========================================
-// MENSAJE COPIADO
-// ========================================
-
-function showCopySuccess() {
-
-  let message =
-    document.getElementById(
-      "copySuccessMessage"
-    );
-
-  if (!message) {
-
-    message =
-      document.createElement(
-        "div"
-      );
-
-    message.id =
-      "copySuccessMessage";
-
-    message.className =
-      "copy-success-message";
-
-    document.body.appendChild(
-      message
-    );
-
-  }
-
-  message.innerHTML = `
-
-    <strong>
-      ✅ ¡Cupón copiado!
-    </strong>
-
-    <small>
-      Abriendo Mercado Libre...
-    </small>
-
-  `;
-
-  message.classList.add(
-    "show"
-  );
-
-  setTimeout(
-    () => {
-
-      message.classList.remove(
-        "show"
-      );
-
-    },
-    1800
-  );
-
-}
 
 // ========================================
 // WHATSAPP
@@ -2249,11 +2201,34 @@ function enableCouponSliders() {
 // CARRUSEL OFERTAS
 // ========================================
 
+let offerCarouselTimer =
+  null;
+
 function setupOfferCarousel(
   container
 ) {
 
   if (!container) return;
+
+  const cards =
+    Array.from(
+      container.querySelectorAll(
+        ".offer-card"
+      )
+    );
+
+  if (!cards.length) return;
+
+  // ======================================
+  // CENTRAR CADA OFERTA
+  // ======================================
+
+  cards.forEach(card => {
+
+    card.style.scrollSnapAlign =
+      "center";
+
+  });
 
   const updatePadding =
     () => {
@@ -2289,6 +2264,217 @@ function setupOfferCarousel(
 
   updatePadding();
 
+  // ======================================
+  // CENTRAR UNA OFERTA
+  // ======================================
+
+  const centerCard =
+    card => {
+
+      if (!card) return;
+
+      const cardWidth =
+        card
+          .getBoundingClientRect()
+          .width;
+
+      const target =
+        card.offsetLeft -
+        (
+          container.clientWidth -
+          cardWidth
+        ) / 2;
+
+      container.scrollTo({
+
+        left:
+          Math.max(
+            0,
+            target
+          ),
+
+        behavior:
+          "smooth"
+
+      });
+
+    };
+
+  // ======================================
+  // CAMBIAR AUTOMÁTICAMENTE
+  // ======================================
+
+  let currentIndex =
+    0;
+
+  const startAutoPlay =
+    () => {
+
+      if (
+        offerCarouselTimer
+      ) {
+
+        clearInterval(
+          offerCarouselTimer
+        );
+
+      }
+
+      if (
+        cards.length <= 1
+      ) {
+
+        return;
+
+      }
+
+      offerCarouselTimer =
+        setInterval(
+          () => {
+
+            currentIndex++;
+
+            if (
+              currentIndex >=
+              cards.length
+            ) {
+
+              currentIndex = 0;
+
+            }
+
+            centerCard(
+              cards[currentIndex]
+            );
+
+          },
+          3500
+        );
+
+    };
+
+  const stopAutoPlay =
+    () => {
+
+      if (
+        offerCarouselTimer
+      ) {
+
+        clearInterval(
+          offerCarouselTimer
+        );
+
+        offerCarouselTimer =
+          null;
+
+      }
+
+    };
+
+  // ======================================
+  // ARRASTRE CON EL DEDO
+  // ======================================
+
+  enableHorizontalDrag(
+    container
+  );
+
+  // ======================================
+  // CENTRAR DESPUÉS DE ARRASTRAR
+  // ======================================
+
+  container.addEventListener(
+    "pointerdown",
+    () => {
+
+      stopAutoPlay();
+
+    }
+  );
+
+  container.addEventListener(
+    "pointerup",
+    () => {
+
+      setTimeout(
+        () => {
+
+          let closestCard =
+            null;
+
+          let closestDistance =
+            Infinity;
+
+          const center =
+            container.scrollLeft +
+            container.clientWidth / 2;
+
+          cards.forEach(
+            card => {
+
+              const cardCenter =
+                card.offsetLeft +
+                card.offsetWidth / 2;
+
+              const distance =
+                Math.abs(
+                  center -
+                  cardCenter
+                );
+
+              if (
+                distance <
+                closestDistance
+              ) {
+
+                closestDistance =
+                  distance;
+
+                closestCard =
+                  card;
+
+              }
+
+            }
+          );
+
+          if (
+            closestCard
+          ) {
+
+            currentIndex =
+              cards.indexOf(
+                closestCard
+              );
+
+            centerCard(
+              closestCard
+            );
+
+          }
+
+          startAutoPlay();
+
+        },
+        80
+      );
+
+    }
+  );
+
+  container.addEventListener(
+    "pointercancel",
+    () => {
+
+      startAutoPlay();
+
+    }
+  );
+
+  // ======================================
+  // RESPONSIVE
+  // ======================================
+
   if (
     container.dataset
       .resizeReady !==
@@ -2297,7 +2483,24 @@ function setupOfferCarousel(
 
     window.addEventListener(
       "resize",
-      updatePadding
+      () => {
+
+        updatePadding();
+
+        const currentCard =
+          cards[currentIndex];
+
+        if (
+          currentCard
+        ) {
+
+          centerCard(
+            currentCard
+          );
+
+        }
+
+      }
     );
 
     container.dataset
@@ -2306,9 +2509,15 @@ function setupOfferCarousel(
 
   }
 
-  enableHorizontalDrag(
-    container
+  // ======================================
+  // INICIAR
+  // ======================================
+
+  centerCard(
+    cards[0]
   );
+
+  startAutoPlay();
 
 }
 
