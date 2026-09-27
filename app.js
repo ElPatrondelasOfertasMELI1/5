@@ -606,13 +606,16 @@ function renderCategories() {
       .map(
         category => `
 
-        <button
-          type="button"
-          class="category-item"
-          data-category="${escapeHTML(
-            category.name || ""
-          )}"
-        >
+       <button
+  type="button"
+  class="category-item"
+  data-category="${escapeHTML(
+    category.name || ""
+  )}"
+  data-category-id="${escapeHTML(
+    category.id || ""
+  )}"
+>
 
           <span class="category-emoji">
             ${escapeHTML(
@@ -639,31 +642,48 @@ function renderCategories() {
     .forEach(button => {
 
       button.addEventListener(
-        "click",
-        () => {
+  "click",
+  () => {
 
-          container
-            .querySelectorAll(
-              ".category-item"
-            )
-            .forEach(item => {
+    container
+      .querySelectorAll(
+        ".category-item"
+      )
+      .forEach(item => {
 
-              item.classList.remove(
-                "active"
-              );
+        item.classList.remove(
+          "active"
+        );
 
-            });
+      });
 
-          button.classList.add(
-            "active"
-          );
+    button.classList.add(
+      "active"
+    );
 
-          filterOffersByCategory(
-            button.dataset.category
-          );
-
-        }
+    const category =
+      categories.find(
+        item =>
+          item.id ===
+          button.dataset.categoryId
       );
+
+    if (category?.link) {
+
+      openMercadoLibre(
+        category.link
+      );
+
+      return;
+
+    }
+
+    filterOffersByCategory(
+      button.dataset.category
+    );
+
+  }
+);
 
     });
 
