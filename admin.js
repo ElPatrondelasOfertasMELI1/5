@@ -1629,8 +1629,91 @@ function renderCouponsAdmin() {
             </small>
 
             <small>
+              Estado actual:
               ${statusText}
             </small>
+
+            <div
+              style="
+                display:flex;
+                flex-wrap:wrap;
+                gap:6px;
+                margin-top:8px;
+              "
+            >
+
+              <button
+                type="button"
+                data-status-change="${escapeHTML(coupon.id)}"
+                data-new-status="active"
+                style="
+                  padding:7px 10px;
+                  border-radius:8px;
+                  border:1px solid #25a244;
+                  background:${status === "active" ? "#25a244" : "#fff"};
+                  color:${status === "active" ? "#fff" : "#25a244"};
+                  font-weight:700;
+                  cursor:pointer;
+                "
+              >
+                🟢 Activo
+              </button>
+
+              <button
+                type="button"
+                data-status-change="${escapeHTML(coupon.id)}"
+                data-new-status="soon"
+                style="
+                  padding:7px 10px;
+                  border-radius:8px;
+                  border:1px solid #f59e0b;
+                  background:${
+                    status === "soon" ||
+                    status === "por_agotarse"
+                      ? "#f59e0b"
+                      : "#fff"
+                  };
+                  color:${
+                    status === "soon" ||
+                    status === "por_agotarse"
+                      ? "#fff"
+                      : "#f59e0b"
+                  };
+                  font-weight:700;
+                  cursor:pointer;
+                "
+              >
+                🟠 Por agotarse
+              </button>
+
+              <button
+                type="button"
+                data-status-change="${escapeHTML(coupon.id)}"
+                data-new-status="soldout"
+                style="
+                  padding:7px 10px;
+                  border-radius:8px;
+                  border:1px solid #dc2626;
+                  background:${
+                    status === "soldout" ||
+                    status === "agotado"
+                      ? "#dc2626"
+                      : "#fff"
+                  };
+                  color:${
+                    status === "soldout" ||
+                    status === "agotado"
+                      ? "#fff"
+                      : "#dc2626"
+                  };
+                  font-weight:700;
+                  cursor:pointer;
+                "
+              >
+                🔴 Agotado
+              </button>
+
+            </div>
 
           </div>
 
@@ -1661,6 +1744,10 @@ function renderCouponsAdmin() {
       }
     ).join("");
 
+  /* =====================================
+     EDITAR CUPÓN
+  ===================================== */
+
   container
     .querySelectorAll(
       "[data-edit-coupon]"
@@ -1682,6 +1769,10 @@ function renderCouponsAdmin() {
       }
     );
 
+  /* =====================================
+     ELIMINAR CUPÓN
+  ===================================== */
+
   container
     .querySelectorAll(
       "[data-delete-coupon]"
@@ -1695,6 +1786,38 @@ function renderCouponsAdmin() {
 
             deleteCoupon(
               button.dataset.deleteCoupon
+            );
+
+          }
+        );
+
+      }
+    );
+
+  /* =====================================
+     CAMBIAR ESTADO RÁPIDAMENTE
+  ===================================== */
+
+  container
+    .querySelectorAll(
+      "[data-status-change]"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          async () => {
+
+            const couponId =
+              button.dataset.statusChange;
+
+            const newStatus =
+              button.dataset.newStatus;
+
+            await updateCouponStatus(
+              couponId,
+              newStatus
             );
 
           }
@@ -1809,18 +1932,18 @@ async function saveCoupon(
   }
 
   if (
-    affiliateType === "custom" &&
-    !link
-  ) {
+  affiliateType === "manual" &&
+  !link
+) {
 
-    showMessage(
-      "❌ Escribe el enlace personalizado.",
-      "error"
-    );
+  showMessage(
+    "❌ Escribe el enlace personalizado.",
+    "error"
+  );
 
-    return;
+  return;
 
-  }
+}
 
   if (!code) {
 
@@ -2004,6 +2127,85 @@ function editCoupon(id) {
 
       }
     );
+
+}
+
+async function updateCouponStatus(
+  id,
+  newStatus
+) {
+
+  const coupon =
+    coupons.find(
+      item =>
+        item.id === id
+    );
+
+  if (!coupon) return;
+
+  let message =
+    "Estado actualizado.";
+
+  if (newStatus === "active") {
+
+    message =
+      "🟢 Cupón activado.";
+
+  }
+
+  if (newStatus === "soon") {
+
+    message =
+      "🟠 Cupón marcado como por agotarse.";
+
+  }
+
+  if (newStatus === "soldout") {
+
+    message =
+      "🔴 Cupón marcado como agotado.";
+
+  }
+
+  try {
+
+    await setDoc(
+      doc(
+        db,
+        "coupons",
+        id
+      ),
+      {
+        status:
+          newStatus,
+
+        updatedAt:
+          new Date().toISOString()
+      },
+      {
+        merge: true
+      }
+    );
+
+    await loadCoupons();
+
+    showMessage(
+      message
+    );
+
+  } catch (error) {
+
+    console.error(
+      "❌ Error cambiando estado del cupón:",
+      error
+    );
+
+    showMessage(
+      "❌ No se pudo cambiar el estado del cupón.",
+      "error"
+    );
+
+  }
 
 }
 
