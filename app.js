@@ -1,3 +1,5 @@
+Pegame archivo por archivo aqui
+
 // ========================================
 // EL PATRÓN DE LAS OFERTAS
 // APP.JS - FIREBASE
@@ -28,9 +30,10 @@ const WHATSAPP_CHANNEL =
 const MERCADO_PAGO_LINK =
   "https://mpago.li/1VU1UaW";
 
-const MERCADO_PAGO_LOGO =
-  "./IMG_1100.png";
+// Logo de Mercado Pago
+const MERCADO_PAGO_LOGO = "./IMG_1100.png";
 
+// Primera vista
 const HERO_TITLE =
   `Encuentra la oferta.<br><strong>Activa el ahorro.</strong>`;
 
@@ -49,187 +52,29 @@ let categories = [];
 let banks = [];
 
 // ========================================
-// MÉTRICAS DIARIAS
-// ========================================
-
-const VISITOR_STORAGE_KEY =
-  "el_patron_visitante_id";
-
-const VISITOR_DAY_KEY =
-  "el_patron_visitante_dia";
-
-// ========================================
-// FECHA ACTUAL EN MÉXICO
-// ========================================
-
-function getMexicoDateKey() {
-
-  try {
-
-    const formatter =
-      new Intl.DateTimeFormat(
-        "en-CA",
-        {
-          timeZone:
-            "America/Mexico_City",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-        }
-      );
-
-    return formatter.format(
-      new Date()
-    );
-
-  } catch (error) {
-
-    const now =
-      new Date();
-
-    return [
-      now.getFullYear(),
-      String(
-        now.getMonth() + 1
-      ).padStart(2, "0"),
-      String(
-        now.getDate()
-      ).padStart(2, "0")
-    ].join("-");
-  }
-}
-
-// ========================================
-// ID DEL VISITANTE
-// ========================================
-
-function getVisitorId() {
-
-  try {
-
-    let visitorId =
-      localStorage.getItem(
-        VISITOR_STORAGE_KEY
-      );
-
-    if (!visitorId) {
-
-      visitorId =
-        crypto.randomUUID();
-
-      localStorage.setItem(
-        VISITOR_STORAGE_KEY,
-        visitorId
-      );
-    }
-
-    return visitorId;
-
-  } catch (error) {
-
-    // Si el navegador bloquea
-    // localStorage, usamos un ID temporal.
-
-    return null;
-  }
-}
-
-// ========================================
-// MÉTRICA DIARIA
-// ========================================
-
-async function updateDailyStatistic(
-  field,
-  amount = 1
-) {
-
-  try {
-
-    const dateKey =
-      getMexicoDateKey();
-
-    await setDoc(
-      doc(
-        db,
-        "statistics",
-        `daily_${dateKey}`
-      ),
-      {
-        date: dateKey,
-        [field]:
-          increment(amount),
-        updatedAt:
-          new Date().toISOString()
-      },
-      {
-        merge: true
-      }
-    );
-
-  } catch (error) {
-
-    console.warn(
-      `No se pudo registrar métrica diaria (${field}):`,
-      error
-    );
-  }
-}
-
-// ========================================
 // UTILIDADES
 // ========================================
 
 function money(value) {
-
-  return Number(
-    value || 0
-  ).toLocaleString(
-    "es-MX",
-    {
-      style: "currency",
-      currency: "MXN"
-    }
-  );
+  return Number(value || 0).toLocaleString("es-MX", {
+    style: "currency",
+    currency: "MXN"
+  });
 }
 
 function escapeHTML(value) {
-
-  return String(
-    value ?? ""
-  )
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function safeUrl(value) {
+  const url = String(value || "").trim();
 
-  const url =
-    String(
-      value || ""
-    ).trim();
-
-  return (
-    url ||
-    "https://www.mercadolibre.com.mx/"
-  );
+  return url || "https://www.mercadolibre.com.mx/";
 }
 
 // ========================================
@@ -237,59 +82,29 @@ function safeUrl(value) {
 // ========================================
 
 function setupHero() {
-
-  const hero =
-    document.querySelector(
-      ".hero"
-    );
+  const hero = document.querySelector(".hero");
 
   if (!hero) return;
 
-  const title =
-    hero.querySelector(
-      "h1"
-    );
-
-  const paragraph =
-    hero.querySelector(
-      "p"
-    );
+  const title = hero.querySelector("h1");
+  const paragraph = hero.querySelector("p");
 
   if (title) {
-
-    title.innerHTML =
-      HERO_TITLE;
+    title.innerHTML = HERO_TITLE;
   }
 
   if (paragraph) {
-
-    paragraph.textContent =
-      HERO_TEXT;
+    paragraph.textContent = HERO_TEXT;
   }
 
-  if (
-    !hero.querySelector(
-      ".hero-cta"
-    )
-  ) {
+  if (!hero.querySelector(".hero-cta")) {
+    const button = document.createElement("a");
 
-    const button =
-      document.createElement(
-        "a"
-      );
+    button.href = "#offers";
+    button.className = "hero-cta";
+    button.textContent = "🔥 VER OFERTAS";
 
-    button.href =
-      "#offers";
-
-    button.className =
-      "hero-cta";
-
-    button.textContent =
-      "🔥 VER OFERTAS";
-
-    hero.appendChild(
-      button
-    );
+    hero.appendChild(button);
   }
 }
 
@@ -298,30 +113,17 @@ function setupHero() {
 // ========================================
 
 async function loadSettings() {
-
   try {
+    const snapshot = await getDoc(
+      doc(db, "settings", "general")
+    );
 
-    const snapshot =
-      await getDoc(
-        doc(
-          db,
-          "settings",
-          "general"
-        )
-      );
-
-    if (
-      snapshot.exists()
-    ) {
-
-      const data =
-        snapshot.data();
+    if (snapshot.exists()) {
+      const data = snapshot.data();
 
       generalSettings = {
-
         whatsapp:
-          data.whatsapp ||
-          WHATSAPP_CHANNEL,
+          data.whatsapp || WHATSAPP_CHANNEL,
 
         generalMercadoLibre:
           data.generalMercadoLibre ||
@@ -347,83 +149,17 @@ async function loadSettings() {
 // ========================================
 
 async function registerVisit() {
-
   try {
 
-    // ------------------------------------
-    // ESTADÍSTICA GENERAL
-    // ------------------------------------
-
     await setDoc(
-      doc(
-        db,
-        "statistics",
-        "general"
-      ),
+      doc(db, "statistics", "general"),
       {
-        visits:
-          increment(1)
+        visits: increment(1)
       },
       {
         merge: true
       }
     );
-
-    // ------------------------------------
-    // ESTADÍSTICA DIARIA
-    // ------------------------------------
-
-    await updateDailyStatistic(
-      "visits",
-      1
-    );
-
-    // ------------------------------------
-    // VISITANTE ÚNICO
-    // ------------------------------------
-
-    const visitorId =
-      getVisitorId();
-
-    if (!visitorId) {
-      return;
-    }
-
-    const today =
-      getMexicoDateKey();
-
-    let lastDay = null;
-
-    try {
-
-      lastDay =
-        localStorage.getItem(
-          VISITOR_DAY_KEY
-        );
-
-    } catch (error) {}
-
-    // Solo cuenta como visitante
-    // único una vez por día.
-
-    if (
-      lastDay !== today
-    ) {
-
-      try {
-
-        localStorage.setItem(
-          VISITOR_DAY_KEY,
-          today
-        );
-
-      } catch (error) {}
-
-      await updateDailyStatistic(
-        "uniqueVisitors",
-        1
-      );
-    }
 
   } catch (error) {
 
@@ -442,26 +178,18 @@ async function loadCategories() {
 
   try {
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "categories"
-        )
-      );
+    const snapshot = await getDocs(
+      collection(db, "categories")
+    );
 
-    categories =
-      snapshot.docs
-        .map(
-          item => ({
-            id: item.id,
-            ...item.data()
-          })
-        )
-        .filter(
-          item =>
-            item.active !== false
-        );
+    categories = snapshot.docs
+      .map(item => ({
+        id: item.id,
+        ...item.data()
+      }))
+      .filter(
+        item => item.active !== false
+      );
 
     renderCategories();
 
@@ -477,83 +205,63 @@ async function loadCategories() {
 function renderCategories() {
 
   const container =
-    document.getElementById(
-      "categories"
-    );
+    document.getElementById("categories");
 
   if (!container) return;
 
   container.innerHTML =
-    categories
-      .map(
-        category => `
+    categories.map(category => `
+      <button
+        type="button"
+        class="category-item"
+        data-category="${escapeHTML(
+          category.name || ""
+        )}"
+      >
 
-          <button
-            type="button"
-            class="category-item"
-            data-category="${escapeHTML(
-              category.name || ""
-            )}"
-          >
+        <span class="category-emoji">
+          ${escapeHTML(
+            category.emoji || "📂"
+          )}
+        </span>
 
-            <span class="category-emoji">
-              ${escapeHTML(
-                category.emoji ||
-                "📂"
-              )}
-            </span>
+        <strong>
+          ${escapeHTML(
+            category.name || ""
+          )}
+        </strong>
 
-            <strong>
-              ${escapeHTML(
-                category.name || ""
-              )}
-            </strong>
-
-          </button>
-
-        `
-      )
-      .join("");
+      </button>
+    `).join("");
 
   container
-    .querySelectorAll(
-      "[data-category]"
-    )
-    .forEach(
-      button => {
+    .querySelectorAll("[data-category]")
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-            container
-              .querySelectorAll(
-                ".category-item"
-              )
-              .forEach(
-                item => {
-
-                  item.classList.remove(
-                    "active"
-                  );
-                }
+          container
+            .querySelectorAll(
+              ".category-item"
+            )
+            .forEach(item => {
+              item.classList.remove(
+                "active"
               );
+            });
 
-            button.classList.add(
-              "active"
-            );
+          button.classList.add("active");
 
-            filterOffersByCategory(
-              button.dataset.category
-            );
-          }
-        );
-      }
-    );
+          filterOffersByCategory(
+            button.dataset.category
+          );
+        }
+      );
+    });
 
-  enableHorizontalDrag(
-    container
-  );
+  enableHorizontalDrag(container);
 }
 
 // ========================================
@@ -564,30 +272,20 @@ async function loadOffers() {
 
   try {
 
-    const snapshot =
-      await getDocs(
-        collection(
-          db,
-          "offers"
-        )
+    const snapshot = await getDocs(
+      collection(db, "offers")
+    );
+
+    offers = snapshot.docs
+      .map(item => ({
+        id: item.id,
+        ...item.data()
+      }))
+      .filter(
+        item => item.active !== false
       );
 
-    offers =
-      snapshot.docs
-        .map(
-          item => ({
-            id: item.id,
-            ...item.data()
-          })
-        )
-        .filter(
-          item =>
-            item.active !== false
-        );
-
-    renderOffers(
-      offers
-    );
+    renderOffers(offers);
 
   } catch (error) {
 
@@ -598,236 +296,186 @@ async function loadOffers() {
   }
 }
 
-function renderOffers(
-  list
-) {
+function renderOffers(list) {
 
   const container =
-    document.getElementById(
-      "offers"
-    );
+    document.getElementById("offers");
 
   if (!container) return;
 
   if (!list.length) {
 
     container.innerHTML = `
-
       <div class="empty-state">
         😕 No hay ofertas disponibles.
       </div>
-
     `;
 
     return;
   }
 
   container.innerHTML =
-    list
-      .map(
-        offer => {
+    list.map(offer => {
 
-          const oldPrice =
-            Number(
-              offer.oldPrice || 0
-            );
+      const oldPrice =
+        Number(offer.oldPrice || 0);
 
-          const price =
-            Number(
-              offer.price || 0
-            );
+      const price =
+        Number(offer.price || 0);
 
-          let discount = 0;
+      let discount = 0;
 
-          if (
-            oldPrice > 0 &&
-            price > 0 &&
-            oldPrice > price
-          ) {
+      if (
+        oldPrice > 0 &&
+        price > 0 &&
+        oldPrice > price
+      ) {
 
-            discount =
-              Math.round(
-                (
-                  (
-                    oldPrice -
-                    price
-                  ) /
-                  oldPrice
-                ) * 100
-              );
-          }
+        discount = Math.round(
+          ((oldPrice - price) /
+            oldPrice) * 100
+        );
+      }
 
-          const image =
-            String(
-              offer.image || ""
-            ).trim();
+      const image =
+        String(
+          offer.image || ""
+        ).trim();
 
-          return `
+      return `
+        <article
+          class="offer-card"
+          data-offer-id="${escapeHTML(
+            offer.id
+          )}"
+        >
 
-            <article
-              class="offer-card"
-              data-offer-id="${escapeHTML(
-                offer.id
+          <div class="offer-image-wrapper">
+
+            ${
+              image
+                ? `
+                  <img
+                    class="offer-image"
+                    src="${escapeHTML(image)}"
+                    alt="${escapeHTML(
+                      offer.name || "Oferta"
+                    )}"
+                    loading="lazy"
+                    onerror="
+                      this.style.display='none';
+                      this.parentElement.classList.add(
+                        'image-error'
+                      );
+                    "
+                  >
+                `
+                : `
+                  <div class="offer-no-image">
+                    🖼️
+                  </div>
+                `
+            }
+
+            ${
+              discount > 0
+                ? `
+                  <span class="offer-discount">
+                    -${discount}%
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+          <div class="offer-content">
+
+            <div class="offer-category">
+              ${
+                offer.category
+                  ? escapeHTML(
+                      offer.category
+                    )
+                  : "🔥 OFERTA"
+              }
+            </div>
+
+            <h3 class="offer-name">
+              ${escapeHTML(
+                offer.name || "Oferta"
+              )}
+            </h3>
+
+            ${
+              oldPrice > 0
+                ? `
+                  <div class="offer-old-price">
+                    ${money(oldPrice)}
+                  </div>
+                `
+                : ""
+            }
+
+            <div class="offer-price">
+              ${money(price)}
+            </div>
+
+            <button
+              type="button"
+              class="offer-button"
+              data-offer-link="${escapeHTML(
+                offer.link || ""
               )}"
             >
+              🛒 VER OFERTA
+            </button>
 
-              <div class="offer-image-wrapper">
+          </div>
 
-                ${
-                  image
-                    ? `
+        </article>
+      `;
 
-                      <img
-                        class="offer-image"
-                        src="${escapeHTML(
-                          image
-                        )}"
-                        alt="${escapeHTML(
-                          offer.name ||
-                          "Oferta"
-                        )}"
-                        loading="lazy"
-                        onerror="
-                          this.style.display='none';
-                          this.parentElement.classList.add(
-                            'image-error'
-                          );
-                        "
-                      >
-
-                    `
-                    : `
-
-                      <div class="offer-no-image">
-                        🖼️
-                      </div>
-
-                    `
-                }
-
-                ${
-                  discount > 0
-                    ? `
-
-                      <span class="offer-discount">
-                        -${discount}%
-                      </span>
-
-                    `
-                    : ""
-                }
-
-              </div>
-
-              <div class="offer-content">
-
-                <div class="offer-category">
-
-                  ${
-                    offer.category
-                      ? escapeHTML(
-                          offer.category
-                        )
-                      : "🔥 OFERTA"
-                  }
-
-                </div>
-
-                <h3 class="offer-name">
-
-                  ${escapeHTML(
-                    offer.name ||
-                    "Oferta"
-                  )}
-
-                </h3>
-
-                ${
-                  oldPrice > 0
-                    ? `
-
-                      <div class="offer-old-price">
-                        ${money(
-                          oldPrice
-                        )}
-                      </div>
-
-                    `
-                    : ""
-                }
-
-                <div class="offer-price">
-
-                  ${money(
-                    price
-                  )}
-
-                </div>
-
-                <button
-                  type="button"
-                  class="offer-button"
-                  data-offer-link="${escapeHTML(
-                    offer.link || ""
-                  )}"
-                >
-                  🛒 VER OFERTA
-                </button>
-
-              </div>
-
-            </article>
-
-          `;
-        }
-      )
-      .join("");
+    }).join("");
 
   // ========================================
   // CLICK EN TARJETA
   // ========================================
 
   container
-    .querySelectorAll(
-      ".offer-card"
-    )
-    .forEach(
-      card => {
+    .querySelectorAll(".offer-card")
+    .forEach(card => {
 
-        card.addEventListener(
-          "click",
-          event => {
+      card.addEventListener(
+        "click",
+        event => {
 
-            if (
-              event.target.closest(
-                ".offer-button"
-              )
-            ) {
-              return;
-            }
-
-            const id =
-              card.dataset.offerId;
-
-            const offer =
-              offers.find(
-                item =>
-                  item.id === id
-              );
-
-            if (!offer) return;
-
-            registerOfferClick(
-              id
-            );
-
-            openMercadoLibre(
-              offer
-            );
+          if (
+            event.target.closest(
+              ".offer-button"
+            )
+          ) {
+            return;
           }
-        );
-      }
-    );
+
+          const id =
+            card.dataset.offerId;
+
+          const offer =
+            offers.find(
+              item => item.id === id
+            );
+
+          if (!offer) return;
+
+          registerOfferClick(id);
+
+          openMercadoLibre(
+            offer
+          );
+        }
+      );
+    });
 
   // ========================================
   // BOTÓN VER OFERTA
@@ -837,47 +485,40 @@ function renderOffers(
     .querySelectorAll(
       "[data-offer-link]"
     )
-    .forEach(
-      button => {
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          event => {
+      button.addEventListener(
+        "click",
+        event => {
 
-            event.stopPropagation();
+          event.stopPropagation();
 
-            const card =
-              button.closest(
-                ".offer-card"
-              );
+          const card =
+            button.closest(
+              ".offer-card"
+            );
 
-            const id =
-              card?.dataset.offerId;
+          const id =
+            card?.dataset.offerId;
 
-            const link =
-              button.dataset.offerLink;
+          const link =
+            button.dataset.offerLink;
 
-            if (id) {
-
-              registerOfferClick(
-                id
-              );
-            }
-
-            if (link) {
-
-              openMercadoLibre(
-                link
-              );
-            }
+          if (id) {
+            registerOfferClick(id);
           }
-        );
-      }
-    );
 
-  setupOfferCarousel(
-    container
-  );
+          if (link) {
+            openMercadoLibre(
+              link
+            );
+          }
+        }
+      );
+    });
+
+  setupOfferCarousel(container);
+
 }
 
 function filterOffersByCategory(
@@ -902,10 +543,6 @@ function filterOffersByCategory(
   );
 }
 
-// ========================================
-// CLICS EN OFERTAS
-// ========================================
-
 async function registerOfferClick(
   offerId
 ) {
@@ -913,101 +550,62 @@ async function registerOfferClick(
   try {
 
     await updateDoc(
-      doc(
-        db,
-        "offers",
-        offerId
-      ),
+      doc(db, "offers", offerId),
       {
-        clicks:
-          increment(1)
+        clicks: increment(1)
+      }
+    );
+
+    await setDoc(
+      doc(db, "statistics", "general"),
+      {
+        clicks: increment(1)
+      },
+      {
+        merge: true
       }
     );
 
   } catch (error) {
 
     console.warn(
-      "No se pudo actualizar clic de oferta:",
+      "No se pudo registrar clic:",
       error
     );
   }
-
-  // Estadística general
-
-  setDoc(
-    doc(
-      db,
-      "statistics",
-      "general"
-    ),
-    {
-      clicks:
-        increment(1)
-    },
-    {
-      merge: true
-    }
-  ).catch(
-    error => {
-
-      console.warn(
-        "No se pudo actualizar clic general:",
-        error
-      );
-    }
-  );
-
-  // Estadística diaria
-
-  updateDailyStatistic(
-    "clicks",
-    1
-  );
 }
 
 // ========================================
 // MERCADO LIBRE
 // ========================================
 
-function openMercadoLibre(
-  destination
-) {
+function openMercadoLibre(destination) {
 
   let url = "";
 
-  // ------------------------------------
-  // CUPÓN U OBJETO
-  // ------------------------------------
-
+  // Si recibimos un cupón u objeto
   if (
     destination &&
-    typeof destination ===
-      "object"
+    typeof destination === "object"
   ) {
 
     url =
       destination.link ||
       destination.url ||
       "";
+
   }
 
-  // ------------------------------------
-  // URL DIRECTA
-  // ------------------------------------
-
+  // Si recibimos directamente una URL
   else if (
-    typeof destination ===
-      "string"
+    typeof destination === "string"
   ) {
 
-    url =
-      destination;
+    url = destination;
+
   }
 
-  // ------------------------------------
-  // ENLACE GENERAL
-  // ------------------------------------
-
+  // Si no existe enlace, usar afiliado general
   if (!url) {
 
     url =
@@ -1015,16 +613,14 @@ function openMercadoLibre(
   }
 
   const cleanUrl =
-    safeUrl(url);
+    String(url).trim();
 
   if (!cleanUrl) return;
 
   // 🚀 REDIRECCIÓN INMEDIATA
-
   window.location.href =
     cleanUrl;
 }
-
 // ========================================
 // MERCADO PAGO
 // ========================================
@@ -1098,7 +694,6 @@ async function loadMercadoPago() {
       </div>
 
     </a>
-
   `;
 
   const link =
@@ -1111,8 +706,6 @@ async function loadMercadoPago() {
     link.addEventListener(
       "click",
       () => {
-
-        // General
 
         setDoc(
           doc(
@@ -1127,16 +720,8 @@ async function loadMercadoPago() {
           {
             merge: true
           }
-        ).catch(
-          () => {}
-        );
+        ).catch(() => {});
 
-        // Diario
-
-        updateDailyStatistic(
-          "promotions",
-          1
-        );
       }
     );
   }
@@ -1165,13 +750,23 @@ async function loadBanks() {
           const data =
             item.data();
 
+          console.log(
+            "🏦 BANCO CARGADO:",
+            item.id,
+            data
+          );
+
           return {
-            id:
-              item.id,
+            id: item.id,
             ...data
           };
         }
       );
+
+    console.log(
+      "🏦 TODOS LOS BANCOS:",
+      banks
+    );
 
   } catch (error) {
 
@@ -1200,18 +795,15 @@ async function loadCoupons() {
         )
       );
 
-    coupons =
-      snapshot.docs
-        .map(
-          item => ({
-            id: item.id,
-            ...item.data()
-          })
-        )
-        .filter(
-          item =>
-            item.active !== false
-        );
+    coupons = snapshot.docs
+      .map(item => ({
+        id: item.id,
+        ...item.data()
+      }))
+      .filter(
+        item =>
+          item.active !== false
+      );
 
     renderCouponSections();
 
@@ -1227,33 +819,25 @@ async function loadCoupons() {
 const couponSections = [
 
   {
-    id:
-      "relampago",
-
+    id: "relampago",
     title:
       "⚡ Cupones Relámpago"
   },
 
   {
-    id:
-      "exclusivos",
-
+    id: "exclusivos",
     title:
       "🔥 Exclusivos + Tiendas"
   },
 
   {
-    id:
-      "bancarios",
-
+    id: "bancarios",
     title:
       "💳 Cupones Bancarios"
   },
 
   {
-    id:
-      "todos",
-
+    id: "todos",
     title:
       "🎟️ Todos los cupones"
   }
@@ -1271,65 +855,59 @@ function renderCouponSections() {
 
   container.innerHTML =
     couponSections
-      .map(
-        section => {
+      .map(section => {
 
-          const sectionCoupons =
-            section.id ===
-              "todos"
-              ? coupons
-              : coupons.filter(
-                  coupon =>
-                    String(
-                      coupon.section ||
-                      ""
-                    ).toLowerCase() ===
-                    section.id
-                );
+        const sectionCoupons =
+          section.id === "todos"
+            ? coupons
+            : coupons.filter(
+                coupon =>
+                  String(
+                    coupon.section || ""
+                  ).toLowerCase() ===
+                  section.id
+              );
 
-          if (
-            !sectionCoupons.length
-          ) {
+        if (
+          !sectionCoupons.length
+        ) {
+          return "";
+        }
 
-            return "";
-          }
+        return `
 
-          return `
+          <section
+            class="coupon-section"
+          >
 
-            <section
-              class="coupon-section"
+            <div
+              class="coupon-section-title"
+            >
+              <h3>
+                ${section.title}
+              </h3>
+            </div>
+
+            <div
+              class="coupon-slider"
+              data-coupon-slider="${section.id}"
             >
 
-              <div
-                class="coupon-section-title"
-              >
+              ${
+                sectionCoupons
+                  .map(
+                    renderCouponCard
+                  )
+                  .join("")
+              }
 
-                <h3>
-                  ${section.title}
-                </h3>
+                       </div>
 
-              </div>
+          </section>
 
-              <div
-                class="coupon-slider"
-                data-coupon-slider="${section.id}"
-              >
+        `;
 
-                ${
-                  sectionCoupons
-                    .map(
-                      renderCouponCard
-                    )
-                    .join("")
-                }
-
-              </div>
-
-            </section>
-
-          `;
-        }
-      )
+      })
       .join("");
 
   // ========================================
@@ -1340,22 +918,20 @@ function renderCouponSections() {
     .querySelectorAll(
       "[data-copy-coupon]"
     )
-    .forEach(
-      button => {
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          event => {
+      button.addEventListener(
+        "click",
+        event => {
 
-            event.stopPropagation();
+          event.stopPropagation();
 
-            copyCoupon(
-              button.dataset.copyCoupon
-            );
-          }
-        );
-      }
-    );
+          copyCoupon(
+            button.dataset.copyCoupon
+          );
+        }
+      );
+    });
 
   // ========================================
   // VER OFERTA
@@ -1365,32 +941,30 @@ function renderCouponSections() {
     .querySelectorAll(
       "[data-view-offer]"
     )
-    .forEach(
-      button => {
+    .forEach(button => {
 
-        button.addEventListener(
-          "click",
-          event => {
+      button.addEventListener(
+        "click",
+        event => {
 
-            event.stopPropagation();
+          event.stopPropagation();
 
-            const coupon =
-              coupons.find(
-                item =>
-                  item.id ===
-                  button.dataset.viewOffer
-              );
+          const coupon =
+            coupons.find(
+              item =>
+                item.id ===
+                button.dataset.viewOffer
+            );
 
-            if (coupon) {
+          if (coupon) {
 
-              openMercadoLibre(
-                coupon
-              );
-            }
+            openMercadoLibre(
+              coupon
+            );
           }
-        );
-      }
-    );
+        }
+      );
+    });
 
   enableCouponSliders();
 }
@@ -1449,10 +1023,7 @@ function renderCouponCard(
 
   const hiddenCode =
     code.length > 4
-      ? code.substring(
-          0,
-          4
-        ) +
+      ? code.substring(0, 4) +
         "*".repeat(
           Math.min(
             5,
@@ -1465,32 +1036,27 @@ function renderCouponCard(
       : "*****";
 
   const isSoldOut =
-    statusClass ===
-    "expired";
+    statusClass === "expired";
 
-  // =====================================
-  // BANCO
-  // =====================================
+  /* =====================================
+     BANCO
+  ====================================== */
 
   const bank =
-    banks.find(
-      item =>
-        String(item.id) ===
-        String(
-          coupon.bankId || ""
-        )
-    );
+  banks.find(
+    item =>
+      String(item.id) ===
+      String(coupon.bankId || "")
+  );
 
-  const bankName =
-    bank?.name ||
-    "";
+const bankName =
+  bank?.name ||
+  "";
 
-  const bankLogo =
-    bank?.logo
-      ? String(
-          bank.logo
-        ).trim()
-      : "";
+const bankLogo =
+  bank?.logo
+    ? String(bank.logo).trim()
+    : "";
 
   return `
 
@@ -1508,13 +1074,11 @@ function renderCouponCard(
       ${
         bankName
           ? `
-
             <div class="coupon-name">
 
               ${
                 bankLogo
                   ? `
-
                     <img
                       src="${escapeHTML(
                         bankLogo
@@ -1525,14 +1089,11 @@ function renderCouponCard(
                       class="coupon-bank-logo"
                       loading="lazy"
                     >
-
                   `
                   : `
-
                     <span class="coupon-bank-icon">
                       🏦
                     </span>
-
                   `
               }
 
@@ -1543,42 +1104,32 @@ function renderCouponCard(
               </span>
 
             </div>
-
           `
           : ""
       }
 
       <div class="coupon-discount">
-
         ${escapeHTML(
           coupon.discount ||
           "DESCUENTO"
         )}
-
       </div>
 
       <div class="coupon-code">
-
         ${hiddenCode}
-
       </div>
 
       ${
         coupon.minimumPurchase
           ? `
-
             <div class="coupon-info">
-
               🛒 Compra mínima:
-
               <strong>
                 ${money(
                   coupon.minimumPurchase
                 )}
               </strong>
-
             </div>
-
           `
           : ""
       }
@@ -1586,19 +1137,14 @@ function renderCouponCard(
       ${
         coupon.maximumDiscount
           ? `
-
             <div class="coupon-info">
-
               💰 Descuento máximo:
-
               <strong>
                 ${money(
                   coupon.maximumDiscount
                 )}
               </strong>
-
             </div>
-
           `
           : ""
       }
@@ -1606,7 +1152,6 @@ function renderCouponCard(
       ${
         isSoldOut
           ? `
-
             <button
               type="button"
               class="coupon-copy view-offer-button"
@@ -1616,10 +1161,8 @@ function renderCouponCard(
             >
               👀 VER OFERTA
             </button>
-
           `
           : `
-
             <button
               type="button"
               class="coupon-copy"
@@ -1629,18 +1172,15 @@ function renderCouponCard(
             >
               📋 COPIAR CUPÓN
             </button>
-
           `
       }
 
       <small class="coupon-copies">
-
         📋
         ${Number(
           coupon.copies || 0
         )}
         copias
-
       </small>
 
     </article>
@@ -1652,15 +1192,12 @@ function renderCouponCard(
 // COPIAR CUPÓN - ULTRARRÁPIDO
 // ========================================
 
-function copyCoupon(
-  couponId
-) {
+function copyCoupon(couponId) {
 
   const coupon =
     coupons.find(
       item =>
-        item.id ===
-        couponId
+        item.id === couponId
     );
 
   if (!coupon) return;
@@ -1681,22 +1218,21 @@ function copyCoupon(
     return;
   }
 
+  // ========================================
+  // COPIAR DIRECTAMENTE
+  // ========================================
+
   let copied = false;
 
   try {
 
     if (
       navigator.clipboard &&
-      typeof
-        navigator.clipboard
-          .writeText ===
+      typeof navigator.clipboard.writeText ===
         "function"
     ) {
 
-      navigator.clipboard
-        .writeText(
-          code
-        );
+      navigator.clipboard.writeText(code);
 
       copied = true;
     }
@@ -1723,6 +1259,7 @@ function copyCoupon(
 
   // ========================================
   // REGISTRAR COPIA
+  // NO ESPERAMOS FIREBASE
   // ========================================
 
   registerCouponCopy(
@@ -1730,14 +1267,13 @@ function copyCoupon(
   );
 
   // ========================================
-  // ABRIR MERCADO LIBRE
+  // 🚀 ABRIR MERCADO LIBRE YA
   // ========================================
 
   openMercadoLibre(
     coupon
   );
 }
-
 // ========================================
 // COPIA ALTERNATIVA
 // ========================================
@@ -1832,9 +1368,7 @@ function showManualCopy(
 
     <strong>
       📋 Cupón:
-      ${escapeHTML(
-        code
-      )}
+      ${escapeHTML(code)}
     </strong>
 
     <small>
@@ -1843,9 +1377,7 @@ function showManualCopy(
 
   `;
 
-  if (
-    !message.parentElement
-  ) {
+  if (!message.parentElement) {
 
     document.body.appendChild(
       message
@@ -1861,9 +1393,7 @@ function registerCouponCopy(
   couponId
 ) {
 
-  // ------------------------------------
-  // CUPÓN INDIVIDUAL
-  // ------------------------------------
+  // Firebase NO bloquea la navegación.
 
   updateDoc(
     doc(
@@ -1875,19 +1405,13 @@ function registerCouponCopy(
       copies:
         increment(1)
     }
-  ).catch(
-    error => {
+  ).catch(error => {
 
-      console.warn(
-        "No se pudo actualizar contador del cupón:",
-        error
-      );
-    }
-  );
-
-  // ------------------------------------
-  // ESTADÍSTICA GENERAL
-  // ------------------------------------
+    console.warn(
+      "No se pudo actualizar contador del cupón:",
+      error
+    );
+  });
 
   setDoc(
     doc(
@@ -1902,34 +1426,18 @@ function registerCouponCopy(
     {
       merge: true
     }
-  ).catch(
-    error => {
+  ).catch(error => {
 
-      console.warn(
-        "No se pudo actualizar estadísticas:",
-        error
-      );
-    }
-  );
-
-  // ------------------------------------
-  // ESTADÍSTICA DIARIA
-  // ------------------------------------
-
-  updateDailyStatistic(
-    "copies",
-    1
-  );
-
-  // ------------------------------------
-  // ACTUALIZAR CONTADOR VISUAL
-  // ------------------------------------
+    console.warn(
+      "No se pudo actualizar estadísticas:",
+      error
+    );
+  });
 
   const coupon =
     coupons.find(
       item =>
-        item.id ===
-        couponId
+        item.id === couponId
     );
 
   if (coupon) {
@@ -1988,11 +1496,9 @@ function showCopySuccess() {
 
   setTimeout(
     () => {
-
       message.classList.remove(
         "show"
       );
-
     },
     1800
   );
@@ -2005,7 +1511,6 @@ function showCopySuccess() {
 function setupWhatsApp() {
 
   const url =
-    generalSettings.whatsapp ||
     WHATSAPP_CHANNEL;
 
   const header =
@@ -2021,21 +1526,19 @@ function setupWhatsApp() {
   [
     header,
     floating
-  ].forEach(
-    element => {
+  ].forEach(element => {
 
-      if (!element) return;
+    if (!element) return;
 
-      element.href =
-        url;
+    element.href =
+      url;
 
-      element.target =
-        "_blank";
+    element.target =
+      "_blank";
 
-      element.rel =
-        "noopener";
-    }
-  );
+    element.rel =
+      "noopener";
+  });
 }
 
 // ========================================
@@ -2052,7 +1555,6 @@ function enableHorizontalDrag(
       .dragReady ===
       "true"
   ) {
-
     return;
   }
 
@@ -2104,12 +1606,11 @@ function enableHorizontalDrag(
     }
   );
 
-  const stop =
-    () => {
+  const stop = () => {
 
-      isDown =
-        false;
-    };
+    isDown =
+      false;
+  };
 
   container.addEventListener(
     "pointerup",
@@ -2139,7 +1640,6 @@ function enableCouponSliders() {
     )
     .forEach(
       slider => {
-
         enableHorizontalDrag(
           slider
         );
@@ -2168,8 +1668,7 @@ function setupOfferCarousel(
       if (!card) return;
 
       const cardWidth =
-        card
-          .getBoundingClientRect()
+        card.getBoundingClientRect()
           .width;
 
       const sideSpace =
@@ -2225,29 +1724,26 @@ async function initializeApp() {
 
     await Promise.all([
 
-      loadSettings(),
+  loadSettings(),
 
-      registerVisit(),
+  registerVisit(),
 
-      loadCategories(),
+  loadCategories(),
 
-      loadOffers(),
+  loadOffers(),
 
-      loadMercadoPago()
+  loadMercadoPago()
 
-    ]);
+]);
 
-    // ------------------------------------
-    // PRIMERO BANCOS
-    // ------------------------------------
+// Primero cargamos bancos
+// para que los logos estén disponibles
+// cuando se dibujen los cupones.
 
-    await loadBanks();
+await loadBanks();
 
-    // ------------------------------------
-    // DESPUÉS CUPONES
-    // ------------------------------------
-
-    await loadCoupons();
+// Después cargamos cupones
+await loadCoupons();
 
   } catch (error) {
 
