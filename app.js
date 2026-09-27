@@ -29,7 +29,7 @@ const MERCADO_PAGO_LINK =
   "https://mpago.li/1VU1UaW";
 
 // Logo de Mercado Pago
-const MERCADO_PAGO_LOGO = "./mercadopago.png";
+const MERCADO_PAGO_LOGO = "./IMG_1100.png";
 
 // Primera vista
 const HERO_TITLE =
