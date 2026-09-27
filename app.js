@@ -2486,31 +2486,44 @@ async function initializeApp() {
 
   try {
 
+    // ====================================
+    // CARGA PRIORITARIA
+    // Mostrar primero el contenido visible
+    // ====================================
+
     await Promise.all([
 
       loadSettings(),
-
-      registerVisit(),
 
       loadCategories(),
 
       loadOffers(),
 
-      loadMercadoPago()
+      loadMercadoPago(),
+
+      loadCoupons()
 
     ]);
 
     // ====================================
-    // PRIMERO BANCOS
+    // CARGA SECUNDARIA
+    // No bloquea la página
     // ====================================
 
-    await loadBanks();
+    Promise.all([
 
-    // ====================================
-    // DESPUÉS CUPONES
-    // ====================================
+      registerVisit(),
 
-    await loadCoupons();
+      loadBanks()
+
+    ]).catch(error => {
+
+      console.warn(
+        "Error en carga secundaria:",
+        error
+      );
+
+    });
 
   } catch (error) {
 
