@@ -422,7 +422,7 @@ a {
 ========================================================= */
 
 .coupon-wrap {
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 .coupon-wrap h3 {
@@ -437,6 +437,7 @@ a {
   overflow-x: auto;
   scrollbar-width: none;
   padding: 4px 2px 14px;
+  scroll-snap-type: x proximity;
 }
 
 .coupon-row::-webkit-scrollbar {
@@ -446,11 +447,13 @@ a {
 .coupon-card,
 .coupon {
   flex: 0 0 260px;
+  width: 260px;
   background: #fff;
   border-radius: 17px;
   padding: 16px;
   box-shadow: 0 7px 25px rgba(0,0,0,.08);
   border: 1px solid #eee;
+  scroll-snap-align: start;
 }
 
 .coupon-status {
@@ -528,32 +531,14 @@ a {
   text-align: center;
 }
 
-/* COMPATIBILIDAD CON CUPONES ANTIGUOS */
+@media (max-width: 650px) {
 
-.coupon strong {
-  display: block;
-}
+  .coupon-card,
+  .coupon {
+    flex: 0 0 245px;
+    width: 245px;
+  }
 
-.coupon .code {
-  background: #f3f3f3;
-  padding: 9px;
-  border-radius: 8px;
-  margin: 8px 0;
-  font-weight: 900;
-}
-
-.copy {
-  border: 0;
-  background: #ffd600;
-  padding: 9px 12px;
-  border-radius: 8px;
-  font-weight: 900;
-}
-
-.coupon small {
-  display: block;
-  color: #777;
-  margin-top: 5px;
 }
 
 /* =========================================================
