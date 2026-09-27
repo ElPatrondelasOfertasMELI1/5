@@ -106,6 +106,52 @@ function getMexicoDate() {
 }
 
 // ========================================
+// CUPÓN COPIADO - MEMORIA DEL NAVEGADOR
+// ========================================
+
+function markCouponAsCopied(
+  couponId
+) {
+
+  try {
+
+    sessionStorage.setItem(
+      `elp_patron_coupon_${couponId}`,
+      "copied"
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "No se pudo guardar estado del cupón:",
+      error
+    );
+
+  }
+
+}
+
+function wasCouponCopied(
+  couponId
+) {
+
+  try {
+
+    return (
+      sessionStorage.getItem(
+        `elp_patron_coupon_${couponId}`
+      ) === "copied"
+    );
+
+  } catch (error) {
+
+    return false;
+
+  }
+
+}
+
+// ========================================
 // VISITANTE ÚNICO
 // ========================================
 
@@ -1510,6 +1556,11 @@ function renderCouponCard(
     statusClass ===
     "expired";
 
+const wasCopied =
+  wasCouponCopied(
+    coupon.id
+  );
+
   // =====================================
   // BANCO
   // =====================================
@@ -1652,16 +1703,20 @@ function renderCouponCard(
           `
           : `
             <button
-              type="button"
-              class="coupon-copy"
-              data-copy-coupon="${escapeHTML(
-                coupon.id
-              )}"
-            >
+  type="button"
+  class="coupon-copy ${wasCopied ? "copied" : ""}"
+  data-copy-coupon="${escapeHTML(
+    coupon.id
+  )}"
+>
 
-              📋 COPIAR CUPÓN
+  ${
+    wasCopied
+      ? "✓ CUPÓN COPIADO"
+      : "📋 COPIAR CUPÓN"
+  }
 
-            </button>
+</button>
           `
       }
 
@@ -1890,6 +1945,10 @@ function showManualCopy(
 function registerCouponCopy(
   couponId
 ) {
+
+  markCouponAsCopied(
+    couponId
+  );
 
   const coupon =
     coupons.find(
