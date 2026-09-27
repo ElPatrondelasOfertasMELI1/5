@@ -1865,13 +1865,35 @@ async function saveCoupon(
       )
       .value;
 
-  const discount =
-    document
-      .getElementById(
-        "couponDiscount"
-      )
-      .value
-      .trim();
+  const discountInput =
+  document.getElementById(
+    "couponDiscount"
+  );
+
+const discountNumber =
+  Number(
+    discountInput.value
+  );
+
+if (
+  !Number.isFinite(discountNumber) ||
+  discountNumber < 5 ||
+  discountNumber > 30
+) {
+
+  showMessage(
+    "❌ El descuento debe estar entre 5% y 30%.",
+    "error"
+  );
+
+  discountInput.focus();
+
+  return;
+
+}
+
+const discount =
+  `${discountNumber}%`;
 
   const minimumPurchase =
     Number(
@@ -2055,12 +2077,20 @@ function editCoupon(id) {
     coupon.status ||
     "active";
 
-  document
-    .getElementById(
-      "couponDiscount"
-    )
-    .value =
-    coupon.discount || "";
+  const discountValue =
+  String(
+    coupon.discount || ""
+  )
+  .replace("%", "")
+  .replace(/[^0-9.]/g, "")
+  .trim();
+
+document
+  .getElementById(
+    "couponDiscount"
+  )
+  .value =
+  discountValue;
 
   document
     .getElementById(
