@@ -1920,31 +1920,6 @@ function registerCouponCopy(
       coupon?.maximumDiscount ||
       0
     );
-    
-// ========================================
-// REGISTRAR COPIA
-// ========================================
-
-function registerCouponCopy(
-  couponId
-) {
-
-  const coupon =
-    coupons.find(
-      item =>
-        item.id ===
-        couponId
-    );
-
-  // =====================================
-  // AHORRO
-  // =====================================
-
-  const savings =
-    Number(
-      coupon?.maximumDiscount ||
-      0
-    );
 
   // =====================================
   // ACTUALIZAR CUPÓN
@@ -2021,8 +1996,6 @@ function registerCouponCopy(
   }
 
 }
-
-
 // ========================================
 // WHATSAPP
 // ========================================
