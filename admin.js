@@ -24,6 +24,12 @@ const ADMIN_UID =
 const MERCADO_LIBRE_AFILIADO =
   "https://meli.la/1mj3itE";
 
+const MERCADO_LIBRE_AFILIADO_PRINCIPAL =
+  "https://meli.la/1mj3itE";
+
+const MERCADO_LIBRE_AFILIADO_ALTERNATIVO =
+  "https://meli.la/2ths6Hi";
+
 let editingOfferId = null;
 let editingCouponId = null;
 let editingCategoryId = null;
@@ -37,12 +43,6 @@ let coupons = [];
 let banks = [];
 
 let bankLogoBase64 = "";
-
-const MERCADO_LIBRE_AFILIADO_PRINCIPAL =
-  "https://meli.la/1mj3itE";
-
-const MERCADO_LIBRE_AFILIADO_ALTERNATIVO =
-  "https://meli.la/2ths6Hi";
 
 /* =====================================
    UTILIDADES
@@ -69,6 +69,7 @@ function showMessage(message, type = "success") {
     setTimeout(() => {
 
       element.textContent = "";
+
       element.className =
         "admin-message";
 
@@ -99,6 +100,65 @@ function money(value) {
       currency: "MXN"
     }
   );
+
+}
+
+/* =====================================
+   FECHA MÉXICO
+===================================== */
+
+function mexicoDateKey(date = new Date()) {
+
+  return new Intl.DateTimeFormat(
+    "en-CA",
+    {
+      timeZone: "America/Mexico_City",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }
+  ).format(date);
+
+}
+
+function getLastDays(numberOfDays) {
+
+  const dates = [];
+
+  const now =
+    new Date();
+
+  for (
+    let i = 0;
+    i < numberOfDays;
+    i++
+  ) {
+
+    const date =
+      new Date(now);
+
+    date.setDate(
+      date.getDate() - i
+    );
+
+    dates.push(
+      mexicoDateKey(date)
+    );
+
+  }
+
+  return dates;
+
+}
+
+function numberValue(value) {
+
+  const number =
+    Number(value);
+
+  return Number.isFinite(number)
+    ? number
+    : 0;
 
 }
 
@@ -532,10 +592,9 @@ function renderCategories() {
           "click",
           () => {
 
-            const id =
-              button.dataset.editCategory;
-
-            editCategory(id);
+            editCategory(
+              button.dataset.editCategory
+            );
 
           }
         );
@@ -714,6 +773,7 @@ async function loadBanks() {
 
   renderBankSelect();
   renderBanksAdmin();
+
 }
 
 function renderBankSelect() {
@@ -731,24 +791,26 @@ function renderBankSelect() {
     </option>
   `;
 
-  banks.forEach(bank => {
+  banks.forEach(
+    bank => {
 
-    const option =
-      document.createElement(
-        "option"
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value =
+        bank.id;
+
+      option.textContent =
+        `🏦 ${bank.name || ""}`;
+
+      select.appendChild(
+        option
       );
 
-    option.value =
-      bank.id;
-
-    option.textContent =
-      `🏦 ${bank.name || ""}`;
-
-    select.appendChild(
-      option
-    );
-
-  });
+    }
+  );
 
 }
 
@@ -767,10 +829,12 @@ function renderBanksAdmin() {
       "<p>No hay bancos guardados todavía.</p>";
 
     return;
+
   }
 
   container.innerHTML =
-    banks.map(bank => `
+    banks.map(
+      bank => `
 
       <div class="admin-list-item">
 
@@ -826,20 +890,22 @@ function renderBanksAdmin() {
     .querySelectorAll(
       "[data-delete-bank]"
     )
-    .forEach(button => {
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () => {
+        button.addEventListener(
+          "click",
+          () => {
 
-          deleteBank(
-            button.dataset.deleteBank
-          );
+            deleteBank(
+              button.dataset.deleteBank
+            );
 
-        }
-      );
+          }
+        );
 
-    });
+      }
+    );
 
 }
 
@@ -862,15 +928,9 @@ async function saveBank() {
         "bankLogoPreview"
       );
 
-
     const name =
       nameInput?.value
         .trim() || "";
-
-
-    /* =====================================
-       VALIDAR NOMBRE
-    ====================================== */
 
     if (!name) {
 
@@ -882,12 +942,8 @@ async function saveBank() {
       nameInput?.focus();
 
       return;
+
     }
-
-
-    /* =====================================
-       VALIDAR LOGO
-    ====================================== */
 
     if (!bankLogoBase64) {
 
@@ -899,20 +955,11 @@ async function saveBank() {
       logoInput?.click();
 
       return;
+
     }
-
-
-    /* =====================================
-       CREAR ID
-    ====================================== */
 
     const id =
       crypto.randomUUID();
-
-
-    /* =====================================
-       GUARDAR EN FIRESTORE
-    ====================================== */
 
     await setDoc(
       doc(
@@ -928,44 +975,25 @@ async function saveBank() {
       }
     );
 
-
-    /* =====================================
-       LIMPIAR FORMULARIO
-    ====================================== */
-
     bankLogoBase64 = "";
-
 
     if (nameInput) {
       nameInput.value = "";
     }
 
-
     if (logoInput) {
       logoInput.value = "";
     }
-
 
     if (preview) {
       preview.innerHTML = "";
     }
 
-
-    /* =====================================
-       ACTUALIZAR LISTA
-    ====================================== */
-
     await loadBanks();
-
-
-    /* =====================================
-       CONFIRMACIÓN
-    ====================================== */
 
     showMessage(
       "✅ Banco guardado correctamente. Ya puedes seleccionarlo en tus cupones."
     );
-
 
   } catch (error) {
 
@@ -973,7 +1001,6 @@ async function saveBank() {
       "❌ ERROR GUARDANDO BANCO:",
       error
     );
-
 
     showMessage(
       "❌ No se pudo guardar el banco. Revisa las reglas de Firebase.",
@@ -993,7 +1020,9 @@ async function deleteBank(id) {
         "¿Eliminar este banco y su logo?"
       )
     ) {
+
       return;
+
     }
 
     await deleteDoc(
@@ -1666,8 +1695,6 @@ async function saveCoupon(
 
   event.preventDefault();
 
-  /* NOMBRE */
-
   const name =
     document
       .getElementById(
@@ -1675,8 +1702,6 @@ async function saveCoupon(
       )
       .value
       .trim();
-
-  /* CÓDIGO */
 
   const code =
     document
@@ -1687,16 +1712,12 @@ async function saveCoupon(
       .trim()
       .toUpperCase();
 
-  /* SECCIÓN */
-
   const section =
     document
       .getElementById(
         "couponSection"
       )
       .value;
-
-  /* ESTADO */
 
   const status =
     document
@@ -1705,8 +1726,6 @@ async function saveCoupon(
       )
       .value;
 
-  /* DESCUENTO */
-
   const discount =
     document
       .getElementById(
@@ -1714,8 +1733,6 @@ async function saveCoupon(
       )
       .value
       .trim();
-
-  /* MÍNIMO */
 
   const minimumPurchase =
     Number(
@@ -1726,8 +1743,6 @@ async function saveCoupon(
         .value || 0
     );
 
-  /* MÁXIMO */
-
   const maximumDiscount =
     Number(
       document
@@ -1737,8 +1752,6 @@ async function saveCoupon(
         .value || 0
     );
 
-    /* LINK */
-
   let link =
     document
       .getElementById(
@@ -1747,8 +1760,6 @@ async function saveCoupon(
       .value
       .trim();
 
-  /* BANCO */
-
   const bankId =
     document
       .getElementById(
@@ -1756,16 +1767,12 @@ async function saveCoupon(
       )
       ?.value || "";
 
-  /* TIPO DE AFILIADO */
-
   const affiliateType =
     document
       .getElementById(
         "couponAffiliateType"
       )
       ?.value || "principal";
-
-  /* AFILIADO PRINCIPAL */
 
   if (
     affiliateType === "principal"
@@ -1776,8 +1783,6 @@ async function saveCoupon(
 
   }
 
-  /* AFILIADO ALTERNATIVO */
-
   if (
     affiliateType === "alternativo"
   ) {
@@ -1787,21 +1792,10 @@ async function saveCoupon(
 
   }
 
-  /* ENLACE MANUAL */
-
- if (
-  affiliateType === "custom" &&
-  !link
-) {
-
-  showMessage(
-    "❌ Escribe el enlace personalizado.",
-    "error"
-  );
-
-  return;
-
-}
+  if (
+    affiliateType === "custom" &&
+    !link
+  ) {
 
     showMessage(
       "❌ Escribe el enlace personalizado.",
@@ -1811,8 +1805,6 @@ async function saveCoupon(
     return;
 
   }
-
-  /* CÓDIGO OBLIGATORIO */
 
   if (!code) {
 
@@ -1841,7 +1833,7 @@ async function saveCoupon(
       "coupons",
       id
     ),
-        {
+    {
       name,
       code,
       section,
@@ -1849,16 +1841,11 @@ async function saveCoupon(
       discount,
       minimumPurchase,
       maximumDiscount,
-
       bankId,
-
       affiliateType,
-
       link,
-
       copies:
         existing?.copies || 0,
-
       updatedAt:
         new Date().toISOString()
     },
@@ -1897,20 +1884,12 @@ function editCoupon(id) {
   editingCouponId =
     id;
 
-  /*
-    NOMBRE DEL CUPÓN
-  */
-
   document
     .getElementById(
       "couponName"
     )
     .value =
     coupon.name || "";
-
-  /*
-    CÓDIGO
-  */
 
   document
     .getElementById(
@@ -1921,21 +1900,13 @@ function editCoupon(id) {
       coupon.code || ""
     ).toUpperCase();
 
-  /*
-    SECCIÓN
-  */
-
   document
     .getElementById(
       "couponSection"
     )
     .value =
     coupon.section ||
-    "relampago";
-
-  /*
-    ESTADO
-  */
+    "flash";
 
   document
     .getElementById(
@@ -1945,20 +1916,12 @@ function editCoupon(id) {
     coupon.status ||
     "active";
 
-  /*
-    DESCUENTO
-  */
-
   document
     .getElementById(
       "couponDiscount"
     )
     .value =
     coupon.discount || "";
-
-  /*
-    MÍNIMO
-  */
 
   document
     .getElementById(
@@ -1967,10 +1930,6 @@ function editCoupon(id) {
     .value =
     coupon.minimumPurchase || "";
 
-  /*
-    MÁXIMO
-  */
-
   document
     .getElementById(
       "couponMax"
@@ -1978,20 +1937,12 @@ function editCoupon(id) {
     .value =
     coupon.maximumDiscount || "";
 
-    /*
-    LINK
-  */
-
   document
     .getElementById(
       "couponLink"
     )
     .value =
     coupon.link || "";
-
-  /*
-    BANCO
-  */
 
   const bankSelect =
     document.getElementById(
@@ -2005,10 +1956,6 @@ function editCoupon(id) {
 
   }
 
-  /*
-    TIPO DE AFILIADO
-  */
-
   const affiliateSelect =
     document.getElementById(
       "couponAffiliateType"
@@ -2021,10 +1968,6 @@ function editCoupon(id) {
       "principal";
 
   }
-
-  /*
-    BOTONES DE ESTADO
-  */
 
   const status =
     coupon.status ||
@@ -2296,7 +2239,7 @@ async function saveSettings(
 }
 
 /* =====================================
-   ESTADÍSTICAS
+   ESTADÍSTICAS GENERALES
 ===================================== */
 
 async function loadStats() {
@@ -2312,55 +2255,128 @@ async function loadStats() {
         )
       );
 
-    if (!snapshot.exists())
-      return;
-
     const data =
-      snapshot.data();
+      snapshot.exists()
+        ? snapshot.data()
+        : {};
 
-    document
-      .getElementById(
-        "statVisits"
-      )
-      .textContent =
-      data.visits || 0;
+    const visits =
+      numberValue(data.visits);
 
-    document
-      .getElementById(
-        "statUnique"
-      )
-      .textContent =
-      data.uniqueVisitors || 0;
-
-    document
-      .getElementById(
-        "statClicks"
-      )
-      .textContent =
-      data.clicks || 0;
-
-    document
-      .getElementById(
-        "statCopies"
-      )
-      .textContent =
-      data.copies || 0;
-
-    document
-      .getElementById(
-        "statPromotions"
-      )
-      .textContent =
-      data.promotions || 0;
-
-    document
-      .getElementById(
-        "statSavings"
-      )
-      .textContent =
-      money(
-        data.savings || 0
+    const uniqueVisitors =
+      numberValue(
+        data.uniqueVisitors
       );
+
+    const clicks =
+      numberValue(data.clicks);
+
+    const copies =
+      numberValue(data.copies);
+
+    const promotions =
+      numberValue(data.promotions);
+
+    const savings =
+      numberValue(data.savings);
+
+    const activeOffers =
+      offers.filter(
+        offer =>
+          offer.active !== false &&
+          offer.status !== "inactive"
+      ).length;
+
+    const activeCoupons =
+      coupons.filter(
+        coupon =>
+          String(
+            coupon.status || "active"
+          ).toLowerCase() ===
+          "active"
+      ).length;
+
+    const statVisits =
+      document.getElementById(
+        "statVisits"
+      );
+
+    if (statVisits) {
+      statVisits.textContent =
+        visits;
+    }
+
+    const statUnique =
+      document.getElementById(
+        "statUnique"
+      );
+
+    if (statUnique) {
+      statUnique.textContent =
+        uniqueVisitors;
+    }
+
+    const statClicks =
+      document.getElementById(
+        "statClicks"
+      );
+
+    if (statClicks) {
+      statClicks.textContent =
+        clicks;
+    }
+
+    const statCopies =
+      document.getElementById(
+        "statCopies"
+      );
+
+    if (statCopies) {
+      statCopies.textContent =
+        copies;
+    }
+
+    const statPromotions =
+      document.getElementById(
+        "statPromotions"
+      );
+
+    if (statPromotions) {
+      statPromotions.textContent =
+        promotions;
+    }
+
+    const statSavings =
+      document.getElementById(
+        "statSavings"
+      );
+
+    if (statSavings) {
+      statSavings.textContent =
+        money(savings);
+    }
+
+    const statOffers =
+      document.getElementById(
+        "statOffers"
+      );
+
+    if (statOffers) {
+      statOffers.textContent =
+        activeOffers;
+    }
+
+    const statCoupons =
+      document.getElementById(
+        "statCoupons"
+      );
+
+    if (statCoupons) {
+      statCoupons.textContent =
+        activeCoupons;
+    }
+
+    await loadDailyStats();
 
   } catch (error) {
 
@@ -2370,6 +2386,299 @@ async function loadStats() {
     );
 
   }
+
+}
+
+/* =====================================
+   ESTADÍSTICAS DIARIAS
+===================================== */
+
+async function loadDailyStats() {
+
+  try {
+
+    const today =
+      mexicoDateKey();
+
+    const last30 =
+      getLastDays(30);
+
+    const refs =
+      last30.map(
+        dateKey =>
+          getDoc(
+            doc(
+              db,
+              "statistics",
+              `daily_${dateKey}`
+            )
+          )
+      );
+
+    const snapshots =
+      await Promise.all(refs);
+
+    const dailyData =
+      snapshots.map(
+        (snapshot, index) => {
+
+          const dateKey =
+            last30[index];
+
+          const data =
+            snapshot.exists()
+              ? snapshot.data()
+              : {};
+
+          return {
+            date: dateKey,
+            users:
+              numberValue(
+                data.users ??
+                data.uniqueUsers ??
+                data.uniqueVisitors ??
+                data.visitors
+              ),
+            visits:
+              numberValue(
+                data.visits
+              ),
+            clicks:
+              numberValue(
+                data.clicks
+              ),
+            copies:
+              numberValue(
+                data.copies
+              ),
+            savings:
+              numberValue(
+                data.savings
+              )
+          };
+
+        }
+      );
+
+    const todayData =
+      dailyData.find(
+        item =>
+          item.date === today
+      ) || {
+        date: today,
+        users: 0,
+        visits: 0,
+        clicks: 0,
+        copies: 0,
+        savings: 0
+      };
+
+    const last7 =
+      dailyData.slice(
+        0,
+        7
+      );
+
+    const last30Data =
+      dailyData.slice(
+        0,
+        30
+      );
+
+    const total7 =
+      calculateTotals(
+        last7
+      );
+
+    const total30 =
+      calculateTotals(
+        last30Data
+      );
+
+    setText(
+      "metricUsers7",
+      total7.users
+    );
+
+    setText(
+      "metricVisits7",
+      total7.visits
+    );
+
+    setText(
+      "metricClicks7",
+      total7.clicks
+    );
+
+    setText(
+      "metricCopies7",
+      total7.copies
+    );
+
+    setText(
+      "metricUsers30",
+      total30.users
+    );
+
+    setText(
+      "metricVisits30",
+      total30.visits
+    );
+
+    setText(
+      "metricClicks30",
+      total30.clicks
+    );
+
+    setText(
+      "metricCopies30",
+      total30.copies
+    );
+
+    const bestDay =
+      findBestDay(
+        last30Data
+      );
+
+    setText(
+      "metricBestDay",
+      bestDay
+        ? `${formatDateLabel(bestDay.date)} · ${bestDay.users} usuarios`
+        : "Sin datos"
+    );
+
+    setText(
+      "metricSavings",
+      money(
+        total30.savings
+      )
+    );
+
+    /*
+      "Usuarios hoy" utiliza la estadística
+      diaria si existe.
+    */
+
+    const todayElement =
+      document.getElementById(
+        "statUsersToday"
+      );
+
+    if (todayElement) {
+
+      todayElement.textContent =
+        todayData.users;
+
+    }
+
+    /*
+      Si el HTML utiliza statVisits como
+      visitas generales, no lo sustituimos
+      por las visitas de hoy.
+    */
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando estadísticas diarias:",
+      error
+    );
+
+  }
+
+}
+
+function calculateTotals(data) {
+
+  return data.reduce(
+    (total, item) => {
+
+      total.users +=
+        numberValue(item.users);
+
+      total.visits +=
+        numberValue(item.visits);
+
+      total.clicks +=
+        numberValue(item.clicks);
+
+      total.copies +=
+        numberValue(item.copies);
+
+      total.savings +=
+        numberValue(item.savings);
+
+      return total;
+
+    },
+    {
+      users: 0,
+      visits: 0,
+      clicks: 0,
+      copies: 0,
+      savings: 0
+    }
+  );
+
+}
+
+function findBestDay(data) {
+
+  if (!data.length)
+    return null;
+
+  return data.reduce(
+    (best, current) => {
+
+      const bestActivity =
+        numberValue(best.users) +
+        numberValue(best.visits) +
+        numberValue(best.clicks) +
+        numberValue(best.copies);
+
+      const currentActivity =
+        numberValue(current.users) +
+        numberValue(current.visits) +
+        numberValue(current.clicks) +
+        numberValue(current.copies);
+
+      return currentActivity >
+        bestActivity
+        ? current
+        : best;
+
+    }
+  );
+
+}
+
+function formatDateLabel(dateKey) {
+
+  if (!dateKey)
+    return "";
+
+  const parts =
+    dateKey.split("-");
+
+  if (parts.length !== 3)
+    return dateKey;
+
+  return `${parts[2]}/${parts[1]}`;
+
+}
+
+function setText(
+  id,
+  value
+) {
+
+  const element =
+    document.getElementById(id);
+
+  if (!element) return;
+
+  element.textContent =
+    value;
 
 }
 
@@ -2438,10 +2747,6 @@ function setupForms() {
       }
     );
 
-  /* =====================================
-     BOTONES DE ESTADO DE CUPÓN
-  ====================================== */
-
   document
     .querySelectorAll(
       "[data-status]"
@@ -2491,10 +2796,6 @@ function setupForms() {
 
       }
     );
-
-  /* =====================================
-     GUARDAR BANCO
-  ====================================== */
 
   document
     .getElementById(
@@ -2553,11 +2854,16 @@ async function initializeAdmin() {
 
 }
 
+/* =====================================
+   AUTENTICACIÓN
+===================================== */
+
 onAuthStateChanged(
   auth,
   async (user) => {
 
-    if (!user) return;
+    if (!user)
+      return;
 
     if (
       user.uid !== ADMIN_UID
