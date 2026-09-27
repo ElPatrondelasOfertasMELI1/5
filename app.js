@@ -516,7 +516,6 @@ function renderOffers(list) {
 
   setupOfferCarousel(container);
 
-  enableOfferAutoScroll();
 }
 
 function filterOffersByCategory(
@@ -1616,54 +1615,6 @@ function setupOfferCarousel(
   );
 }
 
-function enableOfferAutoScroll() {
-
-  const container =
-    document.getElementById(
-      "offers"
-    );
-
-  if (!container) return;
-
-  clearInterval(
-    window.__offerAutoScroll
-  );
-
-  let index =
-    0;
-
-  window.__offerAutoScroll =
-    setInterval(
-      () => {
-
-        const cards =
-          Array.from(
-            container.querySelectorAll(
-              ".offer-card"
-            )
-          );
-
-        if (
-          cards.length <= 1
-        ) {
-          return;
-        }
-
-        index =
-          (index + 1) %
-          cards.length;
-
-        cards[index]
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-            inline: "center"
-          });
-
-      },
-      3500
-    );
-}
 
 // ========================================
 // INICIAR
