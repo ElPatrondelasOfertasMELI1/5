@@ -1518,16 +1518,16 @@ function renderCouponCard(
 const hiddenLength =
   code.length - visibleLength;
 
+const visibleCode =
+  code.substring(
+    0,
+    visibleLength
+  );
+
 const hiddenCode =
-  code.length > 1
-    ? code.substring(
-        0,
-        visibleLength
-      ) +
-      "*".repeat(
-        hiddenLength
-      )
-    : "*****";
+  "*".repeat(
+    hiddenLength
+  );
 
   const isSoldOut =
     statusClass ===
@@ -1618,11 +1618,17 @@ const hiddenCode =
 
       </div>
 
-      <div class="coupon-code">
+     <div class="coupon-code">
 
-        ${hiddenCode}
+  <span class="coupon-code-visible">
+    ${escapeHTML(visibleCode)}
+  </span>
 
-      </div>
+  <span class="coupon-code-hidden">
+    ${escapeHTML(hiddenCode)}
+  </span>
+
+</div>
 
       ${
         coupon.minimumPurchase
