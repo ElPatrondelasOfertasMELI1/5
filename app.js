@@ -1,5 +1,3 @@
-Pegame archivo por archivo aqui
-
 // ========================================
 // EL PATRÓN DE LAS OFERTAS
 // APP.JS - FIREBASE
