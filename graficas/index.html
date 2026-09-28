@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  >
+
+  <title>Estadísticas · El Patrón de las Ofertas</title>
+
+  <link
+    rel="stylesheet"
+    href="./graficas.css"
+  >
+
+</head>
+
+<body>
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-icon">
+        💀
+      </div>
+
+      <div>
+
+        <strong>
+          EL PATRÓN
+        </strong>
+
+        <span>
+          DE LAS OFERTAS
+        </span>
+
+      </div>
+
+    </div>
+
+    <a
+      href="../admin.html"
+      class="back-button"
+    >
+      ← Admin
+    </a>
+
+  </header>
+
+
+  <main class="container">
+
+    <!-- ================================= -->
+    <!-- LOGIN -->
+    <!-- ================================= -->
+
+    <section
+      id="loginSection"
+      class="login-card"
+    >
+
+      <div class="login-icon">
+        🔐
+      </div>
+
+      <h1>
+        Acceso administrativo
+      </h1>
+
+      <p>
+        Inicia sesión para consultar las estadísticas.
+      </p>
+
+      <form id="loginForm">
+
+        <label>
+          Correo electrónico
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          autocomplete="username"
+          required
+        >
+
+        <label>
+          Contraseña
+        </label>
+
+        <input
+          type="password"
+          id="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button
+          type="submit"
+          class="primary-button"
+        >
+          🔐 INICIAR SESIÓN
+        </button>
+
+        <div
+          id="loginMessage"
+          class="message"
+        ></div>
+
+      </form>
+
+    </section>
+
+
+    <!-- ================================= -->
+    <!-- ESTADÍSTICAS -->
+    <!-- ================================= -->
+
+    <section
+      id="statsSection"
+      class="stats-section hidden"
+    >
+
+      <div class="page-title">
+
+        <div>
+
+          <span class="eyebrow">
+            📊 PANEL DE ESTADÍSTICAS
+          </span>
+
+          <h1>
+            Usuarios
+          </h1>
+
+          <p>
+            Consulta el comportamiento de usuarios por día y por mes.
+          </p>
+
+        </div>
+
+        <button
+          id="refreshButton"
+          class="refresh-button"
+          type="button"
+        >
+          🔄 Actualizar
+        </button>
+
+      </div>
+
+
+      <!-- ================================= -->
+      <!-- TARJETAS -->
+      <!-- ================================= -->
+
+      <div class="summary-grid">
+
+        <article class="summary-card">
+
+          <div class="summary-icon">
+            👥
+          </div>
+
+          <div>
+
+            <span>
+              Usuarios hoy
+            </span>
+
+            <strong id="usersToday">
+              0
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon">
+            📅
+          </div>
+
+          <div>
+
+            <span>
+              Últimos 7 días
+            </span>
+
+            <strong id="users7Days">
+              0
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon">
+            📊
+          </div>
+
+          <div>
+
+            <span>
+              Últimos 30 días
+            </span>
+
+            <strong id="users30Days">
+              0
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card">
+
+          <div class="summary-icon">
+            📆
+          </div>
+
+          <div>
+
+            <span>
+              Este mes
+            </span>
+
+            <strong id="usersThisMonth">
+              0
+            </strong>
+
+          </div>
+
+        </article>
+
+      </div>
+
+
+      <!-- ================================= -->
+      <!-- FILTRO -->
+      <!-- ================================= -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              📈 Usuarios por día
+            </h2>
+
+            <p id="dailyDescription">
+              Últimos 30 días
+            </p>
+
+          </div>
+
+          <select id="periodSelect">
+
+            <option value="7">
+              Últimos 7 días
+            </option>
+
+            <option
+              value="30"
+              selected
+            >
+              Últimos 30 días
+            </option>
+
+            <option value="90">
+              Últimos 3 meses
+            </option>
+
+            <option value="180">
+              Últimos 6 meses
+            </option>
+
+            <option value="365">
+              Últimos 12 meses
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="chart-wrapper">
+
+          <canvas id="dailyChart"></canvas>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================= -->
+      <!-- MENSUAL -->
+      <!-- ================================= -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              📊 Usuarios por mes
+            </h2>
+
+            <p>
+              Usuarios diarios acumulados por mes.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="chart-wrapper monthly-chart">
+
+          <canvas id="monthlyChart"></canvas>
+
+        </div>
+
+      </section>
+
+
+      <!-- ================================= -->
+      <!-- TABLA -->
+      <!-- ================================= -->
+
+      <section class="panel">
+
+        <div class="panel-header">
+
+          <div>
+
+            <h2>
+              📋 Detalle diario
+            </h2>
+
+            <p>
+              Registros utilizados para las gráficas.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div class="table-container">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Fecha
+                </th>
+
+                <th>
+                  Usuarios
+                </th>
+
+                <th>
+                  Visitas
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="dailyTable">
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <div
+        id="statsMessage"
+        class="stats-message"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+
+    ⚡ El Patrón de las Ofertas
+
+  </footer>
+
+
+  <!-- Chart.js -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+  ></script>
+
+
+  <!-- Firebase -->
+  <script
+    type="module"
+    src="./graficas.js"
+  ></script>
+
+</body>
+
+</html>
