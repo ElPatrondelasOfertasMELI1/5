@@ -3072,17 +3072,14 @@ async function initializeAdmin() {
 
     setupBankLogoPreview();
 
-    await loadCategories();
-
-    await loadBanks();
-
-    await loadOffers();
-
-    await loadCoupons();
-
-    await loadMercadoPago();
-
-    await loadSettings();
+    await Promise.all([
+      loadCategories(),
+      loadBanks(),
+      loadOffers(),
+      loadCoupons(),
+      loadMercadoPago(),
+      loadSettings()
+    ]);
 
     await loadStats();
 
