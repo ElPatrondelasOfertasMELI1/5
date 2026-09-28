@@ -1,0 +1,1076 @@
+/* ========================================
+   EL PATRÓN DE LAS OFERTAS
+   ESTADÍSTICAS
+======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:
+    #f4f5f7;
+
+  color:
+    #171717;
+}
+
+
+/* ========================================
+   TOPBAR
+======================================== */
+
+.topbar {
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding:
+    14px 20px;
+
+  background:
+    #111;
+
+  color:
+    white;
+
+  box-shadow:
+    0 4px 20px rgba(
+      0,
+      0,
+      0,
+      0.12
+    );
+
+}
+
+
+.brand {
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+}
+
+
+.brand-icon {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  background:
+    #ffd600;
+
+  font-size:
+    24px;
+
+}
+
+
+.brand strong {
+
+  display: block;
+
+  font-size:
+    15px;
+
+  letter-spacing:
+    0.5px;
+
+}
+
+
+.brand span {
+
+  display: block;
+
+  margin-top:
+    2px;
+
+  font-size:
+    10px;
+
+  opacity:
+    0.7;
+
+}
+
+
+.back-button {
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    9px 14px;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffd600;
+
+  color:
+    #111;
+
+  text-decoration:
+    none;
+
+  font-size:
+    13px;
+
+  font-weight:
+    800;
+
+}
+
+
+/* ========================================
+   CONTENEDOR
+======================================== */
+
+.container {
+
+  width:
+    min(1180px, calc(100% - 30px));
+
+  margin:
+    0 auto;
+
+  padding:
+    30px 0 50px;
+
+}
+
+
+.hidden {
+  display: none !important;
+}
+
+
+/* ========================================
+   LOGIN
+======================================== */
+
+.login-card {
+
+  width:
+    min(430px, 100%);
+
+  margin:
+    50px auto;
+
+  padding:
+    32px;
+
+  background:
+    white;
+
+  border-radius:
+    20px;
+
+  box-shadow:
+    0 10px 35px rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+
+}
+
+
+.login-icon {
+
+  width:
+    58px;
+
+  height:
+    58px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  margin-bottom:
+    18px;
+
+  border-radius:
+    16px;
+
+  background:
+    #ffd600;
+
+  font-size:
+    28px;
+
+}
+
+
+.login-card h1 {
+
+  margin:
+    0 0 8px;
+
+  font-size:
+    26px;
+
+}
+
+
+.login-card p {
+
+  margin:
+    0 0 25px;
+
+  color:
+    #666;
+
+  line-height:
+    1.5;
+
+}
+
+
+.login-card label {
+
+  display:
+    block;
+
+  margin:
+    15px 0 7px;
+
+  font-size:
+    13px;
+
+  font-weight:
+    800;
+
+}
+
+
+.login-card input {
+
+  width:
+    100%;
+
+  padding:
+    13px 14px;
+
+  border:
+    1px solid #ddd;
+
+  border-radius:
+    10px;
+
+  outline:
+    none;
+
+  font-size:
+    15px;
+
+}
+
+
+.login-card input:focus {
+
+  border-color:
+    #111;
+
+}
+
+
+.primary-button {
+
+  width:
+    100%;
+
+  margin-top:
+    22px;
+
+  padding:
+    14px;
+
+  border:
+    0;
+
+  border-radius:
+    11px;
+
+  background:
+    #ffd600;
+
+  color:
+    #111;
+
+  font-weight:
+    900;
+
+  cursor:
+    pointer;
+
+}
+
+
+/* ========================================
+   MENSAJES
+======================================== */
+
+.message {
+
+  margin-top:
+    14px;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.4;
+
+}
+
+
+.message.error {
+
+  color:
+    #c62828;
+
+}
+
+
+.message.loading {
+
+  color:
+    #555;
+
+}
+
+
+/* ========================================
+   TÍTULO
+======================================== */
+
+.page-title {
+
+  display:
+    flex;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+
+  margin-bottom:
+    25px;
+
+}
+
+
+.eyebrow {
+
+  display:
+    inline-block;
+
+  margin-bottom:
+    8px;
+
+  font-size:
+    12px;
+
+  font-weight:
+    900;
+
+  letter-spacing:
+    0.7px;
+
+  color:
+    #666;
+
+}
+
+
+.page-title h1 {
+
+  margin:
+    0;
+
+  font-size:
+    clamp(
+      30px,
+      5vw,
+      45px
+    );
+
+}
+
+
+.page-title p {
+
+  margin:
+    7px 0 0;
+
+  color:
+    #666;
+
+}
+
+
+.refresh-button {
+
+  flex:
+    0 0 auto;
+
+  padding:
+    12px 17px;
+
+  border:
+    0;
+
+  border-radius:
+    11px;
+
+  background:
+    #111;
+
+  color:
+    white;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+}
+
+
+.refresh-button:disabled {
+
+  opacity:
+    0.5;
+
+  cursor:
+    wait;
+
+}
+
+
+/* ========================================
+   RESUMEN
+======================================== */
+
+.summary-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:
+    15px;
+
+  margin-bottom:
+    20px;
+
+}
+
+
+.summary-card {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    14px;
+
+  min-height:
+    105px;
+
+  padding:
+    18px;
+
+  background:
+    white;
+
+  border-radius:
+    17px;
+
+  box-shadow:
+    0 5px 22px rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+}
+
+
+.summary-icon {
+
+  width:
+    48px;
+
+  height:
+    48px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  flex:
+    0 0 auto;
+
+  border-radius:
+    13px;
+
+  background:
+    #ffd600;
+
+  font-size:
+    22px;
+
+}
+
+
+.summary-card span {
+
+  display:
+    block;
+
+  color:
+    #777;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+}
+
+
+.summary-card strong {
+
+  display:
+    block;
+
+  margin-top:
+    4px;
+
+  font-size:
+    27px;
+
+}
+
+
+/* ========================================
+   PANELES
+======================================== */
+
+.panel {
+
+  margin-top:
+    20px;
+
+  padding:
+    22px;
+
+  background:
+    white;
+
+  border-radius:
+    18px;
+
+  box-shadow:
+    0 5px 22px rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+}
+
+
+.panel-header {
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    15px;
+
+  margin-bottom:
+    18px;
+
+}
+
+
+.panel-header h2 {
+
+  margin:
+    0;
+
+  font-size:
+    20px;
+
+}
+
+
+.panel-header p {
+
+  margin:
+    5px 0 0;
+
+  color:
+    #777;
+
+  font-size:
+    13px;
+
+}
+
+
+.panel-header select {
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid #ddd;
+
+  border-radius:
+    10px;
+
+  background:
+    white;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+
+}
+
+
+/* ========================================
+   GRÁFICAS
+======================================== */
+
+.chart-wrapper {
+
+  position:
+    relative;
+
+  width:
+    100%;
+
+  height:
+    330px;
+
+}
+
+
+.monthly-chart {
+
+  height:
+    310px;
+
+}
+
+
+/* ========================================
+   TABLA
+======================================== */
+
+.table-container {
+
+  width:
+    100%;
+
+  overflow-x:
+    auto;
+
+}
+
+
+table {
+
+  width:
+    100%;
+
+  border-collapse:
+    collapse;
+
+  min-width:
+    500px;
+
+}
+
+
+th {
+
+  padding:
+    12px;
+
+  text-align:
+    left;
+
+  background:
+    #f4f4f4;
+
+  font-size:
+    12px;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    0.3px;
+
+}
+
+
+td {
+
+  padding:
+    13px 12px;
+
+  border-bottom:
+    1px solid #eee;
+
+  font-size:
+    14px;
+
+}
+
+
+td strong {
+
+  font-size:
+    15px;
+
+}
+
+
+/* ========================================
+   MENSAJE ESTADÍSTICAS
+======================================== */
+
+.stats-message {
+
+  margin-top:
+    15px;
+
+  color:
+    #666;
+
+  font-size:
+    12px;
+
+}
+
+
+.stats-message.error {
+
+  color:
+    #c62828;
+
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+footer {
+
+  padding:
+    25px 15px 35px;
+
+  text-align:
+    center;
+
+  color:
+    #777;
+
+  font-size:
+    12px;
+
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (
+  max-width: 850px
+) {
+
+  .summary-grid {
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+
+  }
+
+}
+
+
+@media (
+  max-width: 600px
+) {
+
+  .container {
+
+    width:
+      min(
+        100% - 20px,
+        1180px
+      );
+
+    padding-top:
+      20px;
+
+  }
+
+
+  .topbar {
+
+    padding:
+      12px;
+
+  }
+
+
+  .brand-icon {
+
+    width:
+      38px;
+
+    height:
+      38px;
+
+    font-size:
+      21px;
+
+  }
+
+
+  .brand strong {
+
+    font-size:
+      13px;
+
+  }
+
+
+  .back-button {
+
+    padding:
+      8px 11px;
+
+    font-size:
+      12px;
+
+  }
+
+
+  .login-card {
+
+    margin:
+      25px auto;
+
+    padding:
+      24px;
+
+  }
+
+
+  .page-title {
+
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+
+  }
+
+
+  .refresh-button {
+
+    width:
+      100%;
+
+  }
+
+
+  .summary-grid {
+
+    grid-template-columns:
+      1fr 1fr;
+
+    gap:
+      10px;
+
+  }
+
+
+  .summary-card {
+
+    min-height:
+      95px;
+
+    padding:
+      13px;
+
+    gap:
+      9px;
+
+  }
+
+
+  .summary-icon {
+
+    width:
+      38px;
+
+    height:
+      38px;
+
+    font-size:
+      18px;
+
+  }
+
+
+  .summary-card span {
+
+    font-size:
+      10px;
+
+  }
+
+
+  .summary-card strong {
+
+    font-size:
+      21px;
+
+  }
+
+
+  .panel {
+
+    padding:
+      16px;
+
+  }
+
+
+  .panel-header {
+
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+
+  }
+
+
+  .panel-header select {
+
+    width:
+      100%;
+
+  }
+
+
+  .chart-wrapper {
+
+    height:
+      280px;
+
+  }
+
+
+  .monthly-chart {
+
+    height:
+      280px;
+
+  }
+
+}
