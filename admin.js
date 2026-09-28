@@ -44,6 +44,11 @@ let banks = [];
 
 let bankLogoBase64 = "";
 
+let dailyStatistics = [];
+
+let dailyUsersChart = null;
+let monthlyUsersChart = null;
+
 /* =====================================
    UTILIDADES
 ===================================== */
@@ -417,36 +422,44 @@ function setupTabs() {
     (tab) => {
 
       tab.addEventListener(
-        "click",
-        () => {
+  "click",
+  () => {
 
-          const target =
-            tab.dataset.tab;
+    const target =
+      tab.dataset.tab;
 
-          tabs.forEach(
-            (item) =>
-              item.classList.remove(
-                "active"
-              )
-          );
+    tabs.forEach(
+      (item) =>
+        item.classList.remove(
+          "active"
+        )
+    );
 
-          tab.classList.add(
-            "active"
-          );
+    tab.classList.add(
+      "active"
+    );
 
-          panels.forEach(
-            (panel) => {
+    panels.forEach(
+      (panel) => {
 
-              panel.style.display =
-                panel.id === target
-                  ? "block"
-                  : "none";
+        panel.style.display =
+          panel.id === target
+            ? "block"
+            : "none";
 
-            }
-          );
+      }
+    );
 
-        }
-      );
+    if (
+      target === "statisticsTab"
+    ) {
+
+      renderStatisticsCharts();
+
+    }
+
+  }
+);
 
     }
   );
@@ -2648,20 +2661,20 @@ async function loadDailyStats() {
     const today =
       mexicoDateKey();
 
-    const last30 =
-      getLastDays(30);
+    const last365 =
+  getLastDays(365);
 
-    const refs =
-      last30.map(
-        dateKey =>
-          getDoc(
-            doc(
-              db,
-              "statistics",
-              `daily_${dateKey}`
-            )
-          )
-      );
+const refs =
+  last365.map(
+    dateKey =>
+      getDoc(
+        doc(
+          db,
+          "statistics",
+          `daily_${dateKey}`
+        )
+      )
+  );
 
     const snapshots =
       await Promise.all(refs);
@@ -2671,7 +2684,7 @@ async function loadDailyStats() {
         (snapshot, index) => {
 
           const dateKey =
-            last30[index];
+            last365[index];
 
           const data =
             snapshot.exists()
@@ -2707,7 +2720,8 @@ async function loadDailyStats() {
 
         }
       );
-
+dailyStatistics =
+  dailyData;
     const todayData =
       dailyData.find(
         item =>
@@ -2742,6 +2756,45 @@ async function loadDailyStats() {
       calculateTotals(
         last30Data
       );
+
+const currentMonth =
+  mexicoDateKey().slice(0, 7);
+
+const monthData =
+  dailyData.filter(
+    item =>
+      item.date.startsWith(
+        currentMonth
+      )
+  );
+
+const totalMonth =
+  calculateTotals(
+    monthData
+  );
+
+setText(
+  "statisticsUsersToday",
+  todayData.users
+);
+
+setText(
+  "statisticsUsers7",
+  total7.users
+);
+
+setText(
+  "statisticsUsers30",
+  total30.users
+);
+
+setText(
+  "statisticsUsersMonth",
+  totalMonth.users
+);
+
+renderStatisticsTable();
+renderStatisticsCharts();
 
     setText(
       "metricUsers7",
@@ -2931,6 +2984,395 @@ function setText(
 }
 
 /* =====================================
+   GRÁFICAS DE ESTADÍSTICAS
+===================================== */
+
+function renderStatisticsCharts() {
+
+  if (
+    typeof Chart === "undefined"
+  ) {
+
+    console.warn(
+      "Chart.js todavía no está disponible."
+    );
+
+    return;
+
+  }
+
+  if (
+    !dailyStatistics.length
+  ) {
+
+    return;
+
+  }
+
+  renderDailyUsersChart();
+  renderMonthlyUsersChart();
+
+}
+
+/* =====================================
+   GRÁFICA USUARIOS POR DÍA
+===================================== */
+
+function renderDailyUsersChart() {
+
+  const canvas =
+    document.getElementById(
+      "dailyUsersChart"
+    );
+
+  if (!canvas) return;
+
+  const data =
+    [...dailyStatistics]
+      .slice()
+      .reverse();
+
+  const labels =
+    data.map(
+      item =>
+        formatDateLabel(
+          item.date
+        )
+    );
+
+  const users =
+    data.map(
+      item =>
+        numberValue(
+          item.users
+        )
+    );
+
+  if (dailyUsersChart) {
+
+    dailyUsersChart.destroy();
+
+  }
+
+  dailyUsersChart =
+    new Chart(
+      canvas,
+      {
+        type: "line",
+
+        data: {
+
+          labels,
+
+          datasets: [
+            {
+              label:
+                "Usuarios",
+
+              data: users,
+
+              borderWidth: 3,
+
+              tension: 0.3,
+
+              fill: false,
+
+              pointRadius: 3,
+
+              pointHoverRadius: 6
+            }
+          ]
+
+        },
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          plugins: {
+
+            legend: {
+              display: true
+            }
+
+          },
+
+          scales: {
+
+            y: {
+
+              beginAtZero: true,
+
+              ticks: {
+                precision: 0
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+    );
+
+}
+
+/* =====================================
+   GRÁFICA USUARIOS POR MES
+===================================== */
+
+function renderMonthlyUsersChart() {
+
+  const canvas =
+    document.getElementById(
+      "monthlyUsersChart"
+    );
+
+  if (!canvas) return;
+
+  const months = {};
+
+  dailyStatistics.forEach(
+    item => {
+
+      const month =
+        item.date.slice(
+          0,
+          7
+        );
+
+      if (!months[month]) {
+
+        months[month] =
+          0;
+
+      }
+
+      months[month] +=
+        numberValue(
+          item.users
+        );
+
+    }
+  );
+
+  const monthKeys =
+    Object.keys(
+      months
+    )
+    .sort()
+    .slice(-12);
+
+  const labels =
+    monthKeys.map(
+      formatMonthLabel
+    );
+
+  const users =
+    monthKeys.map(
+      month =>
+        months[month]
+    );
+
+  if (monthlyUsersChart) {
+
+    monthlyUsersChart.destroy();
+
+  }
+
+  monthlyUsersChart =
+    new Chart(
+      canvas,
+      {
+        type: "bar",
+
+        data: {
+
+          labels,
+
+          datasets: [
+            {
+              label:
+                "Usuarios",
+
+              data: users,
+
+              borderWidth: 1
+            }
+          ]
+
+        },
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          plugins: {
+
+            legend: {
+              display: true
+            }
+
+          },
+
+          scales: {
+
+            y: {
+
+              beginAtZero: true,
+
+              ticks: {
+                precision: 0
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+    );
+
+}
+
+/* =====================================
+   FORMATO MES
+===================================== */
+
+function formatMonthLabel(
+  monthKey
+) {
+
+  const parts =
+    monthKey.split("-");
+
+  if (
+    parts.length !== 2
+  ) {
+
+    return monthKey;
+
+  }
+
+  const date =
+    new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      1
+    );
+
+  return date.toLocaleDateString(
+    "es-MX",
+    {
+      month: "short",
+      year: "numeric"
+    }
+  );
+
+}
+
+/* =====================================
+   TABLA DIARIA
+===================================== */
+
+function renderStatisticsTable() {
+
+  const table =
+    document.getElementById(
+      "statisticsDailyTable"
+    );
+
+  if (!table) return;
+
+  const data =
+    dailyStatistics
+      .slice(0, 30);
+
+  if (!data.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="5">
+          No hay estadísticas todavía.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  table.innerHTML =
+    data.map(
+      item => `
+
+        <tr>
+
+          <td>
+            ${escapeHTML(
+              formatFullDateLabel(
+                item.date
+              )
+            )}
+          </td>
+
+          <td>
+            ${numberValue(
+              item.users
+            )}
+          </td>
+
+          <td>
+            ${numberValue(
+              item.visits
+            )}
+          </td>
+
+          <td>
+            ${numberValue(
+              item.clicks
+            )}
+          </td>
+
+          <td>
+            ${numberValue(
+              item.copies
+            )}
+          </td>
+
+        </tr>
+
+      `
+    ).join("");
+
+}
+
+function formatFullDateLabel(
+  dateKey
+) {
+
+  const parts =
+    dateKey.split("-");
+
+  if (
+    parts.length !== 3
+  ) {
+
+    return dateKey;
+
+  }
+
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+}
+
+/* =====================================
    FORMULARIOS
 ===================================== */
 
@@ -3045,16 +3487,87 @@ function setupForms() {
       }
     );
 
+
+}
+
+document
+
+    .getElementById(
+
+      "saveBankButton"
+
+    )
+
+    ?.addEventListener(
+
+      "click",
+
+      saveBank
+
+    );
+
+  /* =====================================
+
+     ACTUALIZAR ESTADÍSTICAS
+
+  ====================================== */
+
   document
     .getElementById(
-      "saveBankButton"
+      "refreshStatisticsButton"
     )
     ?.addEventListener(
       "click",
-      saveBank
-    );
+      async () => {
 
-}
+        const button =
+          document.getElementById(
+            "refreshStatisticsButton"
+          );
+
+        if (button) {
+
+          button.disabled =
+            true;
+
+          button.textContent =
+            "⏳ ACTUALIZANDO...";
+
+        }
+
+        try {
+
+          await loadStats();
+
+          showMessage(
+            "✅ Estadísticas actualizadas."
+          );
+
+        } catch (error) {
+
+          console.error(error);
+
+          showMessage(
+            "❌ No se pudieron actualizar las estadísticas.",
+            "error"
+          );
+
+        } finally {
+
+          if (button) {
+
+            button.disabled =
+              false;
+
+            button.textContent =
+              "🔄 ACTUALIZAR ESTADÍSTICAS";
+
+          }
+
+        }
+
+      }
+    );
 
 /* =====================================
    INICIALIZAR
