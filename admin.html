@@ -8,6 +8,144 @@
   <title>Administración · El Patrón de las Ofertas</title>
 
   <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<style>
+  /* =====================================
+     ESTADÍSTICAS DENTRO DEL ADMIN
+  ====================================== */
+
+  #statisticsTab {
+    width: 100%;
+  }
+
+  .admin-statistics-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .admin-statistics-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+  }
+
+  .admin-statistics-card span {
+    display: block;
+    font-size: 25px;
+    margin-bottom: 6px;
+  }
+
+  .admin-statistics-card strong {
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+  }
+
+  .admin-statistics-card small {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+  }
+
+  .admin-statistics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .admin-statistics-panel {
+    background: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 3px 12px rgba(0,0,0,.05);
+  }
+
+  .admin-statistics-panel h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  .admin-statistics-chart {
+    position: relative;
+    width: 100%;
+    height: 320px;
+  }
+
+  .admin-statistics-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .admin-statistics-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .admin-statistics-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .admin-statistics-table th,
+  .admin-statistics-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+  }
+
+  .admin-statistics-table th {
+    font-weight: 800;
+  }
+
+  .admin-statistics-refresh {
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 800px) {
+
+    .admin-statistics-summary {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-statistics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .admin-statistics-chart {
+      height: 280px;
+    }
+
+  }
+
+  @media (max-width: 480px) {
+
+    .admin-statistics-summary {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .admin-statistics-card {
+      padding: 13px 8px;
+    }
+
+    .admin-statistics-card strong {
+      font-size: 21px;
+    }
+
+    .admin-statistics-card small {
+      font-size: 12px;
+    }
+
+  }
+</style>
+
 </head>
 
 <body>
@@ -205,6 +343,14 @@
         >
           ⚙️ Configuración
         </button>
+
+<button
+  type="button"
+  class="admin-tab"
+  data-tab="statisticsTab"
+>
+  📊 Estadísticas
+</button>
 
       </nav>
 
@@ -854,6 +1000,199 @@
         </form>
 
       </section>
+
+<!-- =====================================
+     ESTADÍSTICAS DETALLADAS
+====================================== -->
+
+<section
+  id="statisticsTab"
+  class="admin-panel"
+  style="display:none;"
+>
+
+  <div class="panel-header">
+
+    <div>
+
+      <h2>
+        📊 Estadísticas
+      </h2>
+
+      <p>
+        Usuarios y actividad de tu página.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="admin-statistics-refresh">
+
+    <button
+      type="button"
+      id="refreshStatisticsButton"
+      class="primary-button"
+    >
+      🔄 ACTUALIZAR ESTADÍSTICAS
+    </button>
+
+  </div>
+
+  <!-- RESUMEN -->
+
+  <div class="admin-statistics-summary">
+
+    <div class="admin-statistics-card">
+
+      <span>👤</span>
+
+      <strong id="statisticsUsersToday">
+        0
+      </strong>
+
+      <small>
+        Usuarios hoy
+      </small>
+
+    </div>
+
+    <div class="admin-statistics-card">
+
+      <span>📅</span>
+
+      <strong id="statisticsUsers7">
+        0
+      </strong>
+
+      <small>
+        Últimos 7 días
+      </small>
+
+    </div>
+
+    <div class="admin-statistics-card">
+
+      <span>📆</span>
+
+      <strong id="statisticsUsers30">
+        0
+      </strong>
+
+      <small>
+        Últimos 30 días
+      </small>
+
+    </div>
+
+    <div class="admin-statistics-card">
+
+      <span>🗓️</span>
+
+      <strong id="statisticsUsersMonth">
+        0
+      </strong>
+
+      <small>
+        Este mes
+      </small>
+
+    </div>
+
+  </div>
+
+  <!-- GRÁFICAS -->
+
+  <div class="admin-statistics-grid">
+
+    <div class="admin-statistics-panel">
+
+      <h3>
+        👤 Usuarios por día
+      </h3>
+
+      <div class="admin-statistics-chart">
+
+        <canvas
+          id="dailyUsersChart"
+        ></canvas>
+
+      </div>
+
+    </div>
+
+    <div class="admin-statistics-panel">
+
+      <h3>
+        📊 Usuarios por mes
+      </h3>
+
+      <div class="admin-statistics-chart">
+
+        <canvas
+          id="monthlyUsersChart"
+        ></canvas>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TABLA -->
+
+  <div
+    class="admin-statistics-panel"
+    style="margin-top:18px;"
+  >
+
+    <h3>
+      📋 Estadísticas diarias
+    </h3>
+
+    <div class="admin-statistics-table-wrapper">
+
+      <table class="admin-statistics-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Fecha
+            </th>
+
+            <th>
+              Usuarios
+            </th>
+
+            <th>
+              Visitas
+            </th>
+
+            <th>
+              Clics
+            </th>
+
+            <th>
+              Copias
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="statisticsDailyTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
 
       <!-- MENSAJE -->
 
