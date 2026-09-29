@@ -1290,135 +1290,179 @@ footer {
 }
 
 /* =========================================================
-   🎃 ZOMBIE HALLOWEEN
-   NO MODIFICA EL DISEÑO EXISTENTE
+   🎃 HALLOWEEN — ZOMBIE ASOMÁNDOSE
+   Solo modifica la animación de Halloween
 ========================================================= */
 
 #halloweenDelivery {
   position: fixed;
   left: 0;
-  bottom: 9vh;
-  width: 190px;
+  bottom: 0;
+
+  width: 250px;
+  height: 520px;
+
   z-index: 99999;
   pointer-events: none;
 
-  opacity: 0;
-  transform: translate3d(-230px, 0, 0);
+  overflow: visible;
 
-  animation:
-    halloweenZombieEnter .85s cubic-bezier(.18,.82,.25,1) .35s forwards,
-    halloweenZombieExit .7s cubic-bezier(.7,0,.9,.25) 3.15s forwards;
+  opacity: 0;
+
+  animation: halloweenPeek 3.6s ease-in-out .35s forwards;
 }
+
+/* ZOMBIE */
 
 #halloweenDelivery img {
-  display: block;
-  width: 190px;
+  position: absolute;
+
+  left: -285px;
+  bottom: -25px;
+
+  width: 370px;
+  max-width: none;
   height: auto;
 
+  display: block;
+
   filter:
-    drop-shadow(0 10px 12px rgba(0,0,0,.35));
+    drop-shadow(0 12px 15px rgba(0,0,0,.45));
 
-  transform-origin: 50% 90%;
-
-  animation:
-    halloweenZombieWalk .4s ease-in-out .8s 6 alternate;
+  animation: halloweenZombieShake .18s ease-in-out 1.45s 4 alternate;
 }
+
+/* MENSAJE */
 
 #halloweenDeliveryText {
   position: absolute;
-  left: 105px;
-  top: -20px;
 
-  width: 145px;
+  left: 125px;
+  top: 125px;
 
-  padding: 8px 10px;
+  width: 150px;
 
-  border-radius: 13px;
+  padding: 9px 11px;
+
+  border-radius: 14px;
 
   background: #111;
   color: #fff;
 
-  font-size: 11px;
-  line-height: 1.2;
+  font-size: 12px;
+  line-height: 1.15;
   font-weight: 900;
 
   text-align: center;
 
-  box-shadow: 0 5px 15px rgba(0,0,0,.3);
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.4);
 
   opacity: 0;
 
+  transform: scale(.5);
+
   animation:
-    halloweenTextEnter .3s ease 1s forwards,
-    halloweenTextExit .3s ease 2.6s forwards;
+    halloweenBubbleIn .25s ease 1.5s forwards,
+    halloweenBubbleOut .2s ease 2.65s forwards;
 }
+
+/* PUNTA DEL GLOBO */
 
 #halloweenDeliveryText::after {
   content: "";
 
   position: absolute;
-  left: 18px;
-  bottom: -6px;
 
-  width: 12px;
-  height: 12px;
+  left: 12px;
+  bottom: -7px;
+
+  width: 14px;
+  height: 14px;
 
   background: #111;
 
   transform: rotate(45deg);
 }
 
-@keyframes halloweenZombieEnter {
+/* =========================================================
+   👻 APARICIÓN
+========================================================= */
+
+@keyframes halloweenPeek {
+
+  /* Invisible */
+  0% {
+    opacity: 0;
+  }
+
+  /* Se alcanza a ver una pequeña parte */
+  15% {
+    opacity: 1;
+  }
+
+  /* ¡SE ASOMA DE GOLPE! */
+  30% {
+    opacity: 1;
+  }
+
+  36% {
+    opacity: 1;
+  }
+
+  /* Se queda mirando */
+  65% {
+    opacity: 1;
+  }
+
+  /* Se retira */
+  82% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* =========================================================
+   😈 MOVIMIENTO DE SUSTO
+========================================================= */
+
+@keyframes halloweenZombieShake {
+
+  0% {
+    transform: translateX(0) rotate(-1deg);
+  }
+
+  100% {
+    transform: translateX(8px) rotate(1.5deg);
+  }
+}
+
+/* =========================================================
+   💬 MENSAJE
+========================================================= */
+
+@keyframes halloweenBubbleIn {
 
   0% {
     opacity: 0;
-    transform: translate3d(-230px, 0, 0);
+    transform: scale(.5);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.08);
   }
 
   100% {
     opacity: 1;
-    transform: translate3d(8px, 0, 0);
+    transform: scale(1);
   }
 }
 
-@keyframes halloweenZombieWalk {
-
-  0% {
-    transform: rotate(-2deg) translateY(0);
-  }
-
-  100% {
-    transform: rotate(2deg) translateY(-6px);
-  }
-}
-
-@keyframes halloweenZombieExit {
-
-  0% {
-    opacity: 1;
-    transform: translate3d(8px, 0, 0);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translate3d(-250px, 0, 0);
-  }
-}
-
-@keyframes halloweenTextEnter {
-
-  from {
-    opacity: 0;
-    transform: scale(.75) translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes halloweenTextExit {
+@keyframes halloweenBubbleOut {
 
   from {
     opacity: 1;
@@ -1430,32 +1474,38 @@ footer {
 }
 
 /* =========================================================
-   📱 AJUSTE PARA CELULAR
+   📱 CELULAR
 ========================================================= */
 
 @media (max-width: 600px) {
 
   #halloweenDelivery {
-    width: 145px;
-    bottom: 11vh;
+    width: 210px;
+    height: 430px;
   }
 
   #halloweenDelivery img {
-    width: 145px;
+    left: -235px;
+    bottom: -20px;
+
+    width: 315px;
   }
 
   #halloweenDeliveryText {
-    left: 76px;
-    top: -17px;
+    left: 95px;
+    top: 105px;
+
     width: 125px;
 
-    padding: 7px 8px;
+    padding: 8px;
 
     font-size: 10px;
   }
 }
 
-/* No mostrar si el usuario tiene animaciones reducidas */
+/* =========================================================
+   ♿ REDUCIR ANIMACIONES
+========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
