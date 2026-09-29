@@ -11,201 +11,33 @@
   <title>El Patrón de las Ofertas</title>
 
   <link rel="stylesheet" href="styles.css">
-
-  <!-- =====================================================
-       🎃 HALLOWEEN DELIVERY
-  ====================================================== -->
-
-  <style>
-    #halloweenDelivery {
-      position: fixed;
-      left: 0;
-      bottom: 8vh;
-      width: 210px;
-      z-index: 99999;
-      pointer-events: none;
-
-      opacity: 0;
-      transform: translate3d(-260px, 0, 0);
-
-      animation:
-        halloweenEnter .9s cubic-bezier(.18,.82,.25,1) .35s forwards,
-        halloweenExit .75s cubic-bezier(.7,0,.9,.25) 3.15s forwards;
-    }
-
-    #halloweenDelivery img {
-      display: block;
-      width: 210px;
-      height: auto;
-
-      filter:
-        drop-shadow(0 12px 12px rgba(0,0,0,.38));
-
-      transform-origin: 50% 90%;
-
-      animation:
-        halloweenWalk .42s ease-in-out .8s 6 alternate;
-    }
-
-    /* Pequeño texto que acompaña al zombie */
-    #halloweenDeliveryText {
-      position: absolute;
-      left: 115px;
-      top: -25px;
-
-      width: 150px;
-
-      padding: 8px 11px;
-
-      border-radius: 14px;
-
-      background: #111;
-      color: #fff;
-
-      font-size: 13px;
-      font-weight: 800;
-      line-height: 1.15;
-
-      text-align: center;
-
-      box-shadow: 0 5px 15px rgba(0,0,0,.3);
-
-      opacity: 0;
-
-      animation:
-        halloweenTextIn .35s ease .95s forwards,
-        halloweenTextOut .3s ease 2.65s forwards;
-    }
-
-    #halloweenDeliveryText::after {
-      content: "";
-      position: absolute;
-
-      left: 18px;
-      bottom: -7px;
-
-      width: 14px;
-      height: 14px;
-
-      background: #111;
-
-      transform: rotate(45deg);
-    }
-
-    @keyframes halloweenEnter {
-      0% {
-        opacity: 0;
-        transform: translate3d(-260px, 0, 0);
-      }
-
-      100% {
-        opacity: 1;
-        transform: translate3d(8px, 0, 0);
-      }
-    }
-
-    @keyframes halloweenWalk {
-      0% {
-        transform: rotate(-2deg) translateY(0);
-      }
-
-      100% {
-        transform: rotate(2deg) translateY(-7px);
-      }
-    }
-
-    @keyframes halloweenTextIn {
-      from {
-        opacity: 0;
-        transform: scale(.7) translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-    }
-
-    @keyframes halloweenTextOut {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-      }
-    }
-
-    @keyframes halloweenExit {
-      0% {
-        opacity: 1;
-        transform: translate3d(8px, 0, 0);
-      }
-
-      100% {
-        opacity: 0;
-        transform: translate3d(-280px, 0, 0);
-      }
-    }
-
-    /* CELULAR */
-
-    @media (max-width: 600px) {
-
-      #halloweenDelivery {
-        width: 155px;
-        bottom: 10vh;
-      }
-
-      #halloweenDelivery img {
-        width: 155px;
-      }
-
-      #halloweenDeliveryText {
-        left: 82px;
-        top: -18px;
-        width: 125px;
-
-        font-size: 11px;
-        padding: 7px 8px;
-      }
-    }
-
-    /* Personas que tienen reducidas las animaciones */
-
-    @media (prefers-reduced-motion: reduce) {
-
-      #halloweenDelivery {
-        display: none;
-      }
-    }
-  </style>
 </head>
 
 <body>
 
 <header class="top">
 
-  <div class="brand">
+ <div class="brand">
 
-    <img
-      src="./54012095-475D-41B9-BEEC-7C0AA78DCF19.png"
-      alt="El Patrón de las Ofertas"
-      style="
-        width: 58px;
-        height: 58px;
-        object-fit: cover;
-        border-radius: 12px;
-        flex-shrink: 0;
-      "
-    >
+  <img
+    src="./54012095-475D-41B9-
+BEEC-7C0AA78DCF19.png"
+    alt="El Patrón de las Ofertas"
+    style="
+      width: 58px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 12px;
+      flex-shrink: 0;
+    "
+  >
 
-    <div>
-      <b>EL PATRÓN</b>
-      <small>DE LAS OFERTAS</small>
-    </div>
-
+  <div>
+    <b>EL PATRÓN</b>
+    <small>DE LAS OFERTAS</small>
   </div>
+
+</div>
 
   <a
     id="whatsappHeader"
@@ -219,32 +51,8 @@
 
 </header>
 
-
-</header>
-
-<!-- =======================================================
-     🎃 ZOMBIE HALLOWEEN
-     Animación temporal al entrar a la página
-======================================================== -->
-
-<div
-  id="halloweenDelivery"
-  aria-hidden="true"
->
-  <div id="halloweenDeliveryText">
-    🎃 ¡OFERTAS QUE DAN MIEDO!<br>
-    💀 DESCUENTOS DE HALLOWEEN
-  </div>
-
-  <img
-    src="./78F72BF7-346F-44CB-A46A-6EAB76E7E145.png"
-    alt=""
-  >
-</div>
-
-
 <main>
-  
+
   <!-- =====================================================
        HERO
   ====================================================== -->
@@ -270,7 +78,6 @@
 
   </section>
 
-
   <!-- =====================================================
        CATEGORÍAS
   ====================================================== -->
@@ -279,7 +86,6 @@
     class="categories"
     id="categories"
   ></nav>
-
 
   <!-- =====================================================
        OFERTAS
@@ -306,7 +112,6 @@
 
   </section>
 
-
   <!-- =====================================================
        MERCADO PAGO
   ====================================================== -->
@@ -315,7 +120,6 @@
     class="mp-card"
     id="mercadopago"
   ></section>
-
 
   <!-- =====================================================
        CUPONES
@@ -339,7 +143,6 @@
 
 </main>
 
-
 <!-- =======================================================
      WHATSAPP FLOTANTE
 ======================================================== -->
@@ -358,7 +161,6 @@
 
 </div>
 
-
 <!-- =======================================================
      FOOTER
 ======================================================== -->
@@ -366,7 +168,6 @@
 <footer>
   ⚡ El Patrón de las Ofertas · Hecho para ahorrar
 </footer>
-
 
 <!-- =======================================================
      APP CON FIREBASE
